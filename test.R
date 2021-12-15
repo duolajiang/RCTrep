@@ -198,8 +198,9 @@ data <- data[,c("BRAF","RAS","Stage2","age_at_diagnosis","combined_chemo","vitst
 data <- data %>% rename(age=age_at_diagnosis)
 data$combined_chemo <- factor(data$combined_chemo)
 data$vitstat <- factor(data$vitstat)
-RWD.a <- data[sample(1:dim(data)[1],2000),]
-RWD.b <- data[sample(1:dim(data)[1],2000),]
+data$weight <- ifelse(data$Stage2==1,1,3)
+source.data <- data[sample(1:dim(data)[1],2000),]
+target.data <- data[sample(1:dim(data)[1],2000,prob = data$weight),]
 
 CATE_mean_se <- CateRctByOneStrata(name = c("Stage2","Stage2",
                                             "male","male",
@@ -213,11 +214,11 @@ CATE_mean_se <- CateRctByOneStrata(name = c("Stage2","Stage2",
 RCT.univariate.p <- list(Stage=c("Stage2",2,0,1,1-0.91,0.91),
                          male=c("male",2,0,1,1-0.62,0.62),
                          age_at_diagnosis=c("age",4,1,2,3,4,0.11,0.26,0.42,0.21))
-RCT <- list(ATE_mean = AteRct(year=5),
-                    ATE_se = 0.01,
-                    CATE_mean_se = CATE_mean_se,
-                    univariate_p = RCT.univariate.p)
-usethis::use_data(RWD.a,RWD.b,RCT)
+target.agg <- list(ATE_mean = AteRct(year=5),
+            ATE_se = 0.01,
+            CATE_mean_se = CATE_mean_se,
+            univariate_p = RCT.univariate.p)
+usethis::use_data(source.data,target.data,target.agg,overwrite = TRUE)
 
 
 # levels of categorical variable should be numeric.
@@ -236,7 +237,7 @@ target.data %>%
 
 
 Estimator <- "IPW"
-strata <- c("Stage2","pT")
+strata <- c("Stage2","age")
 strata_joint <- TRUE
 vars_name <- list(confounders_internal=c("Stage2","age","pT"),
                   confounders_external=c("Stage2","age","pT"),
@@ -244,7 +245,7 @@ vars_name <- list(confounders_internal=c("Stage2","age","pT"),
                   outcome_name=c('vitstat')
 )
 outcome_form <- vitstat~Stage2+age+combined_chemo+pT+
-                Stage2:combined_chemo+age:combined_chemo+pT:combined_chemo
+                Stage2:combined_chemo+age:combined_chemo+pT:combined_chemo + pT:Stage2:combined_chemo
 strata_cut <- list(age=list(breaks=c(min(data$age),
                                                   50,60,70,max(data$age)),
                                          labels=c(1,2,3,4)),
@@ -267,18 +268,18 @@ rpartGrid <- expand.grid(maxdepth=5,cp=0.0001)
 output <- RCTREP(Estimator="G_computation", two_models=FALSE, #trControl=fitControl,
                  source.data=source.data, target.data=target.data,
                  vars_name=vars_name,
-                 #treatment_formula = combined_chemo ~ Stage2 + pT + age,
-                 stratification=strata,stratification_joint=FALSE,strata_cut=strata_cut)
+                 outcome_formula = outcome_form,
+                 stratification=strata,stratification_joint=TRUE,strata_cut=strata_cut)
 
 
-p <- Plot_estimate(source.obj = output$source.obj, target.obj = output$target.obj)
+p <- Plot_estimates(source.obj = output$source.obj, target.obj = output$target.obj)
 p
 
 source.obj <- output$source.obj
 source.obj$residual_check(stratification = strata)
-source.obj$plot_CATE(stratification=c("Stage2","pT","age"),stratification_joint = TRUE)
+source.obj$plot_CATE(stratification=c("Stage2","pT","BRAF"),stratification_joint = TRUE)
 
-
+RCTrep::source.data
 
 
 

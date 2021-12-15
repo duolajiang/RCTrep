@@ -1,12 +1,12 @@
 setGeneric(name = "setWeight",
-           def = function(source,target,weighting_method,weighting_model,vars_weighting) standardGeneric("setWeight"))
+           def = function(source,target,weighting_estimator,weighting_method,vars_weighting) standardGeneric("setWeight"))
 
 setMethod(f = "setWeight",
           signature = c(source="data.frame", target="data.frame",
-                        weighting_method="character",weighting_model="character",vars_weighting="character"),
-          definition = function(source, target, weighting_method, weighting_model, vars_weighting){
+                        weighting_estimator="character",weighting_method="character",vars_weighting="character"),
+          definition = function(source, target, weighting_estimator, weighting_method, vars_weighting){
             #browser()
-            if(weighting_method=="Balancing"){
+            if(weighting_estimator=="Balancing"){
               source$selection <- 0
               target$selection <- 1
               matching_formula <- formula(paste("selection~",paste(vars_weighting,collapse = "+")))
@@ -14,8 +14,8 @@ setMethod(f = "setWeight",
               matchit.obj <- MatchIt::matchit(matching_formula, method = "exact",data = rbind(source,target))
               weight <- matchit.obj$weights[1:dim(source)[1]]
             } else {
-              if(is.null(weighting_model)) weighting_model <- "glm"
-              samplingscore <- SelectionScoreModeling(source,target,vars_weighting,weighting_model)
+              if(is.null(weighting_method)) weighting_method <- "glm"
+              samplingscore <- SelectionScoreModeling(source,target,vars_weighting,weighting_method)
               weight <- samplingscore/(1-samplingscore)
             }
             return(weight)
@@ -23,8 +23,8 @@ setMethod(f = "setWeight",
 
 setMethod(f = "setWeight",
           signature = c(source="data.frame", target="list",
-                        weighting_method="character",weighting_model="character",vars_weighting="character"),
-          definition = function(source, target, weighting_method, weighting_model,vars_weighting){
+                        weighting_estimator="character",weighting_method="character",vars_weighting="character"),
+          definition = function(source, target, weighting_estimator, weighting_method,vars_weighting){
             #browser()
             if(weighting_method=="Balancing"){
               target_pattern_distribution <- PatternDistribution(target,vars_weighting)
@@ -38,8 +38,8 @@ setMethod(f = "setWeight",
               weight <- sapply(source_pattern_id4each_obs, function(x) ifelse(x %in% weight4pattern$id,
                                                                               weight4pattern[weight4pattern$id==x,"weight"],0))
             } else {
-              if(is.null(weighting_model)) weighting_model <- "glm"
-              samplingscore <- SelectionScoreModeling(source,target,vars_weighting,weighting_model)
+              if(is.null(weighting_method)) weighting_method <- "glm"
+              samplingscore <- SelectionScoreModeling(source,target,vars_weighting,weighting_method)
               weight <- 1/samplingscore
             }
             return(weight)
@@ -65,7 +65,7 @@ PatternDistribution <- function(data,vars_weighting){
   }
 }
 
-SelectionScoreModeling <- function(source, target, vars_weighting,weighting_model){
+SelectionScoreModeling <- function(source, target, vars_weighting,weighting_method){
   #browser()
   if(!is.data.frame(target)){
     target_pattern_distribution <- PatternDistribution(target,vars_weighting)
@@ -84,7 +84,7 @@ SelectionScoreModeling <- function(source, target, vars_weighting,weighting_mode
 
   model <- caret::train(x=data[,vars_weighting],
                         y=data$selection,
-                        method = weighting_model)
+                        method = weighting_method)
 
   selection_score <- predict(model,type="prob")[data$selection==0,c("1")]
 

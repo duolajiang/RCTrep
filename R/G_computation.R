@@ -1,3 +1,6 @@
+#' @title R6 class: G_computation class
+#' @description A R6 class for G_computation estimator for average treatment effect
+#' @importFrom caret train
 #' @export
 G_computation <- R6::R6Class(
   "G_computation",

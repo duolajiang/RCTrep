@@ -1,3 +1,6 @@
+#' @title R6 class: Estimator base class
+#' @description A base R6 class for estimator of average treatment effect that implements the common methods, such as \code{\link{RCTrep}}, \code{\link{get_CATE}}, \code{\link{plot_CATE}}, inheritted by \code{\link{G_computation_base}}, \code{\link{IPW_base}}, and \code{\link{DR_base}} class.
+#'
 #' @export
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggpubr ggtexttable ggarrange
@@ -25,6 +28,9 @@ Estimator <- R6::R6Class(
 
     data = NA,
     #-------------------------constructor-----------------------------#
+    #' @description Create a new \code{Estimator} object
+    #' @param df A data frame containing variables in \code{vars_name}
+    #' @param vars_name vars_name A list containing four vectors \code{confounders_internal}, \code{confounders_external}, \code{treatment_name}, and \code{outcome_name}. \code{confounders_internal} is a character vector containing the adjustment variables, which, along with \code{Estimator} and the corresponding \code{outcome_method} or \code{treatment_method} to correct for confounding; \code{confounders_external} is a character vector containing variables for weighting as to generalize estimates from \code{source.data} to \code{target.data}; \code{outcome_name} is a character vector of length one containing the variable name of outcome; \code{treatment_name} is a character vector of length one containing the variable name of treatment.
     initialize = function(df,vars_name){
       self$data <- df
       self$confounders_internal_name <- vars_name$confounders_internal
@@ -35,22 +41,30 @@ Estimator <- R6::R6Class(
       self$data$id <- seq(self$n)
     },
 
+    #' @description Replicating the average treatment effect of \code{target.obj}. If \code{stratification} is specified, then replicating the conditional average treatment effect stratified by \code{stratification} and \code{stratification_joint} by weighting based on the residual variables, namely, variables that are specified in \code{confounders_external_name} while not in \code{stratification}.
+    #' @param target.obj An object of class \code{Estimator} or list.
+    #' @param weighting_estimator A string specifying a weighting estimator for generalizing/transporting the estimates to \code{target.obj}. The allowed estimators are: \code{"balancing"}, and \code{"modeling"}.
+    #' @param weighting_method A string specifying which model for selection to use. Possible values are found using \code{names(getModelInfo())}. See \url{http://topepo.github.io/caret/train-models-by-tag.html}.
+    #' @param stratification An optional string vector containing variables to define subgroup. If \code{!is.NULL(stratification)}, \code{source.obj} will compute both weighted and unweighted conditional average treatment effect based on these variables, \code{target.obj} will calculate the conditional average treatment effect based on these variables.
+    #' @param stratification_joint An optional logical defining the subgroup based on joint distribution of variables or univariate distribution in \code{stratification} when \code{stratification} is specified.
     RCTrep = function(target.obj,
-                      confounders_external_name,
-                      weighting_estimator,weighting_model,
+                      weighting_estimator,weighting_method,
                       stratification, stratification_joint){
       #browser()
-      self$confounders_external_name <- confounders_external_name
-      private$set_weighted_ATE_SE(target.obj$data, weighting_estimator,weighting_model)
+      private$set_weighted_ATE_SE(target.obj$data, weighting_estimator,weighting_method)
       if(!is.null(stratification)){
         private$set_weighted_CATE(target=target.obj$data,
                                   stratification = stratification,
                                   stratification_joint = stratification_joint,
-                                  weighting_method = weighting_estimator,
-                                  weighting_model = weighting_model)
+                                  weighting_estimator = weighting_estimator,
+                                  weighting_method = weighting_method)
       }
     },
 
+    #' @description Get conditional average treatment effect of subgroups defined by \code{stratification} and \code{stratification_joint}. If \code{stratification_joint=FALSE}, then the method return conditional average treatment effect of subgroups stratified by each of variables in \code{stratification}.
+    #' @param stratification An string vector containing variables to define subgroup.
+    #' @param stratification_joint An logical defining the subgroup based on joint distribution of variables or univariate distribution in \code{stratification}.
+    #' @return A data frame. If \code{stratification_joint=TRUE}, then the method returns a data frame with N rows and J columns, where N represents the number of subgroups, and J is equal to the sum of number of variables in \code{stratification} and 3 (three additional columns with name \code{cate}, \code{se}, and \code{size}, representing the estimated conditional average treatment effect of this subgroup, standard error of the estimate, and the sample size of the subgroup). If \code{stratification_joint=FALSE}, then the method returns a data frame with N rows and 5 columns, where N represents the number of subgroups stratified by each variable in \code{stratification} and 5 columns with name \code{name}, \code{value}, \code{cate}, \code{se}, and \code{size}, representing the name of a variable used to stratify the population, a level of the variable, the estimated conditional average treatment effect of this subgroup, standard error of the estimate, and the sample size of the subgroup).
     get_CATE = function(stratification,stratification_joint){
       #browser()
       if(stratification_joint){
@@ -61,6 +75,10 @@ Estimator <- R6::R6Class(
       return(CATE_mean_se)
     },
 
+    #' @description Plot the forest plot of conditional average treatment effect of subgroups defined by \code{stratification} and \code{stratification_joint}. The method first call public method \code{get_CATE(stratification,stratification_joint)}, then plot the results.
+    #' @param stratification An string vector containing variables to define subgroup.
+    #' @param stratification_joint An logical defining the subgroup based on joint distribution of variables or univariate distribution in \code{stratification}.
+    #' @return A plot containing a forest plot and a table with numeric results.
     plot_CATE = function(stratification,stratification_joint=FALSE){
       #browser()
       CATE <- self$get_CATE(stratification,stratification_joint)
@@ -89,30 +107,30 @@ Estimator <- R6::R6Class(
   #-------------------------private fields and methods----------------------------#
   private = list(
 
-    set_weighted_ATE_SE = function(target.data, weighting_estimator,weighting_model){
+    set_weighted_ATE_SE = function(target.data, weighting_estimator,weighting_method){
       #browser()
       weight <- setWeight(source=self$data,
                           target=target.data,
-                          weighting_method=weighting_estimator,
+                          weighting_estimator=weighting_estimator,
                           vars_weighting=self$confounders_external_name,
-                          weighting_model=weighting_model)
+                          weighting_method=weighting_method)
       ATE_se_weighted <- private$est_weighted_ATE_SE(weight)
       self$ATE_weighted <- ATE_se_weighted$est
       self$ATE_se_weighted <- ATE_se_weighted$se
     },
 
-    set_weighted_CATE = function(target.data,stratification,stratification_joint,weighting_method,weighting_model){
+    set_weighted_CATE = function(target.data,stratification,stratification_joint,weighting_estimator,weighting_method){
       #browser()
       if(stratification_joint){
         #browser()
         self$CATE_weighted <- private$set_WeightedCATEestimation4JointStratification(target.data,
+                                                                                     weighting_estimator,
                                                                                      weighting_method,
-                                                                                     weighting_model,
                                                                                      stratification)
       } else {
         self$CATE_weighted <- private$set_WeightedCATEestimation4SeperateStratification(target.data,
+                                                                                        weighting_estimator,
                                                                                         weighting_method,
-                                                                                        weighting_model,
                                                                                         stratification)
       }
     },
@@ -171,7 +189,7 @@ Estimator <- R6::R6Class(
       return(CATE_mean_se)
     },
 
-    set_WeightedCATEestimation4JointStratification = function(target.data,weighting_method,weighting_model,stratification){
+    set_WeightedCATEestimation4JointStratification = function(target.data,weighting_estimator,weighting_method,stratification){
       #browser()
       cate <- se <- size <- NULL
       vars_weighting <- self$confounders_external_name
@@ -201,8 +219,8 @@ Estimator <- R6::R6Class(
 
         weight <- setWeight(source=source.subgroup.data,
                             target=target.subgroup.data,
+                            weighting_estimator=weighting_estimator,
                             weighting_method=weighting_method,
-                            weighting_model=weighting_model,
                             vars_weighting=vars_weighting_subgroup)
 
         cate_se <- private$est_weighted_CATE_SE(source.subgroup.id.in.data,weight)
@@ -216,7 +234,7 @@ Estimator <- R6::R6Class(
       return(CATE_mean_se)
     },
 
-    set_WeightedCATEestimation4SeperateStratification = function(target.data,weighting_method,weighting_model,stratification){
+    set_WeightedCATEestimation4SeperateStratification = function(target.data,weighting_estimator,weighting_method,stratification){
       #browser()
       vars_weighting <- self$confounders_external_name
       group_var <- group_level <- cate <- se <- size <- NULL
@@ -244,8 +262,8 @@ Estimator <- R6::R6Class(
 
           weight <- setWeight(source=source.subgroup.data,
                               target=target.subgroup.data,
+                              weighting_estimator=weighting_estimator,
                               weighting_method=weighting_method,
-                              weighting_model=weighting_model,
                               vars_weighting=vars_weighting_subgroup)
 
           group_var[i] <- var_name

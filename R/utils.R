@@ -304,10 +304,8 @@ get.args <- function(name,...){
 
 
 AlignOrderofPatternInCATE <- function(df1,df2){
-  #browser()
   nvars <- sum(!colnames(df1) %in% c("cate","se","size"))
-  df2.new <- data.frame(matrix(data = NA,nrow = nrow(df2),ncol = ncol(df2)))
-  colnames(df2.new) <- colnames(df2)
+  df2.new <- df2
   for(i in 1:nrow(df1)){
     df2.new[i,1:nvars] <- df1[i,1:nvars]
     subgroup.id.in.df2 <- which(apply(df2[,1:nvars], 1, function(x) return(all(x==df2.new[i,1:nvars]))))

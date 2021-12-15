@@ -1,7 +1,6 @@
-# to-do list
-# combine ATE_mean and ATE_se
-# combine ATE_mean_weighted and ATE_se_weighted
-
+#' @title R6 class: G_computation base class
+#' @description A base R6 class for G_computation estimator for average treatment effect
+#' @export
 G_computation_base <- R6::R6Class(
   "G_computation_base",
   inherit = Estimator,
@@ -71,18 +70,6 @@ G_computation_base <- R6::R6Class(
       var.resid <- mean((self$resi[index])^2)
       var.ate <- 2 * (sum(weight^2)*var.resid) / (sum(weight)^2)
       se <- sqrt(var.ate)
-      # y1.hat <- self$po.est$y1.hat[index]
-      # y0.hat <- self$po.est$y0.hat[index]
-      # est <- (y1.hat-y0.hat)*weight
-      # subgroup.ate.se <- sd(est)/sqrt(sum(weight))
-
-      # n.rep <- dim(self$po.est.var$y1.hat.rep)[2]
-      # weight.rep <- matrix(rep(weight,each=n.rep), ncol = n.rep, byrow = TRUE)
-      # weight.rep.norm <- weight.rep/sum(weight)
-      # subgroup.y1.rep <- self$po.est.var$y1.hat.rep[index,]
-      # subgroup.y0.rep <- self$po.est.var$y0.hat.rep[index,]
-      # subgroup.ate.rep <- apply((subgroup.y1.rep-subgroup.y0.rep)*weight.rep.norm, 2, sum)
-      # subgroup.ate.se <- sd(subgroup.ate.rep)
       return(list(est=est,se=se))
     },
 

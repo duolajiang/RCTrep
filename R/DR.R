@@ -1,3 +1,5 @@
+#' @title R6 class: Doubly robust estimator class
+#' @description A R6 class for doubly robust estimator that implements its own fit method.
 #' @importFrom caret train
 #' @export
 DR <- R6::R6Class(

@@ -1,3 +1,5 @@
+#' @title R6 class: IPW class
+#' @description A R6 class for IPW estimator for average treatment effect that implements its own fit method.
 #' @importFrom caret train
 #' @export
 IPW <- R6::R6Class(
