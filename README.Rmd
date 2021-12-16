@@ -59,8 +59,7 @@ library(RCTrep)
 source.data <- RCTrep::source.data
 target.data <- RCTrep::target.data
 
-output <- RCTREP(Estimator="G_computation",
-                 source.data=source.data, target.data=target.data,
+output <- RCTREP(source.data=source.data, target.data=target.data,
                  vars_name=list(confounders_internal=c("Stage2","pT","age","BRAF"),
                                 confounders_external=c("Stage2","pT","age","BRAF"),
                                 treatment_name=c('combined_chemo'),

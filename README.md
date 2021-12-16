@@ -65,8 +65,7 @@ library(RCTrep)
 source.data <- RCTrep::source.data
 target.data <- RCTrep::target.data
 
-output <- RCTREP(Estimator="G_computation",
-                 source.data=source.data, target.data=target.data,
+output <- RCTREP(source.data=source.data, target.data=target.data,
                  vars_name=list(confounders_internal=c("Stage2","pT","age","BRAF"),
                                 confounders_external=c("Stage2","pT","age","BRAF"),
                                 treatment_name=c('combined_chemo'),
@@ -125,7 +124,7 @@ summary(source.obj = output$source.obj, target.obj = output$target.obj)
     #> Resampling results:
     #> 
     #>   Accuracy   Kappa    
-    #>   0.8279024  0.1978156
+    #>   0.8250938  0.1783738
     #> 
     #> 
     #> $target.model
@@ -141,7 +140,7 @@ summary(source.obj = output$source.obj, target.obj = output$target.obj)
     #> Resampling results:
     #> 
     #>   Accuracy   Kappa    
-    #>   0.8102978  0.1674801
+    #>   0.8104978  0.1649464
 
 You can also summarize conditional average treatment effect by
 specifying stratification and stratification\_joint:
