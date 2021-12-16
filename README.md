@@ -5,25 +5,50 @@
 
 <!-- badges: start -->
 
-<!-- badges: end -->
+The goal of RCTrep is to replicate treatment effect estimates of a
+target study using a source study. The package can replicate two types
+of studies:
 
-The goal of RCTrep is to …
+1.  observational study with real world data
+2.  randomized control trial with experiment data
+
+The package use R6 Object-oriented programming system. Below is the
+class diagram defined in the package:
+![schematic](man/figures/README-schematic.png) The package new two
+objects of superclass Estimator for source study and target study,
+respectively, then
+
+1.  each object estimate the treatment effect using G\_computation,
+    inverse propensity score weighting, or doubly robust estimator to
+    ensure internal validity;
+2.  communication between two objects via implementing the public method
+    RCTrep(), e.g., source.obj$RCTrep(target.obj). Then source.obj get a
+    estimates as close to target.obj as possible. This step is to
+    conduct external validation.
+
+Below shows how the core function RCTREP() work:
+
+![schematic](man/figures/README-function_call.png) <!-- badges: end -->
 
 ## Installation
 
-You can install the released version of RCTrep from
-[CRAN](https://CRAN.R-project.org) with:
+<!-- You can install the released version of RCTrep from [CRAN](https://CRAN.R-project.org) with: -->
 
-``` r
-install.packages("RCTrep")
-```
+<!-- ``` r -->
 
-And the development version from [GitHub](https://github.com/) with:
+<!-- install.packages("RCTrep") -->
+
+<!-- ``` -->
+
+You can install the development version from
+[GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("duolajiang/RCTrep")
 ```
+
+We will realease the package to CRAN soon.
 
 ## Example
 
@@ -36,17 +61,6 @@ library(RCTrep)
 #> The following object is masked from 'package:base':
 #> 
 #>     summary
-## basic example code
-library(RCTrep)
-library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
 
 source.data <- RCTrep::source.data
 target.data <- RCTrep::target.data
@@ -60,17 +74,12 @@ output <- RCTREP(Estimator="G_computation",
                  stratification=c("Stage2","pT"))
 #> Loading required package: lattice
 #> Loading required package: ggplot2
-```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
-
-``` r
 summary(source.obj = output$source.obj, target.obj = output$target.obj)
 #> $summary.plot
 ```
 
-<img src="man/figures/README-cars-1.png" width="100%" />
+<img src="man/figures/README-example-1.png" width="100%" />
 
     #> 
     #> $est.target
@@ -116,7 +125,7 @@ summary(source.obj = output$source.obj, target.obj = output$target.obj)
     #> Resampling results:
     #> 
     #>   Accuracy   Kappa    
-    #>   0.8224441  0.1631394
+    #>   0.8279024  0.1978156
     #> 
     #> 
     #> $target.model
@@ -132,19 +141,17 @@ summary(source.obj = output$source.obj, target.obj = output$target.obj)
     #> Resampling results:
     #> 
     #>   Accuracy   Kappa    
-    #>   0.8078665  0.1622037
+    #>   0.8102978  0.1674801
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/master/examples>.
+You can also summarize conditional average treatment effect by
+specifying stratification and stratification\_joint:
 
-You can also embed plots, for example:
+``` r
+output$source.obj$plot_CATE(stratification=c("Stage2","pT","BRAF"),stratification_joint = TRUE)
+#> $plot
+```
 
-    #> $plot
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
+<img src="man/figures/README-source_cate-1.png" width="100%" />
 
     #> 
     #> $est.cate
@@ -180,6 +187,3 @@ You can also embed plots, for example:
     #> 29      1 4B    1 -0.22462912 1.09594810    3
     #> 30      1 4B    9 -0.17133023 0.20951896   41
     #> 31      1 4B  999 -0.17955493 0.95622150    4
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.

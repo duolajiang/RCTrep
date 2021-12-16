@@ -15,33 +15,46 @@ knitr::opts_chunk$set(
 # RCTrep
 
 <!-- badges: start -->
-<!-- badges: end -->
+The goal of RCTrep is to replicate treatment effect estimates of a target study using a source study. The package can replicate two types of studies: 
 
-The goal of RCTrep is to ...
+1. observational study with real world data 
+2. randomized control trial with experiment data
+
+The package use R6 Object-oriented programming system. Below is the class diagram defined in the package: 
+![schematic](man/figures/README-schematic.png)
+The package new two objects of superclass Estimator for source study and target study, respectively, then 
+
+1. each object estimate the treatment effect using G_computation, inverse propensity score weighting, or doubly robust estimator to ensure internal validity; 
+2. communication between two objects via implementing the public method RCTrep(), e.g., source.obj$RCTrep(target.obj). Then source.obj get a estimates as close to target.obj as possible. This step is to conduct external validation. 
+
+Below shows how the core function RCTREP() work:
+
+![schematic](man/figures/README-function_call.png)
+<!-- badges: end -->
 
 ## Installation
 
-You can install the released version of RCTrep from [CRAN](https://CRAN.R-project.org) with:
+<!-- You can install the released version of RCTrep from [CRAN](https://CRAN.R-project.org) with: -->
 
-``` r
-install.packages("RCTrep")
-```
+<!-- ``` r -->
+<!-- install.packages("RCTrep") -->
+<!-- ``` -->
 
-And the development version from [GitHub](https://github.com/) with:
+You can install the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("duolajiang/RCTrep")
 ```
+
+We will realease the package to CRAN soon. 
+
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(RCTrep)
-## basic example code
-library(RCTrep)
-library(dplyr)
 
 source.data <- RCTrep::source.data
 target.data <- RCTrep::target.data
@@ -53,20 +66,13 @@ output <- RCTREP(Estimator="G_computation",
                                 treatment_name=c('combined_chemo'),
                                 outcome_name=c('vitstat')),
                  stratification=c("Stage2","pT"))
-```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
 summary(source.obj = output$source.obj, target.obj = output$target.obj)
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/master/examples>.
+You can also summarize conditional average treatment effect by specifying stratification and stratification_joint: 
 
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
+```{r source_cate}
 output$source.obj$plot_CATE(stratification=c("Stage2","pT","BRAF"),stratification_joint = TRUE)
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
