@@ -129,7 +129,7 @@ summary(source.obj = output$source.obj, target.obj = output$target.obj)
     #> Resampling results:
     #> 
     #>   Accuracy   Kappa    
-    #>   0.8256777  0.1823763
+    #>   0.8280448  0.1842596
     #> 
     #> 
     #> $target.model
@@ -145,7 +145,7 @@ summary(source.obj = output$source.obj, target.obj = output$target.obj)
     #> Resampling results:
     #> 
     #>   Accuracy   Kappa    
-    #>   0.8104933  0.1622126
+    #>   0.8078741  0.1608107
 
 You can also summarize conditional average treatment effect by
 specifying stratification and stratification\_joint:
