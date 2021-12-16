@@ -18,7 +18,8 @@ RCTREP(
   selection_formula = NULL,
   stratification = NULL,
   stratification_joint = FALSE,
-  strata_cut = NULL,
+  strata_cut_source = NULL,
+  strata_cut_target = NULL,
   two_models = NULL,
   ...
 )
@@ -42,11 +43,11 @@ RCTREP(
 
 \item{stratification_joint}{An optional logical defining the subgroup based on joint distribution of variables or univariate distribution in \code{stratification} when \code{stratification} is specified.}
 
-\item{strata_cut}{An optional list containing lists. Each component is a list with tag named by a variable to discretize, containing \code{break} which is a vector specifying the interval of range of the variable to divide, \code{lable} which is a string vector specifying how to code value in the variable according to which interval they fall. The leftmost interval corresponds to level one, the next leftmost to level two and so on. This parameter is useful in the case we concern the integrated treatment effect conditioning on variables with multiple levels (for instance, continuous variable or ordinal variable with multiple levels). Note that we first model based on these continuous variables, then we discretize these variables according to \code{strata_cut} by modifying the public variable \code{data} of \code{Estimator} object in wrap function \code{\link{Estimate}}, and calculate the weight for generalization based on the discretized variables.}
-
 \item{two_models}{An optional logical indicating whether potential outcomes should be modeled separately when \code{Estimator="DR"}. Default is FALSE.}
 
 \item{...}{An optional arguments passed to \code{fit()} of each estimator object for model training and tuning. See \url{https://topepo.github.io/caret/model-training-and-tuning.html} for details.}
+
+\item{strata_cut}{An optional list containing lists. Each component is a list with tag named by a variable to discretize, containing \code{break} which is a vector specifying the interval of range of the variable to divide, \code{lable} which is a string vector specifying how to code value in the variable according to which interval they fall. The leftmost interval corresponds to level one, the next leftmost to level two and so on. This parameter is useful in the case we concern the integrated treatment effect conditioning on variables with multiple levels (for instance, continuous variable or ordinal variable with multiple levels). Note that we first model based on these continuous variables, then we discretize these variables according to \code{strata_cut} by modifying the public variable \code{data} of \code{Estimator} object in wrap function \code{\link{Estimate}}, and calculate the weight for generalization based on the discretized variables.}
 }
 \value{
 A list of length two with two R6 class objects \code{source.obj=source.obj} and \code{target.obj=target.obj}.

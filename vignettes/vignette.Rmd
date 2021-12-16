@@ -1,0 +1,63 @@
+---
+title: "Treatment effect estimates replication in R: A Vignette"
+output: pdf_document
+vignette: >
+  %\VignetteIndexEntry{RCTrep}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Overview of package
+## structure of the package
+![schematic](schematic.png)
+## classes
+
+# Case study with synthetic NCR data
+```{r setup, message=FALSE}
+library(RCTrep)
+library(dplyr)
+
+source.data <- RCTrep::source.data
+target.data <- RCTrep::target.data
+
+output <- RCTREP(Estimator="G_computation",
+                 source.data=source.data, target.data=target.data,
+                 vars_name=list(confounders_internal=c("Stage2","pT","age","BRAF"),
+                                confounders_external=c("Stage2","pT","age","BRAF"),
+                                treatment_name=c('combined_chemo'),
+                                outcome_name=c('vitstat')),
+                 stratification=c("Stage2","pT"))
+
+summary(source.obj = output$source.obj, target.obj = output$target.obj)
+```
+
+```{r}
+output$source.obj$plot_CATE(stratification=c("Stage2","pT","BRAF"),stratification_joint = TRUE)
+```
+
+<!-- # Problem formulation -->
+<!-- ## interval validity -->
+<!-- ## external validity -->
+
+
+<!-- ## classess -->
+<!-- ###  -->
+<!-- ## wrapp up functions -->
+
+<!-- # Case study with synthetic NCR data -->
+
+
+<!-- ## Data overview -->
+<!-- ## run locally  -->
+<!-- ## run centrally  -->
+<!-- ## summary  -->
+
+<!-- # Summary -->
+
+

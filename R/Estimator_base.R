@@ -78,7 +78,6 @@ Estimator <- R6::R6Class(
     #' @description Plot the forest plot of conditional average treatment effect of subgroups defined by \code{stratification} and \code{stratification_joint}. The method first call public method \code{get_CATE(stratification,stratification_joint)}, then plot the results.
     #' @param stratification An string vector containing variables to define subgroup.
     #' @param stratification_joint An logical defining the subgroup based on joint distribution of variables or univariate distribution in \code{stratification}.
-    #' @return A plot containing a forest plot and a table with numeric results.
     plot_CATE = function(stratification,stratification_joint=FALSE){
       #browser()
       CATE <- self$get_CATE(stratification,stratification_joint)
@@ -97,11 +96,8 @@ Estimator <- R6::R6Class(
                        geom_errorbar(aes(xmin=ci_l, xmax=ci_u), width=.1,position=position_dodge(0.5)) +
                        geom_vline(xintercept=0, color="black", linetype="dashed", alpha=.5)
 
-      p_table <- ggpubr::ggtexttable(CATE, rows = NULL)
-
-      p <- ggpubr::ggarrange(p_plot,p_table,nrow = 1,ncol = 2)
-
-      return(p)
+      out <- list(plot=p_plot,est.cate=CATE)
+      out
     }
   ),
   #-------------------------private fields and methods----------------------------#

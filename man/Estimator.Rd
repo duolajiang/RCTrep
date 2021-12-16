@@ -106,9 +106,6 @@ Plot the forest plot of conditional average treatment effect of subgroups define
 }
 \if{html}{\out{</div>}}
 }
-\subsection{Returns}{
-A plot containing a forest plot and a table with numeric results.
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

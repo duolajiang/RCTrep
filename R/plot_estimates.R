@@ -1,11 +1,11 @@
-#' @title plot average treatment effect and possible conditional average treatment
+#' @title Summary average treatment effect and possible conditional average treatment
 #'
 #' @param source.obj An object of class \code{\link{Estimator}} resulting from source data
 #' @param target.obj An object of class \code{\link{Estimator}} resulting from target data
 #'
 #' @return a plot with a forest plot and a table with numeric results
 #' @export
-Plot_estimates <- function(source.obj, target.obj){
+summary <- function(source.obj, target.obj){
   #browser()
   if(class(target.obj$data)=="list"){
     target.obj <- target.obj$data
@@ -30,7 +30,7 @@ Plot_estimates <- function(source.obj, target.obj){
     subgroup_name_level <- factor(subgroup_name_level,levels = subgroup_name_level,ordered = T)
   }
 
-  ATE <- data.frame(study=c("RWD","RCT","RWD.rep"),
+  ATE <- data.frame(study=c("source","target","source.weighted"),
                     group=c("ATE","ATE","ATE"),
                     effect_size=c(source.obj$ATE_mean,
                                   target.obj$ATE_mean,
@@ -49,27 +49,27 @@ Plot_estimates <- function(source.obj, target.obj){
                          ci_l = c(source.obj$CATE_mean_se[,'cate'] - 1.98*source.obj$CATE_mean_se[,'se']),
                          ci_u = c(source.obj$CATE_mean_se[,'cate'] + 1.98*source.obj$CATE_mean_se[,'se']),
                          stringsAsFactors = FALSE)
-  CATE.RWD$study <- "RWD"
+  CATE.RWD$study <- "source"
 
   CATE.RWD.rep <- data.frame(group = subgroup_name_level,
                              effect_size = c(source.obj$CATE_weighted$cate),
                              ci_l = c(source.obj$CATE_weighted[,'cate'] - 1.98*source.obj$CATE_weighted[,'se']),
                              ci_u = c(source.obj$CATE_weighted[,'cate'] + 1.98*source.obj$CATE_weighted[,'se']),
                              stringsAsFactors = FALSE)
-  CATE.RWD.rep$study <- "RWD.rep"
+  CATE.RWD.rep$study <- "source.weighted"
 
   CATE.RCT <- data.frame(group = subgroup_name_level,
                          effect_size = c(target.obj$CATE_mean_se$cate),
                          ci_l = c(target.obj$CATE_mean_se[,'cate'] - 1.98*target.obj$CATE_mean_se[,'se']),
                          ci_u = c(target.obj$CATE_mean_se[,'cate'] + 1.98*target.obj$CATE_mean_se[,'se']),
                          stringsAsFactors = FALSE)
-  CATE.RCT$study <- "RCT"
+  CATE.RCT$study <- "target"
 
   data <- rbind(CATE.RCT,CATE.RWD,CATE.RWD.rep,ATE)
 
   p_table <- cbind(source.obj$CATE_mean_se[,!colnames(source.obj$CATE_mean_se) %in% c("cate","se","size")],
                    target.obj$CATE_mean_se$size,source.obj$CATE_mean_se$size,source.obj$CATE_weighted$size)
-  colnames(p_table) <- c(colnames(source.obj$CATE_mean_se)[!colnames(source.obj$CATE_mean_se) %in% c("cate","se","size")],"size_rct","size_rwd","size_rwd_rep")
+  colnames(p_table) <- c(colnames(source.obj$CATE_mean_se)[!colnames(source.obj$CATE_mean_se) %in% c("cate","se","size")],"size_target","size_source","size_source_weighted")
   p_table <- ggpubr::ggtexttable(p_table, rows = NULL)
 
   library(ggplot2)
@@ -79,9 +79,21 @@ Plot_estimates <- function(source.obj, target.obj){
     geom_errorbar(aes(xmin=ci_l, xmax=ci_u), width=.3,position=position_dodge(0.5)) +
     geom_vline(xintercept=0, color="black", linetype="dashed", alpha=.5)
 
-  p <- ggpubr::ggarrange(p_plot,p_table,ncol = 1, nrow = 2)
+  rownames(target.obj$CATE_mean_se) <- NULL
+  rownames(source.obj$CATE_mean_se) <- NULL
+  rownames(source.obj$CATE_weighted) <- NULL
 
-  return(p)
+  out <- list(summary.plot=p_plot,
+              est.target=target.obj$CATE_mean_se,
+              est.source=source.obj$CATE_mean_se,
+              est.source.weighted=source.obj$CATE_weighted,
+              source.model=source.obj$model,
+              target.model=target.obj$model)
+  out
+
+
+  #ggpubr::ggarrange(p_plot,p_table,ncol = 1, nrow = 2)
+
   #adds the CIs
   #geom_errorbarh(height=.1)+
   #sets the scales
@@ -89,5 +101,4 @@ Plot_estimates <- function(source.obj, target.obj){
   #scale_x_continuous(limits=c(-1,5), breaks = c(-1:5))
   #scale_y_continuous(name = "", breaks=c(1:7), labels = data$group)
 }
-
 

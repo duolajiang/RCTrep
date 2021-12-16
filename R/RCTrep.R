@@ -52,14 +52,15 @@ RCTREP <- function(Estimator="G_computation", weighting_estimator="Balancing",
                    vars_name,
                    outcome_method="glm", treatment_method="glm",weighting_method = "glm",
                    outcome_formula=NULL,treatment_formula=NULL,selection_formula=NULL,
-                   stratification = NULL, stratification_joint = FALSE, strata_cut = NULL,
+                   stratification = NULL, stratification_joint = FALSE,
+                   strata_cut_source = NULL, strata_cut_target = NULL,
                    two_models=NULL,
                    ...){
   #browser()
   source.obj <- Estimate(Estimator=Estimator, data=source.data, vars_name=vars_name,
                          outcome_method=outcome_method, treatment_method=treatment_method,two_models=two_models,
                          outcome_formula=outcome_formula, treatment_formula=treatment_formula,
-                         stratification=stratification, stratification_joint=stratification_joint, strata_cut=strata_cut,
+                         stratification=stratification, stratification_joint=stratification_joint, strata_cut=strata_cut_source,
                          ...)
 
   if (class(target.data)=="list") {
@@ -68,7 +69,7 @@ RCTREP <- function(Estimator="G_computation", weighting_estimator="Balancing",
     target.obj <- Estimate(Estimator=Estimator, data=target.data, vars_name=vars_name,
                            outcome_method=outcome_method, treatment_method=treatment_method,two_models=two_models,
                            outcome_formula=outcome_formula, treatment_formula=treatment_formula,
-                           stratification=stratification, stratification_joint=stratification_joint, strata_cut=strata_cut,
+                           stratification=stratification, stratification_joint=stratification_joint, strata_cut=strata_cut_target,
                            ...)
   }
 
