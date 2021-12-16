@@ -12,6 +12,11 @@ of studies:
 1.  observational study with real world data
 2.  randomized control trial with experiment data
 
+The package can also replicate a target study in which only meta data is
+avaiable (point estimate and interval estimate of average treatment
+effect, conditional average treatment effect conditioning on univariate
+variable, and univariate distribution).
+
 The package use R6 Object-oriented programming system. Below is the
 class diagram defined in the package:
 ![schematic](man/figures/README-schematic.png) The package new two
@@ -124,7 +129,7 @@ summary(source.obj = output$source.obj, target.obj = output$target.obj)
     #> Resampling results:
     #> 
     #>   Accuracy   Kappa    
-    #>   0.8250938  0.1783738
+    #>   0.8256777  0.1823763
     #> 
     #> 
     #> $target.model
@@ -140,7 +145,7 @@ summary(source.obj = output$source.obj, target.obj = output$target.obj)
     #> Resampling results:
     #> 
     #>   Accuracy   Kappa    
-    #>   0.8104978  0.1649464
+    #>   0.8104933  0.1622126
 
 You can also summarize conditional average treatment effect by
 specifying stratification and stratification\_joint:
