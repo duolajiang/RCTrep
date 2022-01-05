@@ -10,7 +10,7 @@ A base R6 class for estimator of average treatment effect that implements the co
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{Estimator$new()}}
-\item \href{#method-RCTrep}{\code{Estimator$RCTrep()}}
+\item \href{#method-EstimateRep}{\code{Estimator$EstimateRep()}}
 \item \href{#method-get_CATE}{\code{Estimator$get_CATE()}}
 \item \href{#method-plot_CATE}{\code{Estimator$plot_CATE()}}
 \item \href{#method-clone}{\code{Estimator$clone()}}
@@ -22,7 +22,7 @@ A base R6 class for estimator of average treatment effect that implements the co
 \subsection{Method \code{new()}}{
 Create a new \code{Estimator} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Estimator$new(df, vars_name)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Estimator$new(df, vars_name, name)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -30,23 +30,23 @@ Create a new \code{Estimator} object
 \describe{
 \item{\code{df}}{A data frame containing variables in \code{vars_name}}
 
-\item{\code{vars_name}}{vars_name A list containing four vectors \code{confounders_internal}, \code{confounders_external}, \code{treatment_name}, and \code{outcome_name}. \code{confounders_internal} is a character vector containing the adjustment variables, which, along with \code{Estimator} and the corresponding \code{outcome_method} or \code{treatment_method} to correct for confounding; \code{confounders_external} is a character vector containing variables for weighting as to generalize estimates from \code{source.data} to \code{target.data}; \code{outcome_name} is a character vector of length one containing the variable name of outcome; \code{treatment_name} is a character vector of length one containing the variable name of treatment.}
+\item{\code{vars_name}}{vars_name A list containing four vectors \code{confounders_internal}, \code{treatment_name}, and \code{outcome_name}. \code{confounders_internal} is a character vector containing the adjustment variables, which, along with \code{Estimator} and the corresponding \code{outcome_method} or \code{treatment_method} to correct for confounding; \code{outcome_name} is a character vector of length one containing the variable name of outcome; \code{treatment_name} is a character vector of length one containing the variable name of treatment.}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RCTrep"></a>}}
-\if{latex}{\out{\hypertarget{method-RCTrep}{}}}
-\subsection{Method \code{RCTrep()}}{
-Replicating the average treatment effect of \code{target.obj}. If \code{stratification} is specified, then replicating the conditional average treatment effect stratified by \code{stratification} and \code{stratification_joint} by weighting based on the residual variables, namely, variables that are specified in \code{confounders_external_name} while not in \code{stratification}.
+\if{html}{\out{<a id="method-EstimateRep"></a>}}
+\if{latex}{\out{\hypertarget{method-EstimateRep}{}}}
+\subsection{Method \code{EstimateRep()}}{
+Replicating the average treatment effect of \code{target.obj}. If \code{stratification} is specified, then replicating the conditional average treatment effect stratified by \code{stratification} and \code{stratification_joint} by weighting based on the residual variables, namely, variables that are specified in \code{confounders_internal_name} while not in \code{stratification}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Estimator$RCTrep(
+\if{html}{\out{<div class="r">}}\preformatted{Estimator$EstimateRep(
   target.obj,
-  weighting_estimator,
-  weighting_method,
-  stratification,
-  stratification_joint
+  weighting_estimator = "Balancing",
+  weighting_method = "glm",
+  stratification = NULL,
+  stratification_joint = FALSE
 )}\if{html}{\out{</div>}}
 }
 

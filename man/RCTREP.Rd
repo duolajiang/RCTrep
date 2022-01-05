@@ -9,6 +9,8 @@ RCTREP(
   weighting_estimator = "Balancing",
   source.data = source.data,
   target.data = target.data,
+  source.name = "source",
+  target.name = "target",
   vars_name,
   outcome_method = "glm",
   treatment_method = "glm",
@@ -20,7 +22,8 @@ RCTREP(
   stratification_joint = FALSE,
   strata_cut_source = NULL,
   strata_cut_target = NULL,
-  two_models = NULL,
+  two_models = FALSE,
+  data.public = FALSE,
   ...
 )
 }
@@ -65,24 +68,33 @@ library(RCTrep)
 source.data <- RCTrep::source.data
 target.data <- RCT::target.data
 Estimator <- "IPW"
-strata <- c("Stage2","pT")
+strata <- c("Stage2", "pT")
 strata_joint <- TRUE
-vars_name <- list(confounders_internal=c("Stage2","age","pT"),
-                  confounders_external=c("Stage2","age","pT"),
-                  treatment_name=c('combined_chemo'),
-                  outcome_name=c('vitstat')
-                 )
-outcome_form <- vitstat~Stage2+age+combined_chemo+pT+
-Stage2:combined_chemo+age:combined_chemo+pT:combined_chemo + pT:Stage2:combined_chemo
-strata_cut <- list(age=list(breaks=c(min(data$age),
-                                     50,60,70,max(data$age)),
-                            labels=c(1,2,3,4)))
-\dontrun{output <- RCTREP(Estimator="G_computation", two_models=FALSE,
-                          source.data=source.data, target.data=target.data,
-                          vars_name=vars_name,
-                          outcome_formula = outcome_form,
-                          stratification=strata,stratification_joint=TRUE,strata_cut=strata_cut)
-         output$source.obj
-         output$target.obj}
+vars_name <- list(
+  confounders_internal = c("Stage2", "age", "pT"),
+  confounders_external = c("Stage2", "age", "pT"),
+  treatment_name = c("combined_chemo"),
+  outcome_name = c("vitstat")
+)
+outcome_form <- vitstat ~ Stage2 + age + combined_chemo + pT +
+  Stage2:combined_chemo + age:combined_chemo + pT:combined_chemo + pT:Stage2:combined_chemo
+strata_cut <- list(age = list(
+  breaks = c(
+    min(data$age),
+    50, 60, 70, max(data$age)
+  ),
+  labels = c(1, 2, 3, 4)
+))
+\dontrun{
+output <- RCTREP(
+  Estimator = "G_computation", two_models = FALSE,
+  source.data = source.data, target.data = target.data,
+  vars_name = vars_name,
+  outcome_formula = outcome_form,
+  stratification = strata, stratification_joint = TRUE, strata_cut = strata_cut
+)
+output$source.obj
+output$target.obj
+}
 
 }

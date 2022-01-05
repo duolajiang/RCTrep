@@ -2,12 +2,38 @@
 % Please edit documentation in R/IPW.R
 \name{IPW}
 \alias{IPW}
-\title{R6 class: IPW class}
+\title{R6 class: Inverse propensity score weighting estimator base class}
 \description{
-A R6 class for IPW estimator for average treatment effect that implements its own fit method.
+A base R6 class for inverse propensity score weighting estimator of average treatment effect that implements comment methods.
 }
-\section{Super classes}{
-\code{\link[RCTrep:Estimator]{RCTrep::Estimator}} -> \code{\link[RCTrep:IPW_base]{RCTrep::IPW_base}} -> \code{IPW}
+\section{Super class}{
+\code{\link[RCTrep:Estimator]{RCTrep::Estimator}} -> \code{IPW}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{model:}}{a fitted model for treatment conditioning on covariates}
+
+\item{\code{method:}}{a string specifying the method for fitting the propensity score}
+
+\item{\code{formula:}}{an optional \code{formula} object. The formula is specified as \code{Z ~ X1+X2...}, where \code{Z} represents treatment variable and \code{X1} and \code{X2} are covariates.}
+
+\item{\code{ps:}}{a numeric vector of length n where n is row number of \code{self$data}.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{model:}}{a fitted model for treatment conditioning on covariates}
+
+\item{\code{method:}}{a string specifying the method for fitting the propensity score}
+
+\item{\code{formula:}}{an optional \code{formula} object. The formula is specified as \code{Z ~ X1+X2...}, where \code{Z} represents treatment variable and \code{X1} and \code{X2} are covariates.}
+
+\item{\code{ps:}}{a numeric vector of length n where n is row number of \code{self$data}.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -19,7 +45,7 @@ A R6 class for IPW estimator for average treatment effect that implements its ow
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="RCTrep">}\href{../../RCTrep/html/Estimator.html#method-RCTrep}{\code{RCTrep::Estimator$RCTrep()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="EstimateRep">}\href{../../RCTrep/html/Estimator.html#method-EstimateRep}{\code{RCTrep::Estimator$EstimateRep()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="get_CATE">}\href{../../RCTrep/html/Estimator.html#method-get_CATE}{\code{RCTrep::Estimator$get_CATE()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="plot_CATE">}\href{../../RCTrep/html/Estimator.html#method-plot_CATE}{\code{RCTrep::Estimator$plot_CATE()}}\out{</span>}
 }
@@ -30,7 +56,7 @@ A R6 class for IPW estimator for average treatment effect that implements its ow
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{IPW$new(df, vars_name, treatment_method, treatment_formula, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{IPW$new(df, vars_name, name, treatment_method, treatment_formula, ...)}\if{html}{\out{</div>}}
 }
 
 }

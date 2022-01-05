@@ -2,12 +2,12 @@
 % Please edit documentation in R/DR.R
 \name{DR}
 \alias{DR}
-\title{R6 class: Doubly robust estimator class}
+\title{R6 class: Doubly robust estimator base class}
 \description{
-A R6 class for doubly robust estimator that implements its own fit method.
+A base R6 class for doubly robust estimator of average treatment effect that implements comment methods.
 }
-\section{Super classes}{
-\code{\link[RCTrep:Estimator]{RCTrep::Estimator}} -> \code{\link[RCTrep:DR_base]{RCTrep::DR_base}} -> \code{DR}
+\section{Super class}{
+\code{\link[RCTrep:Estimator]{RCTrep::Estimator}} -> \code{DR}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -19,7 +19,7 @@ A R6 class for doubly robust estimator that implements its own fit method.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="RCTrep">}\href{../../RCTrep/html/Estimator.html#method-RCTrep}{\code{RCTrep::Estimator$RCTrep()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="EstimateRep">}\href{../../RCTrep/html/Estimator.html#method-EstimateRep}{\code{RCTrep::Estimator$EstimateRep()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="get_CATE">}\href{../../RCTrep/html/Estimator.html#method-get_CATE}{\code{RCTrep::Estimator$get_CATE()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="plot_CATE">}\href{../../RCTrep/html/Estimator.html#method-plot_CATE}{\code{RCTrep::Estimator$plot_CATE()}}\out{</span>}
 }
@@ -33,10 +33,11 @@ A R6 class for doubly robust estimator that implements its own fit method.
 \if{html}{\out{<div class="r">}}\preformatted{DR$new(
   df,
   vars_name,
-  outcome_method,
-  outcome_formula,
+  name,
   treatment_method,
   treatment_formula,
+  outcome_method,
+  outcome_formula,
   two_models,
   ...
 )}\if{html}{\out{</div>}}

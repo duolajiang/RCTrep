@@ -2,27 +2,28 @@
 % Please edit documentation in R/G_computation.R
 \name{G_computation}
 \alias{G_computation}
-\title{R6 class: G_computation class}
+\title{R6 class: G_computation base class}
 \description{
-A R6 class for G_computation estimator for average treatment effect
+A base R6 class for G_computation estimator for average treatment effect
 }
-\section{Super classes}{
-\code{\link[RCTrep:Estimator]{RCTrep::Estimator}} -> \code{\link[RCTrep:G_computation_base]{RCTrep::G_computation_base}} -> \code{G_computation}
+\section{Super class}{
+\code{\link[RCTrep:Estimator]{RCTrep::Estimator}} -> \code{G_computation}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{G_computation$new()}}
+\item \href{#method-residual_check}{\code{G_computation$residual_check()}}
+\item \href{#method-summary}{\code{G_computation$summary()}}
 \item \href{#method-clone}{\code{G_computation$clone()}}
 }
 }
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="RCTrep">}\href{../../RCTrep/html/Estimator.html#method-RCTrep}{\code{RCTrep::Estimator$RCTrep()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="EstimateRep">}\href{../../RCTrep/html/Estimator.html#method-EstimateRep}{\code{RCTrep::Estimator$EstimateRep()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="get_CATE">}\href{../../RCTrep/html/Estimator.html#method-get_CATE}{\code{RCTrep::Estimator$get_CATE()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="plot_CATE">}\href{../../RCTrep/html/Estimator.html#method-plot_CATE}{\code{RCTrep::Estimator$plot_CATE()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="G_computation_base" data-id="residual_check">}\href{../../RCTrep/html/G_computation_base.html#method-residual_check}{\code{RCTrep::G_computation_base$residual_check()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -34,11 +35,30 @@ A R6 class for G_computation estimator for average treatment effect
 \if{html}{\out{<div class="r">}}\preformatted{G_computation$new(
   df,
   vars_name,
+  name,
   gc.method,
   gc.formula,
   var_approach = "Bias_adjusted",
   ...
 )}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-residual_check"></a>}}
+\if{latex}{\out{\hypertarget{method-residual_check}{}}}
+\subsection{Method \code{residual_check()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{G_computation$residual_check(stratification)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-summary"></a>}}
+\if{latex}{\out{\hypertarget{method-summary}{}}}
+\subsection{Method \code{summary()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{G_computation$summary()}\if{html}{\out{</div>}}
 }
 
 }

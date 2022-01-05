@@ -230,102 +230,58 @@ usethis::use_data(source.data,target.data,target.agg,overwrite = TRUE)
 # default: number of strata is smaller than confounders_external.
 # confounders_external should no samller than #univariate_p
 # levels of categorical variable should be numeric.
-
-
-
-confounders_external=c("Stage2","pT","age","BRAF")
-source.data %>%
-  group_by(across(all_of(confounders_external))) %>% summarise(n=n())
-target.data %>%
-  group_by(across(all_of(confounders_external))) %>% summarise(n=n())
-
-
-Estimator <- "IPW"
-strata <- c("Stage2","pT")
-strata_joint <- TRUE
-vars_name <- list(confounders_internal=c("Stage2","age","pT","BRAF"),
-                  confounders_external=c("Stage2","age","pT","BRAF"),
-                  treatment_name=c('combined_chemo'),
-                  outcome_name=c('vitstat')
-)
-outcome_form <- vitstat~Stage2+age+combined_chemo+pT+
-                Stage2:combined_chemo+age:combined_chemo+pT:combined_chemo + pT:Stage2:combined_chemo
-strata_cut <- list(age=list(breaks=c(min(data$age),
-                                                  50,60,70,max(data$age)),
-                                         labels=c(1,2,3,4)),
-                   lymph_assessed=list(breaks=c(min(data$lymph_assessed),
-                                                7,10,max(data$lymph_assessed))))
-
-
-fitControl <- trainControl(method = "repeatedcv",
-                           number = 10,
-                           repeats = 10,
-                           ## Estimate class probabilities
-                           ## classProbs = TRUE,
-                           ## Evaluate performance using
-                           ## the following function
-                           summaryFunction = twoClassSummary,
-                           classProbs = TRUE)
-
-rpartGrid <- expand.grid(maxdepth=5,cp=0.0001)
-
-output <- RCTREP(Estimator="G_computation",
-                 source.data=source.data, target.data=target.data,
-                 vars_name=vars_name,
-                 stratification=strata,stratification_joint=TRUE)
-
-
-summary(source.obj = output$source.obj, target.obj = output$target.obj)
-p
-
-source.obj <- output$source.obj
-source.obj$residual_check(stratification = strata)
-source.obj$plot_CATE(stratification=c("Stage2","pT","BRAF"),stratification_joint = TRUE)
-
-
-
 library(RCTrep)
 library(dplyr)
-
 ## data preparation
 source.data <- RCTrep::source.data
 target.data <- RCTrep::target.data
-
-## input
-Estimator <- "G_computation"
-strata <- c("Stage2","pT")
-#strata_joint <- TRUE
-vars_name <- list(confounders_internal=c("Stage2","pT","age"),
-                  confounders_external=c("Stage2","pT","age"),
+target.data.marginal <- RCTrep::target.agg
+vars_name <- list(confounders_internal=c("Stage2","age","pT","BRAF"),
                   treatment_name=c('combined_chemo'),
                   outcome_name=c('vitstat')
 )
+# comparing two data.frame
+# select common rows
+# recode variables
+source.data <- source.data %>%
+  select(vars_name$confounders_internal,
+         vars_name$treatment_name,
+         vars_name$outcome_name) %>%
+  arrange(across(vars_name$confounders_internal))
+target.data <- target.data %>%
+  select(vars_name$confounders_internal,
+         vars_name$treatment_name,
+         vars_name$outcome_name) %>%
+  arrange(across(vars_name$confounders_internal))
+source.data <- semi_join(source.data, target.data, by = vars_name$confounders_internal)
+target.data <- semi_join(target.data, source.data, by = vars_name$confounders_internal)
+source.data <- source.data %>% mutate(vitstat=as.character(vitstat)) %>% mutate(vitstat=as.numeric(vitstat))
+target.data <- target.data %>% mutate(vitstat=as.character(vitstat)) %>% mutate(vitstat=as.numeric(vitstat))
 
-source.data %>%
-  group_by(across(all_of(vars_name$confounders_external))) %>% summarise(n=n())
-target.data %>%
-  group_by(across(all_of(vars_name$confounders_external))) %>% summarise(n=n())
+source.data %>% group_by(across(all_of(vars_name$confounders_external))) %>% summarise(n=n())
+target.data %>% group_by(across(all_of(vars_name$confounders_external))) %>% summarise(n=n())
 
-# core function
-output <- RCTREP(Estimator=Estimator, outcome_method="gam",
+
+## input
+## order of strata should be in line with order of confounders_internal
+strata_cut <- list(age=list(breaks=c(min(data$age),
+                                     50,60,70,max(data$age)),
+                            labels=c(1,2,3,4)),
+                   lymph_assessed=list(breaks=c(min(data$lymph_assessed),
+                                                7,10,max(data$lymph_assessed))))
+fitControl <- trainControl(method = "repeatedcv",
+                           number = 10,
+                           repeats = 10,
+                           summaryFunction = twoClassSummary,
+                           classProbs = TRUE)
+rpartGrid <- expand.grid(maxdepth=5,cp=0.0001)
+Estimator <- "IPW"
+strata <- c("Stage2","pT","BRAF")
+strata_joint <- TRUE
+
+output <- RCTREP(Estimator=Estimator, weighting_estimator = "Balancing",
                  source.data=source.data, target.data=target.data,vars_name=vars_name,
-                 stratification=strata)
-summary(source.obj = output$source.obj, target.obj = output$target.obj)
-
-
-a <- summary(source.obj = output$source.obj, target.obj = output$target.obj)
-
-
-
-
-
-
-
-
-
-to do list:
-  dplyr get intersect of two dataframe, get row index of two dataframe,
-  when implememt RCTrep(), dataset of source should be larger than target.
-
-
-
+                 stratification=strata, stratification_joint=strata_joint,
+                 two_models=FALSE, data.public=TRUE)
+summary(target.obj = output$target.obj, source.obj = output$source.obj)
+output$source.obj$plot_CATE(stratification=c("Stage2","pT","BRAF"), stratification_joint = TRUE)

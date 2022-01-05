@@ -24,59 +24,86 @@
 #' source.data <- RCTrep::source.data
 #' target.data <- RCT::target.data
 #' Estimator <- "IPW"
-#' strata <- c("Stage2","pT")
+#' strata <- c("Stage2", "pT")
 #' strata_joint <- TRUE
-#' vars_name <- list(confounders_internal=c("Stage2","age","pT"),
-#'                   confounders_external=c("Stage2","age","pT"),
-#'                   treatment_name=c('combined_chemo'),
-#'                   outcome_name=c('vitstat')
-#'                  )
-#' outcome_form <- vitstat~Stage2+age+combined_chemo+pT+
-#' Stage2:combined_chemo+age:combined_chemo+pT:combined_chemo + pT:Stage2:combined_chemo
-#' strata_cut <- list(age=list(breaks=c(min(data$age),
-#'                                      50,60,70,max(data$age)),
-#'                             labels=c(1,2,3,4)))
-#' \dontrun{output <- RCTREP(Estimator="G_computation", two_models=FALSE,
-#'                           source.data=source.data, target.data=target.data,
-#'                           vars_name=vars_name,
-#'                           outcome_formula = outcome_form,
-#'                           stratification=strata,stratification_joint=TRUE,strata_cut=strata_cut)
-#'          output$source.obj
-#'          output$target.obj}
+#' vars_name <- list(
+#'   confounders_internal = c("Stage2", "age", "pT"),
+#'   confounders_external = c("Stage2", "age", "pT"),
+#'   treatment_name = c("combined_chemo"),
+#'   outcome_name = c("vitstat")
+#' )
+#' outcome_form <- vitstat ~ Stage2 + age + combined_chemo + pT +
+#'   Stage2:combined_chemo + age:combined_chemo + pT:combined_chemo + pT:Stage2:combined_chemo
+#' strata_cut <- list(age = list(
+#'   breaks = c(
+#'     min(data$age),
+#'     50, 60, 70, max(data$age)
+#'   ),
+#'   labels = c(1, 2, 3, 4)
+#' ))
+#' \dontrun{
+#' output <- RCTREP(
+#'   Estimator = "G_computation", two_models = FALSE,
+#'   source.data = source.data, target.data = target.data,
+#'   vars_name = vars_name,
+#'   outcome_formula = outcome_form,
+#'   stratification = strata, stratification_joint = TRUE, strata_cut = strata_cut
+#' )
+#' output$source.obj
+#' output$target.obj
+#' }
 #'
 #' @return
 #' @export
 #' @import R6
-RCTREP <- function(Estimator="G_computation", weighting_estimator="Balancing",
-                   source.data=source.data, target.data=target.data,
+RCTREP <- function(Estimator = "G_computation", weighting_estimator = "Balancing",
+                   source.data = source.data, target.data = target.data,
+                   source.name = "source", target.name = "target",
                    vars_name,
-                   outcome_method="glm", treatment_method="glm",weighting_method = "glm",
-                   outcome_formula=NULL,treatment_formula=NULL,selection_formula=NULL,
+                   outcome_method = "glm", treatment_method = "glm", weighting_method = "glm",
+                   outcome_formula = NULL, treatment_formula = NULL, selection_formula = NULL,
                    stratification = NULL, stratification_joint = FALSE,
                    strata_cut_source = NULL, strata_cut_target = NULL,
-                   two_models=NULL,
-                   ...){
-  #browser()
-  source.obj <- Estimate(Estimator=Estimator, data=source.data, vars_name=vars_name,
-                         outcome_method=outcome_method, treatment_method=treatment_method,two_models=two_models,
-                         outcome_formula=outcome_formula, treatment_formula=treatment_formula,
-                         stratification=stratification, stratification_joint=stratification_joint, strata_cut=strata_cut_source,
-                         ...)
+                   two_models = FALSE,
+                   data.public = FALSE,
+                   ...) {
 
-  if (class(target.data)=="list") {
-    target.obj <- list(data=target.data)
+  #browser()
+  source.obj <- Estimator_wrapper(
+    Estimator = Estimator, data = source.data, vars_name = vars_name, name = source.name,
+    outcome_method = outcome_method, treatment_method = treatment_method, two_models = two_models,
+    outcome_formula = outcome_formula, treatment_formula = treatment_formula,
+    data.public = data.public,
+    ...
+  )
+
+  #browser()
+  if (class(target.data) == "list") {
+    #browser()
+    synthetic.data <- GenerateSyntheticData(dim(source.data)[1],
+                                            target.data,
+                                            unique(target.data$CATE_mean_se$name))
+    target.obj <- Estimator$new(df=synthetic.data, vars_name = vars_name, name=target.name)
+    target.obj$estimates$ATE$est <- target.data$ATE_mean
+    target.obj$estimates$ATE$se <- target.data$ATE_se
+    target.obj$estimates$CATE <- target.data$CATE_mean_se
   } else {
-    target.obj <- Estimate(Estimator=Estimator, data=target.data, vars_name=vars_name,
-                           outcome_method=outcome_method, treatment_method=treatment_method,two_models=two_models,
-                           outcome_formula=outcome_formula, treatment_formula=treatment_formula,
-                           stratification=stratification, stratification_joint=stratification_joint, strata_cut=strata_cut_target,
-                           ...)
+    target.obj <- Estimator_wrapper(
+      Estimator = Estimator, data = target.data, vars_name = vars_name, name = target.name,
+      outcome_method = outcome_method, treatment_method = treatment_method, two_models = two_models,
+      outcome_formula = outcome_formula, treatment_formula = treatment_formula,
+      data.public = data.public,
+      ...
+    )
   }
 
-  source.obj$RCTrep(target.obj=target.obj,
-                    weighting_estimator= weighting_estimator,weighting_method=weighting_method,
-                    stratification, stratification_joint)
+  source.obj$EstimateRep(target.obj,
+                         weighting_estimator, weighting_method,
+                         stratification, stratification_joint)
+  target.obj$estimates$CATE <- target.obj$get_CATE(stratification, stratification_joint)
 
-  return(list(source.obj=source.obj,
-              target.obj=target.obj))
+  return(list(
+    source.obj = source.obj,
+    target.obj = target.obj
+  ))
 }

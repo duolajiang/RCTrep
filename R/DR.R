@@ -1,119 +1,217 @@
-#' @title R6 class: Doubly robust estimator class
-#' @description A R6 class for doubly robust estimator that implements its own fit method.
-#' @importFrom caret train
+#' @title R6 class: Doubly robust estimator base class
+#' @description A base R6 class for doubly robust estimator of average treatment effect that implements comment methods.
+#' @importfrom PSweight PSweight
 #' @export
 DR <- R6::R6Class(
   "DR",
-  inherit = DR_base,
-
+  inherit = Estimator,
   public = list(
+
+    ps.est = NA,
+
+    po.est = data.frame(),
     #-------------------------public fields-----------------------------#
-    initialize = function(df, vars_name,outcome_method,outcome_formula,treatment_method,treatment_formula,two_models,...){
-      super$initialize(df,vars_name)
-      self$model_treatment <- private$fit_treatment(treatment_formula,treatment_method,...)
-      self$model_outcome <- private$fit_outcome(outcome_formula,outcome_method,two_models,...)
+    initialize = function(df, vars_name, name,
+                          treatment_method, treatment_formula,
+                          outcome_method, outcome_formula,two_models, ...) {
+      super$initialize(df, vars_name, name)
+      #browser()
+      self$data[, private$outcome_name] <- as.numeric(levels(self$data[, private$outcome_name])[self$data[, private$outcome_name]])
+      private$treatment_method <- treatment_method
+      private$treatment_formula <- treatment_formula
+      private$outcome_method <- outcome_method
+      private$outcome_formula <- outcome_formula
+      self$model$treatment <- private$fit_treatment(...)
+      self$model$outcome <- private$fit_outcome(two_models, ...)
       self$ps.est <- private$est_ps()
       self$po.est <- private$est_potentialOutcomes(two_models)
-      self$data[,self$outcome_name] <- as.numeric(levels(self$data[,self$outcome_name])[self$data[,self$outcome_name]])
-      ATE_SE <- private$est_ATE_SE()
-      self$ATE_mean <- ATE_SE$est
-      self$ATE_se <- ATE_SE$se
+      private$set_ATE()
+      private$set_CATE(private$confounders_internal_name,TRUE)
     }
   ),
 
+  # when use PSweight, outcome data should be numeric!
   private = list(
-    fit_treatment = function(treatment_formula,treatment_method,...){
-      if(is.null(treatment_formula)){
-        model <- caret::train(x=self$data[,c(self$confounders_internal_name)],
-                              y=self$data[,self$treatment_name],
-                              method = treatment_method,
-                              ...)
+    treatment_method = NULL,
+    outcome_method = NULL,
+    treatment_formula = NULL,
+    outcome_formula = NULL,
+
+    est_ATE_SE = function(index) {
+      ngrp <- length(unique(self$data[index,private$treatment_name]))
+      if(ngrp<2){
+        warning("no overlap in this group! Variance is unbounded")
+        se <- Inf
+        y1.hat <- DR.estimator(z=self$data[index,private$treatment_name],
+                               y=self$data[index,private$outcome_name],
+                               y.hat=self$po.est[index,"y1.hat"],
+                               ps=self$ps.est[index],
+                               w=rep(1,length(index)),t=1)
+        y0.hat <- DR.estimator(z=self$data[index,private$treatment_name],
+                               y=self$data[index,private$outcome_name],
+                               y.hat=self$po.est[index,"y0.hat"],
+                               ps=self$ps.est[index],
+                               w=rep(1,length(index)),t=0)
+        est <- y1.hat-y0.hat
       } else {
-        model <- caret::train(form=treatment_formula,
-                              data=self$data,
-                              method = treatment_method,
-                              ...)
+        weight.obj <- PSweight::PSweight(
+          ps.estimate = self$ps.est[index], weight = "IPW",
+          data = self$data[index, ],
+          yname = private$outcome_name,
+          augmentation = TRUE, out.estimate = self$po.est[index, ],
+          zname = private$treatment_name
+        )
+        res.obj <- summary(weight.obj, contrast = NULL, type = "DIF", CI = "TRUE")
+        est <- res.obj$estimates[1]
+        se <- res.obj$estimates[2]
+        y1.hat <- weight.obj$muhat[which(weight.obj$group==1)]
+        y0.hat <- weight.obj$muhat[which(weight.obj$group==0)]
+      }
+      return(list(y1.hat = y1.hat, y0.hat = y0.hat, est = est, se = se))
+    },
+
+    est_weighted_ATE_SE = function(index, weight) {
+      ngrp <- length(unique(self$data[index,private$treatment_name]))
+      if(ngrp<2){
+        warning("no overlap in this group! Variance is unbounded")
+        se <- Inf
+        y1.hat <- DR.estimator(z=self$data[index,private$treatment_name],
+                               y=self$data[index,private$outcome_name],
+                               y.hat=self$po.est[index,"y1.hat"],
+                               ps=self$ps.est[index],
+                               w=weight,t=1)
+        y0.hat <- DR.estimator(z=self$data[index,private$treatment_name],
+                               y=self$data[index,private$outcome_name],
+                               y.hat=self$po.est[index,"y0.hat"],
+                               ps=self$ps.est[index],
+                               w=weight,t=0)
+        est <- y1.hat-y0.hat
+      } else {
+        weight.obj <- PSweight.modified(
+          ps.estimate = self$ps.est[index], weight = "IPW",
+          data = self$data[index, ],
+          yname = private$outcome_name, zname = private$treatment_name,
+          weight.external = weight,
+          out.est = self$po.est[index, ]
+        )
+        res.obj <- summary(weight.obj, contrast = NULL, type = "DIF", CI = "TRUE")
+        est <- res.obj$estimates[1]
+        se <- res.obj$estimates[2]
+        y1.hat <- weight.obj$muhat[which(weight.obj$group==1)]
+        y0.hat <- weight.obj$muhat[which(weight.obj$group==0)]
+      }
+
+      return(list(y1.hat = y1.hat, y0.hat = y0.hat, est = est, se = se))
+    },
+
+    fit_treatment = function(...) {
+      #browser()
+      if (is.null(private$treatment_formula)) {
+        model <- caret::train(
+          x = self$data[, private$confounders_internal_name],
+          y = self$data[, private$treatment_name],
+          method = private$treatment_method,
+          ...
+        )
+      } else {
+        model <- caret::train(
+          form = private$treatment_formula,
+          data = self$data,
+          method = private$treatment_method,
+          ...
+        )
       }
       return(model)
     },
 
-    fit_outcome = function(outcome_formula, outcome_method,two_models,...){
-      if(two_models){
-        #browser()
-        t.level <- unique(self$data[,self$treatment_name])
+    fit_outcome = function(two_models, ...) {
+      if (two_models) {
+        # browser()
+        t.level <- unique(self$data[, private$treatment_name])
         level.order <- order(t.level)
-        t0 <- t.level[match(1,level.order)]
-        t1 <- t.level[match(2,level.order)]
-        train.t0.id <- (self$data[,self$treatment_name]==t0)
-        train.t1.id <- (self$data[,self$treatment_name]==t1)
-        if(is.null(outcome_formula)){
-          model.y1 <- caret::train(x = self$data[train.t1.id,self$confounders_internal_name],
-                                   y = self$data[train.t1.id,self$outcome_name],
-                                   method = outcome_method,
-                                   ...)
-          model.y0 <- caret::train(x=self$data[train.t0.id,self$confounders_internal_name],
-                                   y=self$data[train.t0.id,self$outcome_name],
-                                   method = outcome_method,
-                                   ...)
+        t0 <- t.level[match(1, level.order)]
+        t1 <- t.level[match(2, level.order)]
+        train.t0.id <- (self$data[, private$treatment_name] == t0)
+        train.t1.id <- (self$data[, private$treatment_name] == t1)
+        if (is.null(private$outcome_formula)) {
+          model.y1 <- caret::train(
+            x = self$data[train.t1.id, private$confounders_internal_name],
+            y = self$data[train.t1.id, private$outcome_name],
+            method = private$outcome_method,
+            ...
+          )
+          model.y0 <- caret::train(
+            x = self$data[train.t0.id, private$confounders_internal_name],
+            y = self$data[train.t0.id, private$outcome_name],
+            method = private$outcome_method,
+            ...
+          )
         } else {
-          model.y1 <- caret::train(form=outcome_formula,
-                                   data=self$data[train.t1.id],
-                                   method = outcome_method,
-                                   ...)
-          model.y0 <- caret::train(form=outcome_formula,
-                                   data=self$data[train.t0.id],
-                                   method = outcome_method,
-                                   ...)
+          model.y1 <- caret::train(
+            form = private$outcome_formula,
+            data = self$data[train.t1.id],
+            method = private$outcome_method,
+            ...
+          )
+          model.y0 <- caret::train(
+            form = private$outcome_formula,
+            data = self$data[train.t0.id],
+            method = private$outcome_method,
+            ...
+          )
         }
-        return(model=list(model.y1=model.y1, model.y0=model.y0))
-
+        return(model = list(model.y1 = model.y1, model.y0 = model.y0))
       } else {
-        if(is.null(outcome_formula)){
-          model <- caret::train(x=self$data[,c(self$confounders_internal_name,self$treatment_name)],
-                                y=self$data[,self$outcome_name],
-                                method = outcome_method,
-                                ...)
+        if (is.null(private$outcome_formula)) {
+          model <- caret::train(
+            x = self$data[, c(private$confounders_internal_name, private$treatment_name)],
+            y = self$data[, private$outcome_name],
+            method = private$outcome_method,
+            ...
+          )
         } else {
-          model <- caret::train(form=outcome_formula,
-                                data=self$data,
-                                method = outcome_method,
-                                ...)
+          model <- caret::train(
+            form = private$outcome_formula,
+            data = self$data,
+            method = private$outcome_method,
+            ...
+          )
         }
         return(model)
       }
     },
 
-    est_ps = function(){
-      ps <- predict(self$model_treatment,newdata=self$data, type="prob")[,2]
+    est_ps = function() {
+      ps <- predict(self$model$treatment, newdata = self$data, type = "prob")[, 2]
       return(ps)
     },
 
-    est_potentialOutcomes = function(two_models){
-      #browser()
-      data0 <- data1 <- self$data[,c(self$confounders_internal_name,self$treatment_name)]
-      t.level <- unique(self$data[,self$treatment_name])
+    est_potentialOutcomes = function(two_models) {
+      # browser()
+      data0 <- data1 <- self$data[, c(private$confounders_internal_name, private$treatment_name)]
+      t.level <- unique(self$data[, private$treatment_name])
       level.order <- order(t.level)
-      data0[,self$treatment_name] <- t.level[match(1,level.order)]
-      data1[,self$treatment_name] <- t.level[match(2,level.order)]
+      data0[, private$treatment_name] <- t.level[match(1, level.order)]
+      data1[, private$treatment_name] <- t.level[match(2, level.order)]
 
-      if(two_models){
-        if(class(self$data[,self$outcome_name])=="numeric"){
-          y1.hat <- predict(self$model_outcome$model.y1,newdata=data1)
-          y0.hat <- predict(self$model_outcome$model.y0,newdata=data0)
+      if (two_models) {
+        if (class(self$data[, private$outcome_name]) == "numeric") {
+          y1.hat <- predict(self$model$outcome$model.y1, newdata = data1)
+          y0.hat <- predict(self$model$outcome$model.y0, newdata = data0)
         } else {
-          y1.hat <- predict(self$model_outcome$model.y1,newdata=data1, type="prob")[,2]
-          y0.hat <- predict(self$model_outcome$model.y0,newdata=data0, type="prob")[,2]
+          y1.hat <- predict(self$model$outcome$model.y1, newdata = data1, type = "prob")[, 2]
+          y0.hat <- predict(self$model$outcome$model.y0, newdata = data0, type = "prob")[, 2]
         }
       } else {
-        if(class(self$data[,self$outcome_name])=="numeric"){
-          y1.hat <- predict(self$model_outcome,newdata=data1)
-          y0.hat <- predict(self$model_outcome,newdata=data0)
+        if (class(self$data[, private$outcome_name]) == "numeric") {
+          y1.hat <- predict(self$model$outcome, newdata = data1)
+          y0.hat <- predict(self$model$outcome, newdata = data0)
         } else {
-          y1.hat <- predict(self$model_outcome,newdata=data1, type="prob")[,2]
-          y0.hat <- predict(self$model_outcome,newdata=data0, type="prob")[,2]
+          y1.hat <- predict(self$model$outcome, newdata = data1, type = "prob")[, 2]
+          y0.hat <- predict(self$model$outcome, newdata = data0, type = "prob")[, 2]
         }
       }
-      po.est <- data.frame("0" = y0.hat, "1" = y1.hat)
+      po.est <- data.frame("0"= y0.hat, "1"=y1.hat)
       return(po.est)
     }
   )
