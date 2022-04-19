@@ -70,9 +70,8 @@ SEstimator <- R6::R6Class(
                 axis.ticks.y=element_blank(),
                 axis.title.y=element_blank())
       } else{
-
+        stop("stratification_joint must be TRUE for now, the function has not been completed yet.")
       }
-
 
       ggpubr::ggarrange(p.prop, p.count, nrow=1, ncol=2)
 

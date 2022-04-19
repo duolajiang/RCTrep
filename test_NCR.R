@@ -65,6 +65,7 @@ ncr <- as.data.frame(ncr)
 korea <- as.data.frame(korea)
 usethis::use_data(ncr,korea, quasar.agg,overwrite = TRUE)
 
+
 # usethis::use_data(quasar.agg, overwrite = TRUE)
 # levels of categorical variable should be numeric.
 # name and value must be findable in source.
@@ -74,7 +75,7 @@ usethis::use_data(ncr,korea, quasar.agg,overwrite = TRUE)
 library(RCTrep)
 library(dplyr)
 ## data preparation
-ncr<- RCTrep::ncr
+ncr <- RCTrep::ncr
 korea <- RCTrep::korea
 vars_name <- list(confounders_treatment_name=c("Stage2","age","pT"),
                   confounders_sampling_name=c("Stage2","age","pT"),
@@ -82,8 +83,8 @@ vars_name <- list(confounders_treatment_name=c("Stage2","age","pT"),
                   outcome_name=c('vitstat')
 )
 
-data.public <- TRUE
-Estimator <- "IPW"
+data.public <- FALSE
+Estimator <- "G_computation"
 outcome_formula <- vitstat ~ combined_chemo + Stage2 + age + pT  +
   combined_chemo:Stage2 +combined_chemo:age + combined_chemo:pT + combined_chemo:pT:Stage2
 
@@ -91,8 +92,8 @@ treatment_formula <- combined_chemo ~ Stage2 + age + pT
 
 
 # NOTE!!!
-# data must be data.frame, instead of tbl
-ncr.obj <- TEstimator_wrapper(
+# data MUST be data.frame, NOT tbl
+obj.ncr <- TEstimator_wrapper(
   Estimator = Estimator,
   data = ncr,
   name = "The Netherlands",
@@ -102,9 +103,9 @@ ncr.obj <- TEstimator_wrapper(
   treatment_formula = treatment_formula,
   data.public = data.public
 )
-#ncr.obj$plot_CATE(stratification = c("Stage2","pT","age"), stratification_joint = TRUE)
+#obj.ncr$plot_CATE(stratification = c("Stage2","pT","age"), stratification_joint = TRUE)
 
-korea.obj <- TEstimator_wrapper(
+obj.korea <- TEstimator_wrapper(
   Estimator = Estimator,
   data = korea,
   name = "SK",
@@ -116,74 +117,52 @@ korea.obj <- TEstimator_wrapper(
 )
 
 
-quasar.obj <- RCTrep::quasar.obj
+obj.quasar <- RCTrep::quasar.obj
 
-ncr.rep.obj <- SEstimator_wrapper(estimator="Exact_pp",
-                                  target.obj=quasar.obj,
-                                  source.obj=ncr.obj,
-                                  confounders_sampling_name=c("Stage2","pT","age"))
+# confounders_sampling_name should be variables in both ncr, korea, and quasar
+obj.ncr2quasar <- SEstimator_wrapper(estimator="Exact_pp",
+                                  target.obj=obj.quasar,
+                                  source.obj=obj.ncr,
+                                  confounders_sampling_name=c("Stage2","age"))
 
-korea.rep.obj <- SEstimator_wrapper(estimator="Exact_pp",
-                                    target.obj=quasar.obj,
-                                    source.obj=korea.obj,
-                                    confounders_sampling_name=c("Stage2","pT","age"))
+obj.korea2quasar <- SEstimator_wrapper(estimator="Exact_pp",
+                                    target.obj=obj.quasar,
+                                    source.obj=obj.korea,
+                                    confounders_sampling_name=c("Stage2","age"))
 
-ncr.rep.obj$EstimateRep(stratification = c("Stage2","pT","age"), stratification_joint = FALSE)
-korea.rep.obj$EstimateRep(stratification = c("Stage2","pT","age"), stratification_joint = FALSE)
+obj.ncr2quasar$EstimateRep(stratification = c("Stage2","age"), stratification_joint = FALSE)
+obj.korea2quasar$EstimateRep(stratification = c("Stage2","age"), stratification_joint = FALSE)
 
 
-fusion <- Summary$new(ncr.obj,
-                      ncr.rep.obj,
-                      korea.obj,
-                      korea.rep.obj,
-                      quasar.obj)
+fusion <- Summary$new(obj.ncr,
+                      obj.ncr2quasar,
+                      obj.korea,
+                      obj.korea2quasar,
+                      obj.quasar)
 
 fusion$print()
 fusion$evaluate()
 fusion$plot()
 
-destination <- '~lshen/Downloads/real_example.pdf'
-pdf(file=destination, width = 7, height = 4)
+
+# compare ncr with korea
+obj.ncr2korea <- SEstimator_wrapper(estimator="Exact_pp",
+                                    target.obj=obj.korea,
+                                    source.obj=obj.ncr,
+                                    confounders_sampling_name=c("Stage2","pT"))
+obj.ncr2korea$EstimateRep(stratification = c("Stage2","pT"), stratification_joint = TRUE)
+fusion <- Summary$new(obj.ncr,
+                      obj.korea,
+                      obj.ncr2korea)
 fusion$plot()
-dev.off()
 
-
-# do not compare to rct, we compare ncr to korea
-# regard ncr as source.obj, korea as target.obj
-ncr.rep.korea <- SEstimator_wrapper(estimator="Exact",
-                                    target.obj=korea.obj,
-                                    source.obj=ncr.obj,
-                                    confounders_sampling_name=c("Stage2","pT","age"))
-ncr.rep.korea$EstimateRep(stratification = c("Stage2","pT"), stratification_joint = FALSE)
-
-destination <- '~lshen/Downloads/real_s.pdf'
-pdf(file=destination, width = 7, height = 4)
-ncr.rep.korea$diagnosis_s_overlap(stratification = c("Stage2","pT"), stratification_joint = TRUE)
-dev.off()
-
-fusion <- Summary$new(ncr.obj,
-                      korea.obj,
-                      ncr.rep.korea)
-destination <- '~lshen/Downloads/real_example.pdf'
-pdf(file=destination, width = 7, height = 4)
-fusion$plot()
-dev.off()
-
-a <- fusion$plot()
-b <- ncr.rep.korea$diagnosis_s_overlap()
-library(ggpubr)
-destination <- '~lshen/Downloads/real_example.pdf'
-pdf(file=destination, width = 20, height = 4)
-ggarrange(a,b,nrow = 1)
-dev.off()
-
-# need to write summary for
-source.obj$diagnosis_t_overlap(stratification = c("Stage2","pT","BRAF"), TRUE)
-source.obj$diagnosis_y_overlap(stratification = c("Stage2","pT","BRAF"))
-source.obj$summary(stratification = c("Stage2","pT","BRAF"))
-
-
-
+obj.ncr2korea$diagnosis_s_overlap(stratification = c("Stage2","pT"), stratification_joint = TRUE)
+obj.ncr$diagnosis_t_overlap(stratification = c("Stage2","pT"), TRUE)
+obj.ncr$diagnosis_y_overlap(stratification = c("Stage2","pT"), TRUE)
+obj.ncr$summary()
+obj.korea$diagnosis_t_overlap(stratification = c("Stage2","pT"), TRUE)
+obj.korea$diagnosis_y_overlap(stratification = c("Stage2","pT"), TRUE)
+obj.korea$summary()
 
 
 
