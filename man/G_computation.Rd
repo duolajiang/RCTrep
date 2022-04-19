@@ -7,13 +7,12 @@
 A base R6 class for G_computation estimator for average treatment effect
 }
 \section{Super class}{
-\code{\link[RCTrep:Estimator]{RCTrep::Estimator}} -> \code{G_computation}
+\code{\link[RCTrep:TEstimator]{RCTrep::TEstimator}} -> \code{G_computation}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{G_computation$new()}}
-\item \href{#method-residual_check}{\code{G_computation$residual_check()}}
 \item \href{#method-summary}{\code{G_computation$summary()}}
 \item \href{#method-clone}{\code{G_computation$clone()}}
 }
@@ -21,9 +20,10 @@ A base R6 class for G_computation estimator for average treatment effect
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="EstimateRep">}\href{../../RCTrep/html/Estimator.html#method-EstimateRep}{\code{RCTrep::Estimator$EstimateRep()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="get_CATE">}\href{../../RCTrep/html/Estimator.html#method-get_CATE}{\code{RCTrep::Estimator$get_CATE()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="Estimator" data-id="plot_CATE">}\href{../../RCTrep/html/Estimator.html#method-plot_CATE}{\code{RCTrep::Estimator$plot_CATE()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="diagnosis_t_overlap">}\href{../../RCTrep/html/TEstimator.html#method-diagnosis_t_overlap}{\code{RCTrep::TEstimator$diagnosis_t_overlap()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="diagnosis_y_overlap">}\href{../../RCTrep/html/TEstimator.html#method-diagnosis_y_overlap}{\code{RCTrep::TEstimator$diagnosis_y_overlap()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="get_CATE">}\href{../../RCTrep/html/TEstimator.html#method-get_CATE}{\code{RCTrep::TEstimator$get_CATE()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="plot_CATE">}\href{../../RCTrep/html/TEstimator.html#method-plot_CATE}{\code{RCTrep::TEstimator$plot_CATE()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -39,17 +39,9 @@ A base R6 class for G_computation estimator for average treatment effect
   gc.method,
   gc.formula,
   var_approach = "Bias_adjusted",
+  isTrial,
   ...
 )}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-residual_check"></a>}}
-\if{latex}{\out{\hypertarget{method-residual_check}{}}}
-\subsection{Method \code{residual_check()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{G_computation$residual_check(stratification)}\if{html}{\out{</div>}}
 }
 
 }
@@ -58,7 +50,7 @@ A base R6 class for G_computation estimator for average treatment effect
 \if{latex}{\out{\hypertarget{method-summary}{}}}
 \subsection{Method \code{summary()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{G_computation$summary()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{G_computation$summary(stratification, stratification_joint = TRUE)}\if{html}{\out{</div>}}
 }
 
 }

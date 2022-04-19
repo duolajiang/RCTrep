@@ -10,19 +10,35 @@
 #' @importFrom PSweight PSweight
 IPW <- R6::R6Class(
   "IPW",
-  inherit = Estimator,
+  inherit = TEstimator,
   public = list(
     #-------------------------public fields-----------------------------#
     ps.est = NA,
+    id = "IPW",
 
-    initialize = function(df, vars_name, name, treatment_method, treatment_formula, ...) {
+    initialize = function(df, vars_name, name, treatment_method, treatment_formula, isTrial, ...) {
+      #browser()
       super$initialize(df, vars_name, name)
       private$method <- treatment_method
       private$formula <- treatment_formula
       self$model <- private$fit(...)
       self$ps.est <- private$est_ps()
       private$set_ATE()
-      private$set_CATE(private$confounders_internal_name,TRUE)
+      private$set_CATE(private$confounders_treatment_name,TRUE)
+      private$isTrial <- isTrial
+
+    },
+
+    summary = function(stratification){
+      data.ps <- data.frame(treatment=self$data[,private$treatment_name], ps=self$ps.est)
+      plot.ps.overall <- ggplot2::ggplot(data=data.ps, aes(x=ps, color=treatment, fill=treatment)) +
+        geom_density(alpha=.5)
+      plot.ps.subgroup <- private$plot_aggregate_ps(stratification)
+      plot.agg <- ggpubr::ggarrange(plot.ps.overall, plot.ps.subgroup, ncol = 3)
+
+      out <- list(est.cate = self$estimates$CATE,
+                  plot.agg = plot.agg)
+      out
     }
 
   ),
@@ -87,7 +103,7 @@ IPW <- R6::R6Class(
         )
         res.obj <- summary(weight.obj, contrast = NULL, type = "DIF", CI = "TRUE")
         est <- res.obj$estimates[1]
-        se <- res.obj$estimates[2]
+        se <- sqrt(res.obj$estimates[2])
         y1.hat <- weight.obj$muhat[which(weight.obj$group==1)]
         y0.hat <- weight.obj$muhat[which(weight.obj$group==0)]
       }
@@ -96,9 +112,10 @@ IPW <- R6::R6Class(
     },
 
     fit = function(...) {
+      #browser()
       if (is.null(private$formula)) {
         model <- caret::train(
-          x = self$data[, private$confounders_internal_name],
+          x = self$data[, private$confounders_treatment_name],
           y = self$data[, private$treatment_name],
           method = private$method,
           ...
@@ -115,9 +132,42 @@ IPW <- R6::R6Class(
     },
 
     est_ps = function() {
+      #browser()
       ps.est <- predict(self$model, newdata = self$data, type = "prob")[, 2]
       return(ps.est)
+    },
+
+    plot_aggregate_ps = function(stratification){
+      #browser()
+      data <- data.frame(self$data,ps=self$ps.est)
+      group_data <- data %>% group_by(across(all_of(stratification)))
+      group_strata <- group_data %>% group_keys()
+      group_id <- group_data %>% group_indices()
+      n_groups <- dim(group_strata)[1]
+      group_sample_size <- group_size(group_data)
+      DF <- NULL
+      var_names <- colnames(group_strata)
+      for (i in seq(n_groups)) {
+        x <- group_strata[i,]
+        strata.i <- paste(var_names, x, sep = "=", collapse = ",")
+        size <- rep(group_sample_size[i],each=group_sample_size[i])
+        subgroup.id.in.data <- data[group_id == i, "id"]
+        #browser()
+        df <- data %>%
+          slice(subgroup.id.in.data) %>%
+          select(ps,private$treatment_name,private$outcome_name) %>%
+          mutate(size=size, group=strata.i)
+
+        DF <- rbind(DF,df)
+      }
+
+      plot.ps.subgroup <- ggplot2::ggplot(data = DF,aes(x=ps,y=group,
+                                                        color=eval(parse(text=private$treatment_name)))) +
+        geom_boxplot(alpha=0.4) +
+        scale_color_discrete(name = "treatment")
+
+      return(plot.ps.subgroup)
+
     }
   )
-
 )

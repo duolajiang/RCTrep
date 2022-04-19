@@ -56,54 +56,49 @@
 #' @return
 #' @export
 #' @import R6
-RCTREP <- function(Estimator = "G_computation", weighting_estimator = "Balancing",
+RCTREP <- function(TEstimator = "G_computation", SEstimator = "Balancing",
                    source.data = source.data, target.data = target.data,
-                   source.name = "source", target.name = "target",
+                   source.name = "RWD", target.name = "RCT",
                    vars_name,
+                   confounders_sampling_name,
                    outcome_method = "glm", treatment_method = "glm", weighting_method = "glm",
                    outcome_formula = NULL, treatment_formula = NULL, selection_formula = NULL,
                    stratification = NULL, stratification_joint = FALSE,
                    strata_cut_source = NULL, strata_cut_target = NULL,
                    two_models = FALSE,
-                   data.public = FALSE,
+                   data.public = TRUE,
                    ...) {
 
-  #browser()
-  source.obj <- Estimator_wrapper(
-    Estimator = Estimator, data = source.data, vars_name = vars_name, name = source.name,
+  source.obj <- TEstimator_wrapper(
+    Estimator = TEstimator, data = source.data, vars_name = vars_name, name = source.name,
     outcome_method = outcome_method, treatment_method = treatment_method, two_models = two_models,
     outcome_formula = outcome_formula, treatment_formula = treatment_formula,
     data.public = data.public,
+    #strata_cut = strata_cut,
     ...
   )
 
-  #browser()
-  if (class(target.data) == "list") {
-    #browser()
-    synthetic.data <- GenerateSyntheticData(dim(source.data)[1],
-                                            target.data,
-                                            unique(target.data$CATE_mean_se$name))
-    target.obj <- Estimator$new(df=synthetic.data, vars_name = vars_name, name=target.name)
-    target.obj$estimates$ATE$est <- target.data$ATE_mean
-    target.obj$estimates$ATE$se <- target.data$ATE_se
-    target.obj$estimates$CATE <- target.data$CATE_mean_se
-  } else {
-    target.obj <- Estimator_wrapper(
-      Estimator = Estimator, data = target.data, vars_name = vars_name, name = target.name,
-      outcome_method = outcome_method, treatment_method = treatment_method, two_models = two_models,
-      outcome_formula = outcome_formula, treatment_formula = treatment_formula,
-      data.public = data.public,
-      ...
-    )
-  }
+  target.obj <- TEstimator_wrapper(
+    Estimator = "Crude", data = target.data, vars_name = vars_name, name = target.name,
+    outcome_method = outcome_method, treatment_method = treatment_method, two_models = two_models,
+    outcome_formula = outcome_formula, treatment_formula = treatment_formula,
+    data.public = data.public,
+    isTrial = TRUE,
+    #strata_cut = strata_cut,
+     ...
+  )
 
-  source.obj$EstimateRep(target.obj,
-                         weighting_estimator, weighting_method,
-                         stratification, stratification_joint)
+  source.rep.obj <- SEstimator_wrapper(estimator=SEstimator,
+                                       target.obj=target.obj,
+                                       source.obj=source.obj,
+                                       confounders_sampling_name=confounders_sampling_name)
+  source.rep.obj$EstimateRep(stratification = stratification,
+                             stratification_joint = stratification_joint)
   target.obj$estimates$CATE <- target.obj$get_CATE(stratification, stratification_joint)
 
   return(list(
     source.obj = source.obj,
-    target.obj = target.obj
+    target.obj = target.obj,
+    source.rep.obj = source.rep.obj
   ))
 }

@@ -4,7 +4,7 @@
 \alias{summary.Estimator}
 \title{Summary average treatment effect and possible conditional average treatment}
 \usage{
-\method{summary}{Estimator}(target.obj, source.obj)
+summary.Estimator(target.obj, source.obj)
 }
 \arguments{
 \item{target.obj}{An object of class \code{\link{Estimator}} resulting from target data}

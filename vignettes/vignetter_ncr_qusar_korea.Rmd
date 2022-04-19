@@ -1,0 +1,150 @@
+---
+title: "'RCTrep: An R package for replicating treatment effect estimates of a randomized"
+  control trial using observational data: A case study'
+output:
+  html_document:
+    df_print: paged
+---
+# Working example 1: Replicating QUASAR trial using NCR data
+# Import data
+```{r}
+library(RCTrep)
+library(dplyr)
+source.data <- RCTrep::ncr
+target.data <- RCTrep::quasar.agg
+head(target.data)
+head(source.data)
+```
+
+# Initialze source.obj for NCR data
+## Arguments 
+```{r}
+TEstimator <- "G_computation"
+outcome_formula <- vitstat ~ combined_chemo + Stage2 + age + pT + BRAF + male + 
+                   combined_chemo:Stage2 +combined_chemo:age + combined_chemo:pT + 
+                   combined_chemo:male + combined_chemo:pT:Stage2 + combined_chemo:BRAF
+vars_name <- list(confounders_treatment_name=c("Stage2","age","pT","BRAF","male"),
+                  treatment_name=c('combined_chemo'),
+                  outcome_name=c('vitstat')
+                  )
+```
+
+## Initialize 
+```{r, warning=FALSE}
+#source.data$combined_chemo <- as.numeric(as.character(source.data$combined_chemo))
+source.obj <- TEstimator_wrapper(
+  Estimator = TEstimator,
+  data = source.data,
+  name = "ncr",
+  vars_name = vars_name,
+  outcome_method = "glm",
+  outcome_formula = outcome_formula,
+  data.public = TRUE
+)
+```
+
+```{r}
+source.obj$data
+```
+
+
+## summarize data distribution
+```{r}
+source.obj$diagnosis_t_overlap(stratification = c("Stage2","pT"),stratification_joint = TRUE)
+```
+
+```{r}
+source.obj$diagnosis_y_overlap(stratification = c("Stage2","age","pT"),stratification_joint = TRUE)
+```
+
+## diagnosis estimates
+```{r}
+source.obj$plot_CATE(stratification = c("Stage2","pT"))
+```
+
+## diagnosis model fit
+```{r}
+source.obj$summary()
+```
+
+# Inialize target.obj for RCT data (QUASAR trial)
+```{r}
+target.obj <- Synthetic_TEstimator$new(dim(source.data)[1], target.data, name="QUASAR trial")
+```
+
+# Inialize target.obj.rep
+```{r}
+confounders_sampling <- c("Stage2","male","age")
+source.obj.rep <- SEstimator_wrapper(estimator="exact_pp",
+                                     target.obj=target.obj,
+                                     source.obj=source.obj,
+                                     confounders_sampling=confounders_sampling)
+```
+## Implement RCT replication
+```{r,warning=FALSE}
+source.obj.rep$EstimateRep(stratification = c("Stage2","male","age"), stratification_joint = FALSE)
+```
+
+## Plot
+```{r}
+fusion <- Summary$new(target.obj,
+                      source.obj,
+                      source.obj.rep)
+fusion$plot()
+```
+
+
+# The Netherlands vs. Korea
+```{r}
+target.data <- RCTrep::korea
+```
+
+## Initialize target.obj for korea
+```{r,warning=FALSE}
+target.obj <- TEstimator_wrapper(
+  Estimator = TEstimator,
+  data = target.data,
+  name = "korea",
+  vars_name = vars_name,
+  outcome_method = "glm",
+  outcome_formula = outcome_formula,
+  data.public = FALSE
+)
+```
+
+```{r}
+confounders_sampling <- c("Stage2","pT","age")
+source.obj.rep <- SEestimator_wrapper(estimator="exact_pp",
+                                      target.obj=target.obj,
+                                      source.obj=source.obj,
+                                      confounders_sampling=confounders_sampling)
+
+```
+
+```{r}
+source.obj.rep$diagnosis(stratification = c("Stage2","pT","age"))
+```
+
+
+## Implement RCT replication
+```{r}
+source.obj.rep$EstimateRep(stratification = c("Stage2","age"), stratification_joint = TRUE)
+```
+
+## Plot
+```{r}
+fusion <- Summary$new(target.obj,
+                      source.obj,
+                      source.obj.rep)
+fusion$plot()
+```
+
+
+
+
+
+
+
+
+
+

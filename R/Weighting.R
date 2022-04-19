@@ -1,3 +1,10 @@
+GenerateSyntheticData <- function(N, data, vars_weighting){
+  #browser()
+  pattern_distribution <- PatternDistribution(data, vars_weighting)
+  target <- generateSyntheticData(N, pattern_distribution)
+  return(target)
+}
+
 PatternDistribution <- function(data, vars_weighting) {
   #browser()
   if (class(data) == "data.frame") {
@@ -17,11 +24,12 @@ PatternDistribution <- function(data, vars_weighting) {
   }
 }
 
-SelectionScoreModeling <- function(data,  vars_weighting, weighting_method) {
+SelectionScoreModeling <- function(data,  vars_weighting, weighting_method,...) {
   model <- caret::train(
     x = data[, vars_weighting],
     y = data$selection,
-    method = weighting_method
+    method = weighting_method,
+    ...
   )
   selection_score <- predict(model, type = "prob")[data$selection == 0, c("1")]
   return(selection_score)

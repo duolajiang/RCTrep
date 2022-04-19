@@ -1,0 +1,50 @@
+library(dplyr)
+source.data <- RCTrep::source.data.binary
+target.data <- RCTrep::target.data.binary
+
+vars_name <- list(confounders_treatment=c("x1","x2","x3","x4","x5","x6"),
+                  confounders_sampling=c("x1","x2","x3","x4","x5","x6"),
+                  treatment_name=c('z'),
+                  outcome_name=c('y')
+)
+
+# select variables confounders_treatment
+# order data according to the confounders_treatment
+source.data <- source.data %>%
+  select(vars_name$confounders_treatment,
+         vars_name$treatment_name,
+         vars_name$outcome_name) %>%
+  arrange(across(vars_name$confounders_treatment))
+
+target.data <- target.data %>%
+  select(vars_name$confounders_treatment,
+         vars_name$treatment_name,
+         vars_name$outcome_name) %>%
+  arrange(across(vars_name$confounders_treatment))
+
+# step 1: check z-overlap assumptions of each data set
+# check overlap of probability of receiving treatment given confounders_treatment
+# filter subgroups with no overlap in treatment/control
+source.data <- source.data %>% group_by(across(all_of(vars_name$confounders_treatment))) %>%
+  mutate(pt=sum(z)/n()) %>%
+  ungroup() %>%
+  filter((pt!=1)&(pt!=0))
+target.data <- target.data %>% group_by(across(all_of(vars_name$confounders_treatment))) %>%
+  mutate(pt=sum(z)/n()) %>%
+  ungroup() %>%
+  filter((pt!=1)&(pt!=0))
+
+# step 2: check S-overlap assumptions, namely the probability of being sampled given confounders_external
+# if two dataset can be combined, then we check p(s=1|x)
+# if two dataset can't be combined, then we check the overlap of p(x), and select intersect of two dataset
+source.data <- semi_join(source.data, target.data, by = vars_name$confounders_sampling)
+target.data <- semi_join(target.data, source.data, by = vars_name$confounders_sampling)
+source.data %>% group_by(across(all_of(vars_name$confounders_sampling))) %>% summarise(n=n())
+target.data %>% group_by(across(all_of(vars_name$confounders_sampling))) %>% summarise(n=n())
+
+# step 3 (for binary outcomes): check overlap of probability of outcome given confounders_treatment and treatment
+# few overlap might lead to loss of precision of logisitc regression
+source.data %>% group_by(across(all_of(c(vars_name$confounders_treatment,vars_name$treatment_name)))) %>%
+  summarise(ybar=mean(y=="1"), obs=n())
+target.data %>% group_by(across(all_of(c(vars_name$confounders_treatment,vars_name$treatment_name)))) %>%
+  summarise(ybar=mean(y=="1"), obs=n())

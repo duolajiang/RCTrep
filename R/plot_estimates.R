@@ -36,6 +36,11 @@ summary.Estimator <- function(target.obj,source.obj) {
       source.obj$estimates$ATE$est + 1.98 * source.obj$estimates$ATE$se,
       target.obj$estimates$ATE$est + 1.98 * target.obj$estimates$ATE$se,
       source.obj$estimates$ATE_weighted$est + 1.98 * source.obj$estimates$ATE_weighted$se
+    ),
+    size = c(
+      sum(source.obj$estimates$CATE$size),
+      sum(target.obj$estimates$CATE$size),
+      sum(source.obj$estimates$CATE_weighted$size)
     )
   )
 
@@ -46,6 +51,7 @@ summary.Estimator <- function(target.obj,source.obj) {
     effect_size = c(source.obj$estimates$CATE$cate),
     ci_l = c(source.obj$estimates$CATE[, "cate"] - 1.98 * source.obj$estimates$CATE[, "se"]),
     ci_u = c(source.obj$estimates$CATE[, "cate"] + 1.98 * source.obj$estimates$CATE[, "se"]),
+    size = source.obj$estimates$CATE$size,
     stringsAsFactors = FALSE
   )
   CATE.RWD$study <- "source"
@@ -55,6 +61,7 @@ summary.Estimator <- function(target.obj,source.obj) {
     effect_size = c(source.obj$estimates$CATE_weighted$cate),
     ci_l = c(source.obj$estimates$CATE_weighted[, "cate"] - 1.98 * source.obj$estimates$CATE_weighted[, "se"]),
     ci_u = c(source.obj$estimates$CATE_weighted[, "cate"] + 1.98 * source.obj$estimates$CATE_weighted[, "se"]),
+    size = source.obj$estimates$CATE_weighted$size,
     stringsAsFactors = FALSE
   )
   CATE.RWD.rep$study <- "source.weighted"
@@ -64,23 +71,24 @@ summary.Estimator <- function(target.obj,source.obj) {
     effect_size = c(target.obj$estimates$CATE$cate),
     ci_l = c(target.obj$estimates$CATE[, "cate"] - 1.98 * target.obj$estimates$CATE[, "se"]),
     ci_u = c(target.obj$estimates$CATE[, "cate"] + 1.98 * target.obj$estimates$CATE[, "se"]),
+    size = target.obj$estimates$CATE$size,
     stringsAsFactors = FALSE
   )
   CATE.RCT$study <- "target"
 
   data <- rbind(CATE.RCT, CATE.RWD, CATE.RWD.rep, ATE)
 
-  p_table <- cbind(
-    source.obj$estimates$CATE[, !colnames(source.obj$estimates$CATE) %in% c("cate", "se", "size")],
-    target.obj$estimates$CATE$size, source.obj$estimates$CATE$size, source.obj$estimates$CATE_weighted$size
-  )
-  colnames(p_table) <- c(colnames(source.obj$estimates$CATE)[!colnames(source.obj$estimates$CATE) %in% c("cate", "se", "size")], "size_target", "size_source", "size_source_weighted")
-  p_table <- ggpubr::ggtexttable(p_table, rows = NULL)
+  # p_table <- cbind(
+  #   source.obj$estimates$CATE[, !colnames(source.obj$estimates$CATE) %in% c("cate", "se", "size")],
+  #   target.obj$estimates$CATE$size, source.obj$estimates$CATE$size, source.obj$estimates$CATE_weighted$size
+  # )
+  # colnames(p_table) <- c(colnames(source.obj$estimates$CATE)[!colnames(source.obj$estimates$CATE) %in% c("cate", "se", "size")], "size_target", "size_source", "size_source_weighted")
+  # p_table <- ggpubr::ggtexttable(p_table, rows = NULL)
 
   library(ggplot2)
   p_plot <- ggplot2::ggplot(data = data, aes(x = effect_size, y = group, color = study, group = study)) +
-    geom_line(orientation = "y", position = position_dodge(0.5), linetype = "dotted") +
-    geom_point(position = position_dodge(0.5)) +
+    #geom_line(orientation = "y", position = position_dodge(0.5), linetype = "dotted") +
+    geom_point(position = position_dodge(0.5), aes(size=size)) +
     geom_errorbar(aes(xmin = ci_l, xmax = ci_u), width = .3, position = position_dodge(0.5)) +
     geom_vline(xintercept = 0, color = "black", linetype = "dashed", alpha = .5)
 
@@ -97,7 +105,6 @@ summary.Estimator <- function(target.obj,source.obj) {
     target.model = target.obj$model
   )
   out
-
 
   # ggpubr::ggarrange(p_plot,p_table,ncol = 1, nrow = 2)
 

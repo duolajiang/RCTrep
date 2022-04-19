@@ -5,13 +5,14 @@
 \title{Replicate treatment effect estimates obtained from a randomized control trial using real world data}
 \usage{
 RCTREP(
-  Estimator = "G_computation",
-  weighting_estimator = "Balancing",
+  TEstimator = "G_computation",
+  SEstimator = "Balancing",
   source.data = source.data,
   target.data = target.data,
-  source.name = "source",
-  target.name = "target",
+  source.name = "RWD",
+  target.name = "RCT",
   vars_name,
+  confounders_sampling_name,
   outcome_method = "glm",
   treatment_method = "glm",
   weighting_method = "glm",
@@ -23,15 +24,11 @@ RCTREP(
   strata_cut_source = NULL,
   strata_cut_target = NULL,
   two_models = FALSE,
-  data.public = FALSE,
+  data.public = TRUE,
   ...
 )
 }
 \arguments{
-\item{Estimator}{A character specifying an estimator for average treatment effect. The allowed estimators for \code{Estimator} are: \code{"G_computation"}, \code{"IPW"}, and \code{"DR"}. The corresponding object will be created by the wrapper function \code{\link{Estimate()}}. The default is \code{"G_computation"}, which, along with \code{outcome_method="glm"} model the potential outcomes.}
-
-\item{weighting_estimator}{A character specifying a weighting estimator for generalizing/transporting the estimates of \code{source.obj} (initiated using RWD) to \code{target.obj} (initiated using RCT) as to enable replication/comparison between source study (RWD) and target study(RCT). The allowed estimators are: \code{"balancing"}, and \code{"modeling"}. \code{"balancing"} estimator use exact matching to compute the weight; \code{"modeling"} estimator model the probability of being selected to the target RCT (assuming combing target RCT and the source RWD as a population). The default is \code{"Balancing"}, which, implements the exact matching on variables in \code{vars_name$external_confounder} to balance the population covariates between \code{source.data} and \code{target.data}}
-
 \item{source.data}{A data frame containing variables named in \code{vars_name} and possible other variables. If not found in \code{source.data}, the function will stop and throw error; vectors of binary treatment and binary outcome should be factor.}
 
 \item{target.data}{A data frame containing variables named in \code{vars_name} and possible other variables, or a list of four components with four tags \code{ATE_mean}, \code{ATE_se}, \code{CATE_mean_se}, and \code{univariate_p} reference four components with data type numeric, numeric, data.frame, and list respectively. \code{ATE_mean} is a numeric vector of length 1 containing the point estimate of the treatment effect in \code{target.data}, \code{ATE_se} is a numeric vector of length 1 containing the standard error the treatment effect, \code{CATE_mean_se} is a data frame containing five vectors \code{name}, \code{value}, \code{cate}, \code{se}, and \code{size} of length \eqn{N}, where \code{name} is variables that divide the target population into smaller groups, \code{value} is levels of variables in \code{name}, \code{cate} is the provided conditional average treatment effect of a subgroup defined by a variable in \code{name} with the corresponding level in \code{value}, \code{se} is the standard error of the \code{cate}, \code{size} is the group size, \eqn{N} is the number of stratum based on variables in the vector \code{name} and levels in \code{value}. \code{univariate_p} is a list of length equal to the number of variables to divide the population with tags equal to variable names, each component containing a vector, which, each containing the name of a variable, number of levels of the variable, levels of the variable, and the distribution of each level by order.}
@@ -49,6 +46,10 @@ RCTREP(
 \item{two_models}{An optional logical indicating whether potential outcomes should be modeled separately when \code{Estimator="DR"}. Default is FALSE.}
 
 \item{...}{An optional arguments passed to \code{fit()} of each estimator object for model training and tuning. See \url{https://topepo.github.io/caret/model-training-and-tuning.html} for details.}
+
+\item{Estimator}{A character specifying an estimator for average treatment effect. The allowed estimators for \code{Estimator} are: \code{"G_computation"}, \code{"IPW"}, and \code{"DR"}. The corresponding object will be created by the wrapper function \code{\link{Estimate()}}. The default is \code{"G_computation"}, which, along with \code{outcome_method="glm"} model the potential outcomes.}
+
+\item{weighting_estimator}{A character specifying a weighting estimator for generalizing/transporting the estimates of \code{source.obj} (initiated using RWD) to \code{target.obj} (initiated using RCT) as to enable replication/comparison between source study (RWD) and target study(RCT). The allowed estimators are: \code{"balancing"}, and \code{"modeling"}. \code{"balancing"} estimator use exact matching to compute the weight; \code{"modeling"} estimator model the probability of being selected to the target RCT (assuming combing target RCT and the source RWD as a population). The default is \code{"Balancing"}, which, implements the exact matching on variables in \code{vars_name$external_confounder} to balance the population covariates between \code{source.data} and \code{target.data}}
 
 \item{strata_cut}{An optional list containing lists. Each component is a list with tag named by a variable to discretize, containing \code{break} which is a vector specifying the interval of range of the variable to divide, \code{lable} which is a string vector specifying how to code value in the variable according to which interval they fall. The leftmost interval corresponds to level one, the next leftmost to level two and so on. This parameter is useful in the case we concern the integrated treatment effect conditioning on variables with multiple levels (for instance, continuous variable or ordinal variable with multiple levels). Note that we first model based on these continuous variables, then we discretize these variables according to \code{strata_cut} by modifying the public variable \code{data} of \code{Estimator} object in wrap function \code{\link{Estimate}}, and calculate the weight for generalization based on the discretized variables.}
 }

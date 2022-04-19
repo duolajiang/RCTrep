@@ -4,16 +4,18 @@
 #' @export
 DR <- R6::R6Class(
   "DR",
-  inherit = Estimator,
+  inherit = TEstimator,
   public = list(
 
     ps.est = NA,
 
     po.est = data.frame(),
+
+    id = "DR",
     #-------------------------public fields-----------------------------#
     initialize = function(df, vars_name, name,
                           treatment_method, treatment_formula,
-                          outcome_method, outcome_formula,two_models, ...) {
+                          outcome_method, outcome_formula,two_models,isTrial, ...) {
       super$initialize(df, vars_name, name)
       #browser()
       self$data[, private$outcome_name] <- as.numeric(levels(self$data[, private$outcome_name])[self$data[, private$outcome_name]])
@@ -26,7 +28,8 @@ DR <- R6::R6Class(
       self$ps.est <- private$est_ps()
       self$po.est <- private$est_potentialOutcomes(two_models)
       private$set_ATE()
-      private$set_CATE(private$confounders_internal_name,TRUE)
+      private$set_CATE(private$confounders_treatment_name,TRUE)
+      private$isTrial <- isTrial
     }
   ),
 
@@ -108,7 +111,7 @@ DR <- R6::R6Class(
       #browser()
       if (is.null(private$treatment_formula)) {
         model <- caret::train(
-          x = self$data[, private$confounders_internal_name],
+          x = self$data[, private$confounders_treatment_name],
           y = self$data[, private$treatment_name],
           method = private$treatment_method,
           ...
@@ -135,13 +138,13 @@ DR <- R6::R6Class(
         train.t1.id <- (self$data[, private$treatment_name] == t1)
         if (is.null(private$outcome_formula)) {
           model.y1 <- caret::train(
-            x = self$data[train.t1.id, private$confounders_internal_name],
+            x = self$data[train.t1.id, private$confounders_treatment_name],
             y = self$data[train.t1.id, private$outcome_name],
             method = private$outcome_method,
             ...
           )
           model.y0 <- caret::train(
-            x = self$data[train.t0.id, private$confounders_internal_name],
+            x = self$data[train.t0.id, private$confounders_treatment_name],
             y = self$data[train.t0.id, private$outcome_name],
             method = private$outcome_method,
             ...
@@ -164,7 +167,7 @@ DR <- R6::R6Class(
       } else {
         if (is.null(private$outcome_formula)) {
           model <- caret::train(
-            x = self$data[, c(private$confounders_internal_name, private$treatment_name)],
+            x = self$data[, c(private$confounders_treatment_name, private$treatment_name)],
             y = self$data[, private$outcome_name],
             method = private$outcome_method,
             ...
@@ -188,7 +191,7 @@ DR <- R6::R6Class(
 
     est_potentialOutcomes = function(two_models) {
       # browser()
-      data0 <- data1 <- self$data[, c(private$confounders_internal_name, private$treatment_name)]
+      data0 <- data1 <- self$data[, c(private$confounders_treatment_name, private$treatment_name)]
       t.level <- unique(self$data[, private$treatment_name])
       level.order <- order(t.level)
       data0[, private$treatment_name] <- t.level[match(1, level.order)]

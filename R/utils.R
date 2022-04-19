@@ -340,14 +340,6 @@ generateSyntheticData <- function(N, PatternDistributionDataFrame_Target) {
 }
 
 
-GenerateSyntheticData <- function(N, data, vars_weighting){
-  #browser()
-  pattern_distribution <- PatternDistribution(data, vars_weighting)
-  target <- generateSyntheticData(N, pattern_distribution)
-  return(target)
-}
-
-
 .GetFormulaSelectionScore <- function(xvars) {
   formula_selection <- as.formula(paste("selection~", .FormulaXGeneration(xvars), sep = ""))
   return(formula_selection)
@@ -384,3 +376,162 @@ IPW.estimator <- function(z=z,y=y,ps=ps,w=w,t=1){
   }
   return(y.est)
 }
+
+
+#' @export
+DGM <- function(trial,n, var_name, p_success,tau, y0, log.ps=NULL, binary=FALSE, noise=1, ...){
+  # p <- length(var_name)
+  # mu <- rep(0, p)
+  # sigma <- diag(x=1,nrow=p,ncol=p)
+  # args <- list(...)
+  # n_args <- length(args)
+  # if(n_args > 0) {
+  #   vars <- var_name
+  #   sigma <- CovarianceMatrix(sigma,args,vars)
+  # }
+  # mu <- rep(0, p)
+  # X <- mvrnorm(n,mu,sigma)
+  #
+  # for (i in seq(p)) {
+  #   X[,i] <- ifelse(X[,i]<p_success[i],1,0)
+  # }
+  #browser()
+
+  X <- sapply(p_success, function(x) rbinom(n,1,x))
+
+  data <- as.data.frame(X)
+  colnames(data) <- var_name
+  if(trial){
+    z <- rbinom(n,1,0.5)
+  } else{
+    log.OR <- eval(parse(text=log.ps), data)
+    mean.log.OR <- mean(log.OR)
+    sd.log.OR <- sd(log.OR)
+    log.OR.norm <- (log.OR-mean.log.OR)/sd.log.OR*sqrt(3)/pi
+    ps <- 1/(1+exp(-log.OR.norm))
+    z <- rbinom(n,1,ps)
+  }
+
+  data <- cbind(data,z)
+  tau <- eval(parse(text=tau),data)
+  y0 <- eval(parse(text=y0),data)
+
+  if(binary){
+    log.OR <- y0 + tau*z
+    mean.log.OR <- mean(log.OR)
+    sd.log.OR <- sd(log.OR)
+    log.OR.norm <- (log.OR-mean.log.OR)/sd.log.OR*sqrt(3)/pi
+    pr <- 1/(1+exp(-log.OR.norm))
+    data$y <- as.factor(rbinom(n,1,pr))
+  } else {
+    data$y <- y0 + tau*z + rnorm(noise)
+  }
+  AdjustATE <- ATEAdjustment(tau,y0,data)
+  NoAdjustATE <- mean(data[data$z==1,'y'])-mean(data[data$z==0,'y'])
+  TrueATE <- mean(tau)
+  colnames.DGM <- c("Crude","Adjusted","True")
+  ATE.DGM <- c(NoAdjustATE,
+               AdjustATE,
+               TrueATE)
+  print.ATE <- rbind(colnames.DGM,ATE.DGM)
+  print(print.ATE)
+
+  return(data)
+}
+
+## adjustment covariate ATE vs no adjustment covariate ATE vs true ATE, see the difference
+ATEAdjustment <- function(tau,y0,data){
+  formula <- y ~ eval(y0) + z:eval(tau)
+  g_compu <- lm(formula, data = data)
+  data1 <- data0 <- data
+  data1$z <- 1; data0$z <- 0
+  po.1 <- predict(g_compu,data1)
+  po.0 <- predict(g_compu,data0)
+  ATE <- mean(po.1-po.0)
+  return(ATE)
+}
+
+
+CovarianceMatrix <- function(sigma,args,vars){
+  #
+  n_rhos <- length(args)
+  for (i in seq(n_rhos)) {
+    v_name_1 <- args[[i]][1]
+    v_name_2 <- args[[i]][2]
+    pair_rho <- as.numeric(args[[i]][3])
+    index.1 <- which(v_name_1==vars)
+    index.2 <- which(v_name_2==vars)
+    sigma[index.1,index.2] <- pair_rho
+    sigma[index.2,index.1] <- pair_rho
+  }
+  return(sigma)
+}
+
+test_binary <- function(data){
+  vals <- unique(data)
+  nvals <- length(vals)
+  if((nvals==2)&(sum(vals %in% c(0,1))==2)){
+    return(TRUE)
+  } else{
+    return(FALSE)
+  }
+}
+
+
+find_SEstimator_obj <- function(...){
+  objs <- list(...)
+  objs.length <- length(objs)
+  i <- 1
+  while (i <= objs.length) {
+    if("SEstimator" %in% class(objs[[i]])){
+      return(i)
+    } else {
+      i <- i+1
+    }
+  }
+  return(0)
+}
+
+
+find_trial_obj <- function(...){
+  #browser()
+  objs <- list(...)
+  objs.length <- length(objs)
+  i <- 1
+  while (i <= objs.length) {
+    if(objs[[i]]$.__enclos_env__$private$isTrial){
+      return(i)
+    } else {
+      i <- i+1
+    }
+  }
+  return(0)
+}
+
+find_TEstimator_obj <- function(...){
+  #browser()
+  objs <- list(...)
+  objs.length <- length(objs)
+  i <- 1
+  while (i <= objs.length) {
+    if("TEstimator" %in% class(objs[[i]])){
+      return(i)
+    } else {
+      i <- i+1
+    }
+  }
+  return(0)
+}
+
+find_RWD_study_name <- function(...){
+  objs <- list(...)
+  study.names <- c()
+  for (obj in objs) {
+    if(!obj$.__enclos_env__$private$isTrial){
+      study.names <- c(study.names, obj$name)
+    }
+  }
+  return(study.names)
+}
+
+
