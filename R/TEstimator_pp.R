@@ -24,14 +24,9 @@ TEstimator_pp <- R6::R6Class(
       private$summary_inherent
     },
 
-    diagnosis_t_overlap = function(stratification, stratification_joint){
+    diagnosis_t_overlap = function(stratification=private$confounders_treatment_name, stratification_joint=TRUE){
       #browser()
-      if(missing(stratification)){
-        vars_name <- private$confounders_treatment_name
-      } else{
-        vars_name <- stratification
-      }
-
+      vars_name <- stratification
       # when use group_by(across(all_of(...))), ... should be a vector and
       # each element should be a character/string
       if(isTRUE(stratification_joint)){
