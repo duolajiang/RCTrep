@@ -116,7 +116,7 @@ obj.korea <- TEstimator_wrapper(
   data.public = data.public
 )
 
-
+## quasar.obj is generated in generate_synthetic_quasar_data.R
 obj.quasar <- RCTrep::quasar.obj
 
 # confounders_sampling_name should be variables in both ncr, korea, and quasar

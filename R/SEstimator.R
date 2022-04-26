@@ -17,11 +17,11 @@ SEstimator <- R6::R6Class(
     weighting_method = character(),
 
     initialize = function(target.obj, source.obj, weighting_method=NULL,
-                          confounders_sampling){
+                          confounders_sampling_name){
       private$target.obj <- target.obj
       private$source.obj <- source.obj
       self$weighting_method <- weighting_method
-      self$confounders_sampling_name <- confounders_sampling
+      self$confounders_sampling_name <- confounders_sampling_name
       private$ispublic <- !c("TEstimator_pp") %in% class(source.obj)
       self$name <- source.obj$name
       self$statistics <- source.obj$statistics
@@ -59,7 +59,7 @@ SEstimator <- R6::R6Class(
 
         p.prop <- ggplot(data = data, aes(x=group_name, fill=study)) +
           geom_bar(position = "fill") +
-          xlab("proportion") +
+          ylab("proportion") +
           coord_flip() +
           theme(legend.position="none")
 

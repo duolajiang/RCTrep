@@ -104,7 +104,7 @@ Summary <- R6::R6Class(
         select(group_name,
                estimator,
                size,
-               bias,
+               #bias,
                mse,
                len_ci,
                agg.est,

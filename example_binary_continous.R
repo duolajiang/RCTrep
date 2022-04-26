@@ -190,6 +190,7 @@ target.obj <- TEstimator_wrapper(
 )
 
 strata <- c("x1","x4")
+confounders_sampling_name <- c("x2","x6")
 source.gc.exact <- SEstimator_wrapper(estimator="Exact",target.obj=target.obj, source.obj=source.obj.gc,confounders_sampling_name=confounders_sampling_name)
 source.gc.exact$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
@@ -232,7 +233,7 @@ fusion <- Summary$new(target.obj,
                       source.dr.subclass)
 
 destination <- '~lshen/Downloads/plot_all_compares.pdf'
-pdf(file=destination, width = 7, height = 7)
+pdf(file=destination, width = 14, height = 7)
 fusion$plot()
 dev.off()
 
