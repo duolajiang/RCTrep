@@ -652,6 +652,30 @@ summary(target.obj = output$target.obj, source.obj = output$source.obj)
 # remaining_sets <- vars_name$confounders_treatment[!vars_name$confounders_treatment %in% vars_name$confounders_sampling]
 # source.data %>% group_by(across(all_of(remaining_sets))) %>% summarise_at(vars_name$confounders_sampling,mean)
 
+##########################################################
+## testing: using BART modeling approach
+##########################################################
+library(RCTrep)
+library(ggplot2)
+source.data <- RCTrep::source.data
+target.data <- RCTrep::target.data
 
+vars_name <- list(confounders_treatment_name=c("x1","x2","x3","x4","x5","x6"),
+                  treatment_name=c('z'),
+                  outcome_name=c('y')
+)
 
+source.data$y <- ifelse(source.data$y<2,0,1)
 
+source.obj <- TEstimator_wrapper(
+  Estimator = "G_computation",
+  data = source.data,
+  name = "RWD",
+  vars_name = vars_name,
+  outcome_method = "BART",
+  data.public = TRUE,
+  ntree = 50
+)
+source.obj$summary(stratification = c("x1","x2"))
+source.obj$diagnosis_t_overlap(stratification = c("x1","x2"))
+source.obj$diagnosis_y_overlap(stratification = c("x1","x2"))

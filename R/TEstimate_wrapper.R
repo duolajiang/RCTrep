@@ -20,16 +20,35 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
     if ((!is.factor(data[, vars_name$outcome_name]))&(length(unique(data[, vars_name$outcome_name]))==2)) {
       message("you are classifiying, but outcome class is numeric, we are converting the outcome to factor!")
       data[,vars_name$outcome_name] <- as.factor(data[,vars_name$outcome_name])
-      }
-    obj <- G_computation$new(
-      df = data,
-      name = name,
-      vars_name = vars_name,
-      gc.method = outcome_method,
-      gc.formula = outcome_formula,
-      isTrial = isTrial,
-      ...
-    )
+    }
+    if((outcome_method=="BART")&
+       (is.factor(data[, vars_name$outcome_name]))&
+       (length(unique(data[, vars_name$outcome_name]))==2)) {
+      message("you are classifiying using BART, outcome class should be numeric; we are converting the outcome to numeric!")
+      data[,vars_name$outcome_name] <- as.numeric(as.character(data[,vars_name$outcome_name]))
+    }
+
+    if (outcome_method=="BART"){
+      obj <- G_computation_BART$new(
+        df = data,
+        name = name,
+        vars_name = vars_name,
+        gc.method = outcome_method,
+        gc.formula = outcome_formula,
+        isTrial = isTrial,
+        ...
+      )
+    } else {
+      obj <- G_computation$new(
+        df = data,
+        name = name,
+        vars_name = vars_name,
+        gc.method = outcome_method,
+        gc.formula = outcome_formula,
+        isTrial = isTrial,
+        ...
+      )
+    }
   } else if (Estimator == "IPW") {
     #browser()
     if (is.factor(data[, vars_name$outcome_name])) {

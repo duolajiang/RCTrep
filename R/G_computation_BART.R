@@ -1,21 +1,13 @@
 #' @title R6 class: G_computation base class
 #' @description A base R6 class for G_computation estimator for average treatment effect
 #' @export
-#' @import geex
-G_computation <- R6::R6Class(
-  "G_computation",
+#' @import geex, ggplot2, fastDummies
+G_computation_BART <- R6::R6Class(
+  "G_computation_BART",
   inherit = TEstimator,
   #-------------------------public fields-----------------------------#
   public = list(
 
-    po.est = list(
-      y1.hat = NULL,
-      y0.hat = NULL
-    ),
-    po.est.var = list(
-      y1.hat.rep = NULL,
-      y0.hat.rep = NULL
-    ),
     resi = NULL,
 
     ps.est = NULL,
@@ -30,10 +22,15 @@ G_computation <- R6::R6Class(
       private$gc.method <- gc.method
       private$gc.formula <- gc.formula
       private$var_approach <- var_approach
+      private$confounders_treatment_factor <- private$confounders_treatment_name[sapply(self$data[,private$confounders_treatment_name],
+                                                                                is.factor)]
       self$model <- private$fit(...)
-      po.est <- private$est_potentialOutcomes()
-      self$data$y1.hat <- po.est$y1.hat
-      self$data$y0.hat <- po.est$y0.hat
+      po_mean_var <- private$est_potentialOutcomes_mean_var()
+      self$data$y1.hat.mean <- po_mean_var$y1.hat.mean
+      self$data$y0.hat.mean <- po_mean_var$y0.hat.mean
+      self$data$y1.hat.var <- po_mean_var$y1.hat.var
+      self$data$y0.hat.var <- po_mean_var$y0.hat.var
+      self$data$ite.var <- self$data$y1.hat.var + self$data$y0.hat.var
       self$resi <- private$est_residual()
       private$set_ATE()
       private$set_CATE(private$confounders_treatment_name,TRUE)
@@ -131,53 +128,37 @@ G_computation <- R6::R6Class(
 
     gc.method = NULL,
     gc.formula = NULL,
-    treatment_method = "glm",
     var_approach = NULL,
     iterations = 1,
+    confounders_treatment_factor = NULL,
 
     fit = function(...) {
-      if (private$gc.method == "BART"){
-        x.train <- as.matrix(self$data[, c(private$confounders_treatment_name, private$treatment_name)])
-        y.train <- as.matrix(self$data[, private$outcome_name])
-        model <- BART::wbart(
-          x.train = x.train,
-          y.train = y.train,
-          ...
-        )
+      #browser()
+      x.train <- self$data[, c(private$confounders_treatment_name, private$treatment_name)]
+      if(length(private$confounders_treatment_factor)>0){
+        x.train <- fastDummies::dummy_cols(x.train, select_columns= private$confounders_treatment_factor,
+                                           remove_selected_columns = TRUE)
+      }
+      x.train <- as.matrix(x.train)
+      y.train <- as.matrix(self$data[, private$outcome_name])
+      if (length(unique(self$data[, private$outcome_name]))>2) {
+        model <- BART::wbart(x.train=x.train, y.train = y.train, ...)
       } else {
-        if (is.null(private$gc.formula)) {
-          model <- caret::train(
-            x = self$data[, c(private$confounders_treatment_name, private$treatment_name)],
-            y = self$data[, private$outcome_name],
-            method = private$gc.method,
-            ...
-          )
-        } else {
-          print(private$gc.formula)
-          model <- caret::train(
-            form = private$gc.formula,
-            data = self$data,
-            method = private$gc.method,
-            ...
-          )
-        }
+        model <- BART::pbart(x.train=x.train, y.train = y.train, ...)
       }
       return(model)
     },
 
     est_ATE_SE = function(index) {
       #browser()
-      y1.hat <- self$data$y1.hat[index]
-      y0.hat <- self$data$y0.hat[index]
-      data <- as.data.frame(cbind(y1.hat, y0.hat))
-      colnames(data) <- c("y1.hat","y0.hat")
-      results <- m_estimate(estFUN = private$gc_estfun,
-                            data = data,
-                            root_control = setup_root_control(start = c(0,0,0)))
-      y1.hat.mu <- results@estimates[1]
-      y0.hat.mu <- results@estimates[2]
-      est <- results@estimates[3]
-      se <- sqrt(results@vcov[3,3])
+      n <- length(index)
+      cate <- self$data$y1.hat.mean[index] - self$data$y0.hat.mean[index]
+      y1.hat.mu <- mean(self$data$y1.hat.mean[index])
+      y0.hat.mu <- mean(self$data$y0.hat.mean[index])
+      est <- y1.hat.mu - y0.hat.mu
+      var.within <- mean(self$data$ite.var)
+      var.between <- var(cate)
+      se <- sqrt((var.within+var.between)/n)
       return(list(y1.hat = y1.hat.mu, y0.hat = y0.hat.mu, est = est, se = se))
     },
 
@@ -213,40 +194,52 @@ G_computation <- R6::R6Class(
     # compute deviance for continuous outcome/binary outcome
     est_residual = function() {
       #browser()
-      if (class(self$data[, private$outcome_name]) == "numeric") {
-        resi <- residuals(self$model)
+      y <- self$data[,private$outcome_name]
+      if (length(unique(self$data[, private$outcome_name]))>2) {
+        y.hat <- self$model$yhat.train.mean
+        resi <- (y-y.hat)^2
       } else {
-        y <- self$data[, private$outcome_name]
-        y <- as.numeric(levels(y))[y]
-        y.hat <- predict(self$model, newdata = self$data, type = "prob")
-        y.hat.0 <- y.hat[,"0"]
-        y.hat.1 <- y.hat[,"1"]
-        resi <- -2 * (y * log(y.hat.1) + (1-y)*log(y.hat.0))
+        y.hat <- self$model$prob.train.mean
+        resi <- (y-y.hat)^2
+        #y.hat.0 <- 1-y.hat.1
+        #resi <- -2 * (y * log(y.hat.1) + (1-y)*log(y.hat.0))
       }
       return(resi)
     },
 
-    est_potentialOutcomes = function() {
+    est_potentialOutcomes_mean_var = function() {
       #browser()
       data0 <- data1 <- self$data[, c(private$confounders_treatment_name, private$treatment_name)]
-      t.level <- unique(self$data[, private$treatment_name])
-      level.order <- order(t.level)
-      data0[, private$treatment_name] <- t.level[match(1, level.order)]
-      data1[, private$treatment_name] <- t.level[match(2, level.order)]
+      data0[, private$treatment_name] <- 0
+      data1[, private$treatment_name] <- 1
+      if(length(private$confounders_treatment_factor)>0){
+        data0 <- fastDummies::dummy_cols(data0, select_columns= private$confounders_treatment_factor,
+                                         remove_selected_columns = TRUE)
+        data1 <- fastDummies::dummy_cols(data1, select_columns= private$confounders_treatment_factor,
+                                         remove_selected_columns = TRUE)
+      }
+      data0 <- as.matrix(data0)
+      data1 <- as.matrix(data1)
 
-      if (!is.factor(self$data[, private$outcome_name])) {
+      if(length(unique(self$data[, private$outcome_name]))>2){
         y1.hat <- predict(self$model, newdata = data1)
         y0.hat <- predict(self$model, newdata = data0)
+        y1.hat.mean <- apply(y1.hat, 2, mean)
+        y0.hat.mean <- apply(y0.hat, 2, mean)
+        y1.hat.var <- apply(y1.hat, 2, var)
+        y0.hat.var <- apply(y0.hat, 2, var)
       } else {
-        y1.hat <- predict(self$model, newdata = data1, type = "prob")[, 2]
-        y0.hat <- predict(self$model, newdata = data0, type = "prob")[, 2]
+        y1.hat <- predict(self$model, newdata=data1)$prob.test
+        y0.hat <- predict(self$model, newdata=data0)$prob.test
+        y1.hat.mean <- apply(y1.hat, 2, mean)
+        y0.hat.mean <- apply(y0.hat, 2, mean)
+        y1.hat.var <- apply(y1.hat, 2, var)
+        y0.hat.var <- apply(y0.hat, 2, var)
       }
-      return(list(y1.hat = y1.hat, y0.hat = y0.hat))
-    },
-
-    est_ps = function() {
-      ps <- predict(self$model$treatment, newdata = self$data, type = "prob")[, 2]
-      return(ps)
+      return(list(y1.hat.mean = y1.hat.mean,
+                  y0.hat.mean = y0.hat.mean,
+                  y1.hat.var = y1.hat.var,
+                  y0.hat.var = y0.hat.var))
     },
 
     aggregate_residual = function(stratification) {

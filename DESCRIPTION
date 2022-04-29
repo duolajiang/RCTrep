@@ -9,7 +9,7 @@ Description: More about what it does (maybe more than one line)
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Imports: mvtnorm, MASS, MatchIt, ggplot2, ggpubr, PSweight, numDeriv, R6, dplyr, geex, optmatch
+Imports: mvtnorm, MASS, MatchIt, ggplot2, ggpubr, PSweight, numDeriv, R6, dplyr, geex, optmatch, BART, fastDummies
 Suggests: 
     rmarkdown,
     knitr,
