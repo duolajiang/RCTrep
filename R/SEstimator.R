@@ -53,9 +53,13 @@ SEstimator <- R6::R6Class(
           select(vars_name) %>%
           mutate(study=private$target.obj$name)
 
-        data <- bind_rows(source.data, target.data) %>%
+        data <- rbind(source.data, target.data) %>%
           mutate(group_name = apply(.[,vars_name], 1, function(x)
             paste(vars_name,x,sep = "=",collapse = ",")))
+
+        #data <- bind_rows(source.data, target.data) %>%
+        #  mutate(group_name = apply(.[,vars_name], 1, function(x)
+        #    paste(vars_name,x,sep = "=",collapse = ",")))
 
         p.prop <- ggplot(data = data, aes(x=group_name, fill=study)) +
           geom_bar(position = "fill") +
@@ -73,7 +77,8 @@ SEstimator <- R6::R6Class(
         stop("stratification_joint must be TRUE for now, the function has not been completed yet.")
       }
 
-      ggpubr::ggarrange(p.prop, p.count, nrow=1, ncol=2)
+      tgrob <- ggpubr::text_grob(c("Sampling overlap within subpopulations"))
+      ggpubr::ggarrange(tgrob, NULL, p.prop, p.count, nrow=2, ncol=2, heights = c(1,5))
 
       # out <- list(aggregate.stats = data,
       #             plot.aggregate = p)

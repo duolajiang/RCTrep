@@ -1,7 +1,9 @@
 #' @title R6 class: G_computation base class
 #' @description A base R6 class for G_computation estimator for average treatment effect
 #' @export
-#' @import geex, ggplot2, fastDummies
+#' @import geex
+#' @import ggplot2
+#' @import fastDummies
 G_computation_BART <- R6::R6Class(
   "G_computation_BART",
   inherit = TEstimator,
@@ -64,7 +66,7 @@ G_computation_BART <- R6::R6Class(
           geom_errorbar(aes(xmin = ci_l, xmax = ci_u),
                         width = .3, position = position_dodge(0.5)) +
           geom_vline(xintercept = 0, color = "black", linetype = "dashed", alpha = .5) +
-          ggtitle("mean(1.98se) deviance")+
+          ggtitle("model fit: mean of squared residual (1.98se)")+
           theme(plot.title = element_text(),
                 legend.position = "none")
 
@@ -164,8 +166,8 @@ G_computation_BART <- R6::R6Class(
 
     est_weighted_ATE_SE = function(index, weight) {
       #browser()
-      y1.hat <- self$data$y1.hat[index]*weight
-      y0.hat <- self$data$y0.hat[index]*weight
+      y1.hat <- self$data$y1.hat.mean[index]*weight
+      y0.hat <- self$data$y0.hat.mean[index]*weight
 
       data <- as.data.frame(cbind(y1.hat, y0.hat))
       colnames(data) <- c("y1.hat","y0.hat")

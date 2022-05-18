@@ -56,12 +56,14 @@ quasar.agg <- list(ATE_mean = AteRct(year=5),
 quasar.synthetic <- RCTrep:::GenerateSyntheticData(dim(source.data)[1],
                                                    quasar.agg,
                                                    unique(quasar.agg$CATE_mean_se$name))
+quasar.synthetic$age <- as.factor(quasar.synthetic$age)
 
 quasar.obj <- Synthetic_TEstimator$new(df = quasar.synthetic,
                                        estimates=quasar.agg,
                                        vars_name = c("Stage2","male","age"),
                                        name = "RCT",
-                                       isTrial = TRUE)
+                                       isTrial = TRUE,
+                                       data.public = TRUE)
 
 usethis::use_data(quasar.agg,quasar.obj,overwrite = TRUE)
 

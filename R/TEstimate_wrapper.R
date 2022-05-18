@@ -1,6 +1,6 @@
 #' @title Estimator for average treatment effect wrapper function
 #'
-#' @description The function \code{Estimate} is used to estimate the average treatment effect obtained from \code{data}.
+#' @description The function \code{Estimate} is used to estimate the average treatment effect obtained from \code{data}. If TEstimator is G_computation and outcome_method is BART, then make sure that treatment and outcome column is integer/numeric, no matter the outcome is binary or continuous.
 #'
 #' @param data A data frame containing variables in \code{vars_name}.
 #' @inheritParams RCTREP
@@ -21,7 +21,7 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
       message("you are classifiying, but outcome class is numeric, we are converting the outcome to factor!")
       data[,vars_name$outcome_name] <- as.factor(data[,vars_name$outcome_name])
     }
-    if((outcome_method=="BART")&
+    if(((outcome_method=="BART")|(outcome_method=="psBART"))&
        (is.factor(data[, vars_name$outcome_name]))&
        (length(unique(data[, vars_name$outcome_name]))==2)) {
       message("you are classifiying using BART, outcome class should be numeric; we are converting the outcome to numeric!")
@@ -30,6 +30,16 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
 
     if (outcome_method=="BART"){
       obj <- G_computation_BART$new(
+        df = data,
+        name = name,
+        vars_name = vars_name,
+        gc.method = outcome_method,
+        gc.formula = outcome_formula,
+        isTrial = isTrial,
+        ...
+      )
+    } else if(outcome_method=="psBART"){
+      obj <- G_computation_psBART$new(
         df = data,
         name = name,
         vars_name = vars_name,

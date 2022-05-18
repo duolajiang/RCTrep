@@ -42,5 +42,5 @@ TEstimator_wrapper(
 An object of class \code{\link{Estimator}}.
 }
 \description{
-The function \code{Estimate} is used to estimate the average treatment effect obtained from \code{data}.
+The function \code{Estimate} is used to estimate the average treatment effect obtained from \code{data}. If TEstimator is G_computation and outcome_method is BART, then make sure that treatment and outcome column is integer/numeric, no matter the outcome is binary or continuous.
 }

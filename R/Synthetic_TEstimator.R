@@ -19,7 +19,7 @@ Synthetic_TEstimator <- R6::R6Class(
           summarise(size=n())
       }
       self$data$id <- seq(dim(self$data)[1])
-      self$id <- "Crude"
+      self$id <- "Gold"
       self$statistics <- list(n=dim(df)[1],
                               density_confounders=private$est_joint_denstiy())
       private$isTrial <- isTrial

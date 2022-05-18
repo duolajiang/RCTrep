@@ -112,7 +112,7 @@ TEstimator <- R6::R6Class(
         geom_errorbar(aes(xmin = ci_l, xmax = ci_u),
                       width = .3, position = position_dodge(0.5)) +
         geom_vline(xintercept = 0, color = "black", linetype = "dashed", alpha = .5) +
-        ggtitle("estimate of CATE.") +
+        ggtitle("Estimate of conditional average treatment effect.") +
         theme(plot.title = element_text(),
               legend.position = "none")
 
@@ -191,7 +191,9 @@ TEstimator <- R6::R6Class(
 
       }
 
-      ggarrange(p.prop, p.count, ncol=2, nrow=1)
+      tgrob <- ggpubr::text_grob(c("Treatment overlap within subpopulations"))
+      ggpubr::ggarrange(tgrob, NULL, p.prop, p.count, ncol=2, nrow=2, heights = c(1,5))
+
     },
 
     diagnosis_y_overlap = function(stratification, stratification_joint=TRUE){
@@ -232,7 +234,8 @@ TEstimator <- R6::R6Class(
                 axis.ticks.y=element_blank(),
                 axis.title.y=element_blank())
 
-        ggarrange(p.count.t1, p.count.t0, ncol=2, nrow=1)
+        tgrob <- ggpubr::text_grob(c("Outcome overlap within subpopulations"))
+        ggpubr::ggarrange(tgrob, NULL, p.count.t1, p.count.t0,ncol=2, nrow=2, heights = c(1,5))
 
       } else {
         p.dis <- self$data %>%

@@ -56,23 +56,23 @@ We will realease the package to CRAN soon.
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(RCTrep)
-
-source.data <- RCTrep::source.data
-target.data <- RCTrep::target.data
-
-output <- RCTREP(source.data=source.data, target.data=target.data,
-                 vars_name=list(confounders_internal=c("Stage2","pT","age","BRAF"),
-                                confounders_external=c("Stage2","pT","age","BRAF"),
-                                treatment_name=c('combined_chemo'),
-                                outcome_name=c('vitstat')),
-                 stratification=c("Stage2","pT"))
-
-summary(source.obj = output$source.obj, target.obj = output$target.obj)
+# library(RCTrep)
+# 
+# source.data <- RCTrep::source.data
+# target.data <- RCTrep::target.data
+# 
+# output <- RCTREP(source.data=source.data, target.data=target.data,
+#                  vars_name=list(confounders_internal=c("Stage2","pT","age","BRAF"),
+#                                 confounders_external=c("Stage2","pT","age","BRAF"),
+#                                 treatment_name=c('combined_chemo'),
+#                                 outcome_name=c('vitstat')),
+#                  stratification=c("Stage2","pT"))
+# 
+# summary(source.obj = output$source.obj, target.obj = output$target.obj)
 ```
 
 You can also summarize conditional average treatment effect by specifying stratification and stratification_joint: 
 
 ```{r source_cate}
-output$source.obj$plot_CATE(stratification=c("Stage2","pT","BRAF"),stratification_joint = TRUE)
+#output$source.obj$plot_CATE(stratification=c("Stage2","pT","BRAF"),stratification_joint = TRUE)
 ```

@@ -26,8 +26,8 @@ data$weight <- ifelse(data$Stage2==1,1,3)
 ncr <- data[sample(1:dim(data)[1],6000),]
 korea <- data[sample(1:dim(data)[1],6000,prob = data$weight),]
 
-vars_name <- list(confounders_treatment_name=c("Stage2","age","pT"),
-                  confounders_sampling_name=c("Stage2","age","pT"),
+vars_name <- list(confounders_treatment_name=c("Stage2","age","pT","male"),
+                  confounders_sampling_name=c("Stage2","age","pT","male"),
                   treatment_name=c('combined_chemo'),
                   outcome_name=c('vitstat')
 )
@@ -75,15 +75,14 @@ usethis::use_data(ncr,korea, quasar.agg,overwrite = TRUE)
 library(RCTrep)
 library(dplyr)
 ## data preparation
-ncr <- RCTrep::ncr
-korea <- RCTrep::korea
-vars_name <- list(confounders_treatment_name=c("Stage2","age","pT"),
-                  confounders_sampling_name=c("Stage2","age","pT"),
+rwd <- RCTrep::ncr
+vars_name <- list(confounders_treatment_name=c("Stage2","age","pT","male"),
+                  confounders_sampling_name=c("Stage2","age","male"),
                   treatment_name=c('combined_chemo'),
                   outcome_name=c('vitstat')
 )
 
-data.public <- FALSE
+data.public <- TRUE
 Estimator <- "G_computation"
 outcome_formula <- vitstat ~ combined_chemo + Stage2 + age + pT  +
   combined_chemo:Stage2 +combined_chemo:age + combined_chemo:pT + combined_chemo:pT:Stage2
@@ -93,17 +92,76 @@ treatment_formula <- combined_chemo ~ Stage2 + age + pT
 
 # NOTE!!!
 # data MUST be data.frame, NOT tbl
-obj.ncr <- TEstimator_wrapper(
-  Estimator = Estimator,
-  data = ncr,
-  name = "The Netherlands",
+obj.f1 <- TEstimator_wrapper(
+  Estimator = "G_computation",
+  data = rwd,
+  name = "RWD",
   vars_name = vars_name,
-  outcome_method = "glm",
-  outcome_formula = outcome_formula,
-  treatment_formula = treatment_formula,
-  data.public = data.public
+  outcome_method = "BART",
+  data.public = TRUE,
+  ntree=50
+)
+
+obj.f2 <- TEstimator_wrapper(
+  Estimator = "IPW",
+  data = rwd,
+  name = "RWD",
+  vars_name = vars_name,
+  data.public = TRUE
 )
 #obj.ncr$plot_CATE(stratification = c("Stage2","pT","age"), stratification_joint = TRUE)
+
+
+## quasar.obj is generated in generate_synthetic_quasar_data.R
+obj.quasar <- RCTrep::quasar.obj
+
+# confounders_sampling_name should be variables in both ncr, korea, and quasar
+obj.f1.w <- SEstimator_wrapper(estimator="Exact",
+                               target.obj=obj.quasar,
+                               source.obj=obj.f1,
+                               confounders_sampling_name=c("Stage2","age","male"))
+obj.f2.w <- SEstimator_wrapper(estimator="Exact",
+                               target.obj=obj.quasar,
+                               source.obj=obj.f2,
+                               confounders_sampling_name=c("Stage2","age","male"))
+
+obj.f1.w$EstimateRep(stratification = c("Stage2","age","male"), stratification_joint = FALSE)
+obj.f2.w$EstimateRep(stratification = c("Stage2","age","male"), stratification_joint = FALSE)
+
+fusion <- Summary$new(obj.f1.w,
+                      obj.f2.w,
+                      obj.quasar)
+
+t.overlap <- obj.f1$diagnosis_t_overlap(c("Stage2","age"))
+y.overlap <- obj.f1$diagnosis_y_overlap(c("Stage2","age"))
+f1.model.fit <- obj.f1$summary(c("Stage2","age"))
+f1.cate.est <- obj.f1$plot_CATE(c("Stage2","age"))
+f2.model.fit <- obj.f2$summary(c("Stage2","age"))
+f2.cate.est <- obj.f2$plot_CATE(c("Stage2","age"))
+s.overlap <- obj.f1.w$diagnosis_s_overlap(c("Stage2","age"))
+evaluation <- fusion$plot()
+
+#text.p <- c("(A) probability of getting chemo in subgroups, (B) outcome overview in chemo vs.non-chemo (C) f1: residual y-y.hat, (D) treatment effect estimated from f1 (difference in mortatilty between chemo and no-chemo groups), (E) f2: residual y-y.hat, (F) treatment effect estimated from f2, (G) covariate overview between RCT and RWD, (H) evaluation of f1,f2, where RCT is regarded as benchmark")
+library(ggpubr)
+#text.p <- ggparagraph(text = text.p, face = "italic", size = 14, color = "black")
+p.plot <- ggarrange(t.overlap, y.overlap,
+                    f1.model.fit$plot.res, f1.cate.est,
+                    f2.model.fit$plot.agg, f2.cate.est,
+                    s.overlap, evaluation,
+                    labels=c("A", "B", "C", "D","E","F","G","H"), nrow=4, ncol=2)
+
+destination <- '/Users/lshen/Documents/writing/draft/C paper package_application/OHDSI symposium/f1.pdf'
+pdf(file=destination, width = 15, height = 20)
+p.plot
+dev.off()
+
+
+
+
+
+#=================================
+#=================================
+korea <- RCTrep::korea
 
 obj.korea <- TEstimator_wrapper(
   Estimator = Estimator,
@@ -116,19 +174,10 @@ obj.korea <- TEstimator_wrapper(
   data.public = data.public
 )
 
-## quasar.obj is generated in generate_synthetic_quasar_data.R
-obj.quasar <- RCTrep::quasar.obj
-
-# confounders_sampling_name should be variables in both ncr, korea, and quasar
-obj.ncr2quasar <- SEstimator_wrapper(estimator="Exact_pp",
-                                  target.obj=obj.quasar,
-                                  source.obj=obj.ncr,
-                                  confounders_sampling_name=c("Stage2","age"))
-
 obj.korea2quasar <- SEstimator_wrapper(estimator="Exact_pp",
-                                    target.obj=obj.quasar,
-                                    source.obj=obj.korea,
-                                    confounders_sampling_name=c("Stage2","age"))
+                                       target.obj=obj.quasar,
+                                       source.obj=obj.korea,
+                                       confounders_sampling_name=c("Stage2","age"))
 
 obj.ncr2quasar$EstimateRep(stratification = c("Stage2","age"), stratification_joint = FALSE)
 obj.korea2quasar$EstimateRep(stratification = c("Stage2","age"), stratification_joint = FALSE)
@@ -166,7 +215,9 @@ obj.korea$summary()
 
 
 # ===========================
+# ===========================
 # use BART modeling approach
+# ===========================
 # ===========================
 library(RCTrep)
 library(dplyr)
@@ -210,10 +261,10 @@ obj.ncr <- TEstimator_wrapper(
   data.public = data.public,
   ntree=50
 )
-model.fit <- obj.ncr$summary(stratification = c("pT","BRAF"))
-t.overlap <- obj.ncr$diagnosis_t_overlap(stratification = c("pT","BRAF"))
-y.overlap <- obj.ncr$diagnosis_y_overlap(stratification = c("pT","BRAF"))
-cate.est <- obj.ncr$plot_CATE(stratification = c("pT","BRAF"))
+model.fit <- obj.ncr$summary(stratification = c("age","pT","BRAF"))
+t.overlap <- obj.ncr$diagnosis_t_overlap(stratification = c("age","pT","BRAF"))
+y.overlap <- obj.ncr$diagnosis_y_overlap(stratification = c("age","pT","BRAF"))
+cate.est <- obj.ncr$plot_CATE(stratification = c("age","pT","BRAF"))
 text.p <- c("(A) residual y-y.hat, (B) treatment effect(difference in mortatilty between chemo and no-chemo groups), (C) probability of getting chemo in subgroups, (D)outcome overview in chemo vs.non-chemo ")
 text.p <- ggparagraph(text = text.p, face = "italic", size = 11, color = "black")
 library(ggpubr)

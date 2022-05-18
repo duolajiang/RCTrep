@@ -59,7 +59,21 @@ Summary <- R6::R6Class(
               ggplot(aes(x = est, y = group_name, color = study, shape = estimator)) +
               geom_point(position = position_dodge(0.7), aes(size=size)) +
               geom_errorbar(aes(xmin = ci_l, xmax = ci_u), width = .5, position = position_dodge(0.7)) +
-              geom_vline(xintercept = 0, color = "black", linetype = "dashed", alpha = .5)
+              geom_vline(xintercept = 0, color = "black", linetype = "dashed", alpha = .5) +
+              xlab("survival difference (95% CI)") +
+              ggtitle("Comparison of estimates") +
+              theme(axis.text.x = element_text(vjust = -2.5))+
+              theme(axis.title.x = element_text(margin = margin(t = 8))) +
+              coord_cartesian(clip="off") +
+              annotate("segment",
+                        x = 0.05, xend = 0.25, y = 0.4, yend = 0.4,
+                        arrow=arrow(length=unit(0.2, "cm"))) +
+              annotate("segment",
+                        x = -0.05, xend = -0.25, y = 0.4, yend = 0.4,
+                        arrow=arrow(length=unit(0.2, "cm"))) +
+              annotate("text", x =  0.2, y = 0.2, label = "surgery better") +
+              annotate("text", x = -0.3, y = 0.2, label = "chemo+surgery better")
+
       if(n.estimators>6) {p <- p + scale_shape_manual(values = seq(n.estimators))}
       p
     },
