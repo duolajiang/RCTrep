@@ -139,10 +139,10 @@ G_computation_psBART <- R6::R6Class(
     fit = function(...) {
       #browser()
       x.train <- self$data[, c(private$confounders_treatment_name, private$treatment_name,"ps")]
-      # if(length(private$confounders_treatment_factor)>0){
-      #   x.train <- fastDummies::dummy_cols(x.train, select_columns= private$confounders_treatment_factor,
-      #                                      remove_selected_columns = TRUE)
-      # }
+      if(length(private$confounders_treatment_factor)>0){
+        x.train <- fastDummies::dummy_cols(x.train, select_columns= private$confounders_treatment_factor,
+                                           remove_selected_columns = TRUE)
+      }
       x.train <- as.matrix(x.train)
       y.train <- as.matrix(self$data[, private$outcome_name])
       if (length(unique(self$data[, private$outcome_name]))>2) {
@@ -155,10 +155,10 @@ G_computation_psBART <- R6::R6Class(
 
     fit_treatment = function(...) {
       x.train <- self$data[, c(private$confounders_treatment_name)]
-      # if(length(private$confounders_treatment_factor)>0){
-      #   x.train <- fastDummies::dummy_cols(x.train, select_columns= private$confounders_treatment_factor,
-      #                                      remove_selected_columns = TRUE)
-      # }
+      if(length(private$confounders_treatment_factor)>0){
+        x.train <- fastDummies::dummy_cols(x.train, select_columns= private$confounders_treatment_factor,
+                                           remove_selected_columns = TRUE)
+      }
       x.train <- as.matrix(x.train)
       y.train <- as.matrix(self$data[,private$treatment_name])
       if (length(unique(self$data[, private$treatment_name]))>2) {
@@ -235,12 +235,12 @@ G_computation_psBART <- R6::R6Class(
       data0 <- data1 <- self$data[, c(private$confounders_treatment_name, private$treatment_name,"ps")]
       data0[, private$treatment_name] <- 0
       data1[, private$treatment_name] <- 1
-      # if(length(private$confounders_treatment_factor)>0){
-      #   data0 <- fastDummies::dummy_cols(data0, select_columns= private$confounders_treatment_factor,
-      #                                    remove_selected_columns = TRUE)
-      #   data1 <- fastDummies::dummy_cols(data1, select_columns= private$confounders_treatment_factor,
-      #                                    remove_selected_columns = TRUE)
-      # }
+      if(length(private$confounders_treatment_factor)>0){
+        data0 <- fastDummies::dummy_cols(data0, select_columns= private$confounders_treatment_factor,
+                                         remove_selected_columns = TRUE)
+        data1 <- fastDummies::dummy_cols(data1, select_columns= private$confounders_treatment_factor,
+                                         remove_selected_columns = TRUE)
+      }
       data0 <- as.matrix(data0)
       data1 <- as.matrix(data1)
 
