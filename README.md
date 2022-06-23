@@ -27,7 +27,7 @@ unbiased given identification assumption holds. However, in case we
 don’t know the true probability ![p(Z=1\\mid
 \\boldsymbol{X})](https://latex.codecogs.com/png.latex?p%28Z%3D1%5Cmid%20%5Cboldsymbol%7BX%7D%29
 "p(Z=1\\mid \\boldsymbol{X})") in RWD, without knowing the ground truth,
-*how can we validate the methods for treatment effect estimation?*
+**how can we validate the methods for treatment effect estimation?**
 
 **RCTrep** is an R package to enable easy validation of various methods
 for treatment effect estimation using RWD by comparison to RCT data. We
