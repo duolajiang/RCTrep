@@ -127,7 +127,6 @@ This step diagnoses model assumption for G-computation (covariats balance for IP
 ```{r,message=FALSE, warning=FALSE}
 source.obj$summary()
 source.obj$diagnosis_t_overlap()
-target.obj$summary()
 target.obj$diagnosis_t_overlap()
 source.obj.rep$diagnosis_s_overlap()
 ```

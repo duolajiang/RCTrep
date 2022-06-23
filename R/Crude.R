@@ -13,12 +13,9 @@ Crude <- R6::R6Class(
       private$isTrial <- isTrial
     },
 
-    summary = function(...){
-      stratification <- list(...)
-      if(length(stratification)==0){
-        stratification <- private$confounders_external_name
-      } else {
-        stratification <- unlist(stratification)
+    summary = function(stratification, stratification_joint=TRUE){
+      if(missing(stratification)){
+        stratification <- private$confounders_treatment_name
       }
 
       plot.cate <- self$plot_CATE(stratification)

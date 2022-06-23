@@ -91,7 +91,8 @@ TEstimator <- R6::R6Class(
     #' @description Plot the forest plot of conditional average treatment effect of subgroups defined by \code{stratification} and \code{stratification_joint}. The method first call public method \code{get_CATE(stratification,stratification_joint)}, then plot the results.
     #' @param stratification An string vector containing variables to define subgroup.
     #' @param stratification_joint An logical defining the subgroup based on joint distribution of variables or univariate distribution in \code{stratification}.
-    plot_CATE = function(stratification, stratification_joint = TRUE) {
+    plot_CATE = function(stratification = private$confounders_treatment_name,
+                         stratification_joint = TRUE) {
       #browser()
       data.cate <- self$get_CATE(stratification, stratification_joint)
       colnames.subgroups <- colnames(data.cate)
