@@ -41,8 +41,13 @@ vignettes](https://github.com/duolajiang/RCTrep/blob/master/vignettes/RCTrep%20v
 for theoretical elaboration, in which we illustrate why estimates from
 RCT can be assumed as ground truth and how to use the estimates as the
 surrogate of the ground truth of RWD from the view of **treatment
-assignment mechanism** and **sampling mechansim**. We consider a set of
-candidate treatment effect estimators
+assignment mechanism** and **sampling mechansim**. We provide an diagram
+to show how RCT data and RWD differ in two mechanisms in the following
+figure:
+
+![schematic](man/figures/DGM_RCT_RWD.png)
+
+We consider a set of candidate treatment effect estimators
 ![formula1](man/figures/CodeCogsEqn1.svg) , where
 ![formula2](man/figures/CodeCogsEqn2.svg), hence
 ![formula3](man/figures/CodeCogsEqn3.svg) is an estimator of conditional
