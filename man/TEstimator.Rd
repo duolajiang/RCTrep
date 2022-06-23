@@ -12,6 +12,7 @@ A base R6 class for estimator of average treatment effect that implements the co
 \item \href{#method-new}{\code{TEstimator$new()}}
 \item \href{#method-get_CATE}{\code{TEstimator$get_CATE()}}
 \item \href{#method-plot_CATE}{\code{TEstimator$plot_CATE()}}
+\item \href{#method-plot_y1_y0}{\code{TEstimator$plot_y1_y0()}}
 \item \href{#method-diagnosis_t_overlap}{\code{TEstimator$diagnosis_t_overlap()}}
 \item \href{#method-diagnosis_y_overlap}{\code{TEstimator$diagnosis_y_overlap()}}
 \item \href{#method-summary}{\code{TEstimator$summary()}}
@@ -90,6 +91,15 @@ Plot the forest plot of conditional average treatment effect of subgroups define
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot_y1_y0"></a>}}
+\if{latex}{\out{\hypertarget{method-plot_y1_y0}{}}}
+\subsection{Method \code{plot_y1_y0()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TEstimator$plot_y1_y0(stratification, stratification_joint = TRUE)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-diagnosis_t_overlap"></a>}}

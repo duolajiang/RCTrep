@@ -50,6 +50,7 @@ A base R6 class for inverse propensity score weighting estimator of average trea
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="diagnosis_y_overlap">}\href{../../RCTrep/html/TEstimator.html#method-diagnosis_y_overlap}{\code{RCTrep::TEstimator$diagnosis_y_overlap()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="get_CATE">}\href{../../RCTrep/html/TEstimator.html#method-get_CATE}{\code{RCTrep::TEstimator$get_CATE()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="plot_CATE">}\href{../../RCTrep/html/TEstimator.html#method-plot_CATE}{\code{RCTrep::TEstimator$plot_CATE()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="plot_y1_y0">}\href{../../RCTrep/html/TEstimator.html#method-plot_y1_y0}{\code{RCTrep::TEstimator$plot_y1_y0()}}\out{</span>}
 }
 \out{</details>}
 }

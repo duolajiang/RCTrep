@@ -17,12 +17,13 @@ A base R6 class for doubly robust estimator of average treatment effect that imp
 }
 }
 \if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
+\out{<details ><summary>Inherited methods</summary>}
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="diagnosis_t_overlap">}\href{../../RCTrep/html/TEstimator.html#method-diagnosis_t_overlap}{\code{RCTrep::TEstimator$diagnosis_t_overlap()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="diagnosis_y_overlap">}\href{../../RCTrep/html/TEstimator.html#method-diagnosis_y_overlap}{\code{RCTrep::TEstimator$diagnosis_y_overlap()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="get_CATE">}\href{../../RCTrep/html/TEstimator.html#method-get_CATE}{\code{RCTrep::TEstimator$get_CATE()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="plot_CATE">}\href{../../RCTrep/html/TEstimator.html#method-plot_CATE}{\code{RCTrep::TEstimator$plot_CATE()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="plot_y1_y0">}\href{../../RCTrep/html/TEstimator.html#method-plot_y1_y0}{\code{RCTrep::TEstimator$plot_y1_y0()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="RCTrep" data-topic="TEstimator" data-id="summary">}\href{../../RCTrep/html/TEstimator.html#method-summary}{\code{RCTrep::TEstimator$summary()}}\out{</span>}
 }
 \out{</details>}

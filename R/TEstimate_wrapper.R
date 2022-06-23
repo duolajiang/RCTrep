@@ -124,6 +124,7 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
   #     }
   # }
 
+
   #obj$estimates$CATE<- obj$get_CATE(stratification, stratification_joint)
 
   #browser()

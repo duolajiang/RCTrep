@@ -28,8 +28,8 @@ G_computation_BART <- R6::R6Class(
                                                                                 is.factor)]
       self$model <- private$fit(...)
       po_mean_var <- private$est_potentialOutcomes_mean_var()
-      self$data$y1.hat.mean <- po_mean_var$y1.hat.mean
-      self$data$y0.hat.mean <- po_mean_var$y0.hat.mean
+      self$data$y1.hat <- po_mean_var$y1.hat.mean
+      self$data$y0.hat <- po_mean_var$y0.hat.mean
       self$data$y1.hat.var <- po_mean_var$y1.hat.var
       self$data$y0.hat.var <- po_mean_var$y0.hat.var
       self$data$ite.var <- self$data$y1.hat.var + self$data$y0.hat.var
@@ -154,9 +154,9 @@ G_computation_BART <- R6::R6Class(
     est_ATE_SE = function(index) {
       #browser()
       n <- length(index)
-      cate <- self$data$y1.hat.mean[index] - self$data$y0.hat.mean[index]
-      y1.hat.mu <- mean(self$data$y1.hat.mean[index])
-      y0.hat.mu <- mean(self$data$y0.hat.mean[index])
+      cate <- self$data$y1.hat[index] - self$data$y0.hat[index]
+      y1.hat.mu <- mean(self$data$y1.hat[index])
+      y0.hat.mu <- mean(self$data$y0.hat[index])
       est <- y1.hat.mu - y0.hat.mu
       var.within <- mean(self$data$ite.var)
       var.between <- var(cate)
@@ -166,8 +166,8 @@ G_computation_BART <- R6::R6Class(
 
     est_weighted_ATE_SE = function(index, weight) {
       #browser()
-      y1.hat <- self$data$y1.hat.mean[index]*weight
-      y0.hat <- self$data$y0.hat.mean[index]*weight
+      y1.hat <- self$data$y1.hat[index]*weight
+      y0.hat <- self$data$y0.hat[index]*weight
 
       data <- as.data.frame(cbind(y1.hat, y0.hat))
       colnames(data) <- c("y1.hat","y0.hat")
