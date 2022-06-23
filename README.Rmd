@@ -1,5 +1,5 @@
 ---
-output:github_document
+output: github_document
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -15,28 +15,40 @@ knitr::opts_chunk$set(
 # RCTrep: An R package for validation of methods for treatment effect estimation using real-world data
 
 <!-- badges: start -->
-**RCTrep** is an R package to validate methods for **conditional average treatment effect (CATE)** estimation using **real-world data (RWD)**. Validation of methods for treatment effect estimation using RWD is challenging because we do not observe the true treatment effect for each individual $\boldsymbol{X}_{i}$ - a fundamental problem of **causal inference** - hence we can only estimate treatment effect using observed data. Randomized control trial (RCT) assigns individuals to treatment $Z=1$ or control groups $Z=0$ with known probability $p(Z=1\mid \boldsymbol{X})$, hence two groups are balanced in terms of observed and unobserved covariates. The difference in outcomes between groups can be merely attributed to realization of treatment $Z$, and hence the treatment effect is the simple difference in means of outcomes and is unbiased given identification assumption holds. However, in case we don't know the true probability $p(Z=1\mid \boldsymbol{X})$ in RWD, without knowing the ground truth, **how can we validate the methods for treatment effect estimation?**
+**RCTrep** is an R package to validate methods for **conditional average treatment effect (CATE)** estimation using **real-world data (RWD)**. Validation of methods for treatment effect estimation using RWD is challenging because we do not observe the true treatment effect for each individual ![formula14](man/figures/CodeCogsEqn14.svg) - a fundamental problem of **causal inference** - hence we can only estimate treatment effect using observed data. Randomized control trial (RCT) assigns individuals to treatment <img src="https://latex.codecogs.com/svg.image?Z=1" /> or control groups <img src="https://latex.codecogs.com/svg.image?Z=0"> with known probability ![formula13](man/figures/CodeCogsEqn13.svg)
+, hence two groups are balanced in terms of observed and unobserved covariates. The difference in outcomes between groups can be merely attributed to realization of treatment <img src="https://latex.codecogs.com/svg.image?Z">, and hence the treatment effect is the simple difference in means of outcomes and is unbiased given identification assumption holds. However, in case we don't know the true probability ![formula13](man/figures/CodeCogsEqn13.svg) in RWD, without knowing the ground truth, _**how can we validate the methods for treatment effect estimation?**_
 
-**RCTrep** is an R package to enable easy validation of various methods for treatment effect estimation using RWD by comparison to RCT data. We identify under which conditions the estimate from RCT can be regarded as the ground truth for methods validation using RWD. We assume the RWD and RCT data  are two random samples from a, potentially different, population, and hence allow for a valid comparison of estimates of treatment effect between two samples after population composition is controlled for. We refer users to [RCTrep vignettes][JSS] for theoretical elaboration.  We consider a set of candidate treatment effect estimators $\mathcal{F}=\{f_1,…,f_m \}$, where $f(x): \mathcal{X} \mapsto \mathbb{E}[Y(1)-Y(0)∣\boldsymbol{X}=\boldsymbol{x}]$, hence $f(x)$ is an estimator of conditional average treatment effect of population with characteristics $\boldsymbol{X}=\boldsymbol{x}$. We provide the package that makes it easy to try out various estimators $f \in \mathcal{F}$ and select the best one using the following evaluation metric:
-$$f^*=\text{argmin}_{f\in\mathcal{F}} \mathbb{L}(\hat{\tau};f)=\text{argmin}_{f\in\mathcal{F}}\left(\hat{\tau} - \sum_{\boldsymbol{x}}w(\boldsymbol{x})f(\boldsymbol{x})\right)^2,s.t.  p(\boldsymbol{x}) = q(\boldsymbol{s})w(\boldsymbol{x}) $$
-where $\hat{tau}$ is an unbiased estimate of the average treatment effect derived from the RCT data, $p(\boldsymbol{x})$ and  $q(\boldsymbol{x})$ are the empirical density of $\boldsymbol{x}$ in RCT data and RWD, $w(\boldsymbol{x})$ is a weight for individuals in RWD with characteristics $\boldsymbol{X}=\boldsymbol{x}$.  Hence the weighted distribution of covariates in RWD and distribution of covariates in the RCT data are balanced. We compute $\mathbb{L}(\hat{\tau};f)$ on **population** and **sub-population** levels.
+## Method
+**RCTrep** is an R package to enable easy validation of various methods for treatment effect estimation using RWD by comparison to RCT data. We identify under which conditions the estimate from RCT can be regarded as the ground truth for methods validation using RWD. We assume the RWD and RCT data  are two random samples from a, potentially different, population, and hence allow for a valid comparison of estimates of treatment effect between two samples after population composition is controlled for. We refer users to [RCTrep vignettes][JSS] for theoretical elaboration, in which we illustrate why estimates from RCT can be assumed as ground truth and how to use the estimates as the surrogate of the ground truth of RWD from the view of **treatment assignment mechanism** and **sampling mechansim**. We consider a set of candidate treatment effect estimators ![formula1](man/figures/CodeCogsEqn1.svg) , where ![formula2](man/figures/CodeCogsEqn2.svg), hence ![formula3](man/figures/CodeCogsEqn3.svg) is an estimator of conditional average treatment effect of population with characteristics ![formula4](man/figures/CodeCogsEqn4.svg). We provide the package that makes it easy to try out various estimators ![formula5](man/figures/CodeCogsEqn5.svg) and select the best one using the following evaluation metric:
 
-RCTrep provides two core classes, namely, TEstimator and SEstimator, which are responsible for adjusting the treatment assignment mechanism and the sampling mechanism respectively. TEstimator has three subclasses for adjusting the treatment assignment mechanism, namely, G-computation, inverse propensity score weighting, and doubly robust estimation 8,9. SEstimator has three subclasses for adjusting the sampling mechanism, namely, exact matching, inverse sampling score weighting, and subclassification 10. Users can specify modeling approaches for sampling score, propensity score, outcome regression, and distance measure, etc. Two objects instantiated using RWD and experimental RCT data communicate within the object of the class SEstimator, sharing either unit level data or aggregated data for computing the weights w(x). 
+![formula6](man/figures/CodeCogsEqn6.svg)
 
+where ![formula7](man/figures/CodeCogsEqn7.svg) is an unbiased estimate of the average treatment effect derived from the RCT data, ![formula8](man/figures/CodeCogsEqn8.svg) and  ![formula9](man/figures/CodeCogsEqn9.svg) are the empirical density of ![formula10](man/figures/CodeCogsEqn10.svg) in RCT data and RWD, ![formula11](man/figures/CodeCogsEqn11.svg) is a weight for individuals in RWD with characteristics ![formula4](man/figures/CodeCogsEqn4.svg).  Hence the weighted distribution of covariates in RWD and distribution of covariates in the RCT data are balanced. We compute ![formula12](man/figures/CodeCogsEqn12.svg) on _**population**_ and _**sub-population**_ levels. 
 
-The package can also replicate a target study in which only meta data is available (point estimate and interval estimate of average treatment effect, conditional average treatment effect conditioning on univariate variable, and univariate distribution). 
+## Software overview
+The package use R6 Object-oriented programming system. We provide an overview of implementation of RCTrep in the following figure:
 
-The package use R6 Object-oriented programming system. We provide an overview of implementation of RCTrep in the Figure 
 ![schematic](man/figures/README-structure.png)
-The package new two objects of superclass Estimator for source study and target study, respectively, then 
 
-1. each object estimate the treatment effect using G_computation, inverse propensity score weighting, or doubly robust estimator to ensure internal validity; 
-2. communication between two objects via implementing the public method RCTrep(), e.g., source.obj$RCTrep(target.obj). Then source.obj get a estimates as close to target.obj as possible. This step is to conduct external validation. 
+RCTrep provides two core classes, namely, **TEstimator** and **SEstimator**, which are responsible for adjusting the **treatment assignment mechanism** and the **sampling mechanism** respectively. 
 
-Below shows how the core function RCTREP() work:
+**TEstimator** has three subclasses for adjusting the treatment assignment mechanism, namely,
 
-![schematic](man/figures/README-function_call.png)
-<!-- badges: end -->
+* G-computation, 
+* Inverse propensity score weighting, 
+* Doubly robust estimation 
+
+**SEstimator** has three subclasses for adjusting the sampling mechanism, namely, 
+
+* Exact matching, 
+* Inverse sampling score weighting, 
+* Subclassification
+
+Users can specify modeling approaches for sampling score, propensity score, outcome regression, and distance measure, etc. _Two objects_ instantiated using RWD and experimental RCT data _communicate within the object of the class SEstimator_, sharing either **unit-level data"** or **aggregated data** for computing the weights ![formula11](man/figures/CodeCogsEqn11.svg). 
+
+**Summary** R6 class Summary combines estimates from an object of class TEstimate and/or an object of class SEstimate, and plots and evaluates estimates of average treatment effect and heterogeneous treatment effect. The number of objects of class TEstimator or SEstimator passed to its constructor is not limited. 
+
+The package can also generate synthetic RCT data based on meta data from publications (point estimate and interval estimate of average treatment effect, conditional average treatment effect conditioning on univariate variable, and univariate distribution). 
 
 ## Installation
 
@@ -55,32 +67,76 @@ devtools::install_github("duolajiang/RCTrep")
 
 We will realease the package to CRAN soon. 
 
-## Example
+## Quick Start
+We demonstrate the simple usage of RCTrep to validate methods for treatment effect estimation. We use G-computation to adjust for the treatment assignment mechanism - the method using RWD to validate.  We use exact matching to balance covariates between RWD and RCT data, and obtain the weighted estimates of treatment effect using RWD. Then we can implement the fair comparison between weighted estimates using RWD and unbiased estimate using experimental data. Variables that may confound causal association between treatment and outcome, and variables that may lead to supurious association between sampling and outcomes still need careful investigation and identification. 
 
-This is a basic example which shows you how to solve a common problem:
+### Step 1: Identification
+This step is to identifiy the variable set **confounders_treatment_name** that confound causal relation between treatment and outcome, and the variable set **confounders_sampling_name** that can induce supurious difference in estimates between RWD and RCT data. 
+```{r, message=FALSE, warning=FALSE}
+library(RCTrep)
+source.data <- RCTrep::source.data
+target.data <- RCTrep::target.data
 
-```{r example}
-# library(RCTrep)
-# 
-# source.data <- RCTrep::source.data
-# target.data <- RCTrep::target.data
-# 
-# output <- RCTREP(source.data=source.data, target.data=target.data,
-#                  vars_name=list(confounders_internal=c("Stage2","pT","age","BRAF"),
-#                                 confounders_external=c("Stage2","pT","age","BRAF"),
-#                                 treatment_name=c('combined_chemo'),
-#                                 outcome_name=c('vitstat')),
-#                  stratification=c("Stage2","pT"))
-# 
-# summary(source.obj = output$source.obj, target.obj = output$target.obj)
+vars_name <- list(confounders_treatment_name=c("x1","x2","x3","x4","x5","x6"),
+                  treatment_name=c('z'),
+                  outcome_name=c('y')
+)
+confounders_sampling_name <- c("x1","x2","x3","x4","x5","x6")
 ```
 
-You can also summarize conditional average treatment effect by specifying stratification and stratification_joint: 
+### Step 2: Estimation
+#### step 2.1: Estimation of treatment effect of RWD and RCT data
+```{r, message=FALSE, warning=FALSE}
+source.obj <- TEstimator_wrapper(
+  Estimator = "G_computation",
+  data = source.data,
+  name = "RWD",
+  vars_name = vars_name,
+  outcome_method = "glm",
+  outcome_formula = y ~ x1 + x2 + x3 + z + z:x1 + z:x2 +z:x3+ z:x6,
+  data.public = TRUE
+)
 
-```{r source_cate}
-#output$source.obj$plot_CATE(stratification=c("Stage2","pT","BRAF"),stratification_joint = TRUE)
+target.obj <- TEstimator_wrapper(
+  Estimator = "Crude",
+  data = target.data,
+  name = "RCT",
+  vars_name = vars_name,
+  data.public = TRUE,
+  isTrial = TRUE
+)
+```
+
+#### Step 2.2: Estimation of weighted treatment effect of RWD
+```{r,message=FALSE, warning=FALSE}
+# step2.2: Estimation of weighted treatment effect
+source.obj.rep <- SEstimator_wrapper(estimator="Exact",
+                                target.obj=target.obj,
+                                source.obj=source.obj,
+                                confounders_sampling_name=confounders_sampling_name)
+source.obj.rep$EstimateRep(stratification = c("x1","x3","x4","x5"))
+
+```
+
+### Step 3: Assumptions and model diagnosis
+This step diagnoses model assumption for G-computation (covariats balance for IPW), treatment overlap assumption, outcome overlap assumption, and sampling overlap assumption.
+```{r,message=FALSE, warning=FALSE}
+source.obj$summary()
+source.obj$diagnosis_t_overlap()
+target.obj$summary()
+target.obj$diagnosis_t_overlap()
+source.obj.rep$diagnosis_s_overlap()
+```
+
+### Step 4: Model Validation
+This step compare the estimates from RWD with those from RCT data, and validate difference methods using RWD.
+```{r, message=FALSE, warning=FALSE}
+fusion <- Summary$new(target.obj,
+                      source.obj,
+                      source.obj.rep)
+fusion$evaluate()
+fusion$plot()
 ```
 
 [JSS]: https://github.com/duolajiang/RCTrep/blob/master/vignettes/RCTrep%20vignettes.pdf "RCTrep: A R package for evaluation of methods for treatment effect estimation using real world data"
-
 
