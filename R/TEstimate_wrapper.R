@@ -65,7 +65,7 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
       message("outcome class is factor, we are converting it to numeric")
       data[, vars_name$outcome_name] <- as.numeric(as.character(data[, vars_name$outcome_name]))
     }
-    if (!is.factor(data[, vars_name$treatment_name])) {
+    if (!is.factor(data[, vars_name$treatment_name]) & (treatment_method!="BART")) {
       message("treatment class is numeric, we are converting it to factor")
       data[, vars_name$treatment_name] <- as.factor(data[, vars_name$treatment_name])
     }
@@ -79,13 +79,21 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
       ...
     )
   } else if (Estimator == "DR") {
-    if (!is.factor(data[, vars_name$outcome_name])) {
+    if (!is.factor(data[, vars_name$outcome_name]) & (outcome_method!='BART')) {
       message("outcome class is numeric, we are converting it to factor")
       data[, vars_name$outcome_name] <- as.factor(data[, vars_name$outcome_name])
     }
-    if (!is.factor(data[, vars_name$treatment_name])) {
+    if (!is.factor(data[, vars_name$treatment_name]) & (treatment_method != 'BART')) {
       message("treatment class is numeric, we are converting it to factor")
       data[, vars_name$treatment_name] <- as.factor(data[, vars_name$treatment_name])
+    }
+    if(is.factor(data[, vars_name$treatment_name]) & (treatment_method=='BART')) {
+      message("your treatment class is factor for BART outcome modeling, we are converting it to numeric")
+      data[, vars_name$treatment_name] <- as.numeric(as.character(data[, vars_name$treatment_name]))
+    }
+    if(is.factor(data[, vars_name$outcome_name]) & (outcome_method=='BART')) {
+      message("your outcome class is factor for BART outcome modeling, we are converting it to numeric")
+      data[, vars_name$outcome_name] <- as.numeric(as.character(data[, vars_name$outcome_name]))
     }
     obj <- DR$new(
       df = data,
