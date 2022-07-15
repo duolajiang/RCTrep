@@ -679,3 +679,48 @@ source.obj <- TEstimator_wrapper(
 source.obj$summary(stratification = c("x1","x2"))
 source.obj$diagnosis_t_overlap(stratification = c("x1","x2"))
 source.obj$diagnosis_y_overlap(stratification = c("x1","x2"))
+
+
+##########################################################
+## testing: using BART modeling approach for IPW and DR estimator
+##########################################################
+library(RCTrep)
+n_rct <- 5000; n_rwd <- 5000
+var_name <- c("x1","x2","x3","x4","x5","x6")
+p_success_rct <- c(0.7,0.9,0.2,0.3,0.2,0.3)
+p_success_rwd <- c(0.2,0.2,0.8,0.8,0.7,0.8)
+tau <- "6*x2+x6+2"
+y0 <- "x1"
+log.ps <- "x1*x2+x3*x4+5*x5+x6"
+rho1 <- c("x1","x2",0)
+rho2 <- c("x2","x3",0)
+
+# simulating data
+target.data <- RCTrep::DGM(trial=TRUE,  n_rct, var_name, p_success_rct, tau, y0, log.ps=0, binary = TRUE, noise=1, rho1, rho2)
+
+vars_name <- list(confounders_treatment_name=c("x1","x2"),
+                  treatment_name=c('z'),
+                  outcome_name=c('y')
+)
+
+target.obj <- TEstimator_wrapper(
+  Estimator = "IPW",
+  data = target.data,
+  name = "RWD",
+  vars_name = vars_name,
+  treatment_method = "BART",
+  data.public = TRUE
+)
+
+target.obj <- TEstimator_wrapper(
+  Estimator = "DR",
+  data = target.data,
+  name = "RWD",
+  vars_name = vars_name,
+  treatment_method = "glm",
+  outcome_method = "glm",
+  data.public = TRUE,
+  two_models = TRUE
+)
+
+target.obj$plot_CATE()
