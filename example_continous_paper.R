@@ -724,3 +724,4 @@ target.obj <- TEstimator_wrapper(
 )
 
 target.obj$plot_CATE()
+target.obj$get_CATE()
