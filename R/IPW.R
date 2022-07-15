@@ -21,8 +21,17 @@ IPW <- R6::R6Class(
       super$initialize(df, vars_name, name)
       private$method <- treatment_method
       private$formula <- treatment_formula
-      self$model <- private$fit(...)
-      self$ps.est <- private$est_ps()
+      private$confounders_treatment_factor <-
+        private$confounders_treatment_name[sapply(self$data[,private$confounders_treatment_name],
+                                                                                        is.factor)]
+      if(private$method == "BART"){
+        model_ps <- private$fit_BART(...)
+        self$model <- model_ps$model
+        self$ps.est <- model_ps$ps
+      } else {
+        self$model <- private$fit(...)
+        self$ps.est <- private$est_ps()
+      }
       private$set_ATE()
       private$set_CATE(private$confounders_treatment_name,TRUE)
       private$isTrial <- isTrial
@@ -49,6 +58,7 @@ IPW <- R6::R6Class(
 
     method = "glm",
     formula = NULL,
+    confounders_treatment_factor = NULL,
 
     est_ATE_SE = function(index) {
       ngrp <- length(unique(self$data[index,private$treatment_name]))
@@ -137,6 +147,27 @@ IPW <- R6::R6Class(
       #browser()
       ps.est <- predict(self$model, newdata = self$data, type = "prob")[, 2]
       return(ps.est)
+    },
+
+    fit_BART = function(...) {
+      #browser()
+      x.train <- self$data[, c(private$confounders_treatment_name)]
+      if(length(private$confounders_treatment_factor)>0){
+        x.train <- fastDummies::dummy_cols(x.train, select_columns= private$confounders_treatment_factor,
+                                           remove_selected_columns = TRUE)
+      }
+      x.train <- as.matrix(x.train)
+      y.train <- as.matrix(self$data[,private$treatment_name])
+      if (length(unique(self$data[, private$treatment_name]))>2) {
+        message("we don't have the function for more than 2 arms yet")
+        model <- BART::wbart(x.train=x.train, y.train = y.train, ...)
+      } else {
+        model <- BART::pbart(x.train=x.train, y.train = y.train, ...)
+        prob.train <- pnorm(model$yhat.train)
+        ps <- apply(prob.train,2,mean)
+      }
+      return(list(model = model,
+                  ps = ps))
     },
 
     plot_aggregate_ps = function(stratification){
