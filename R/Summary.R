@@ -40,7 +40,7 @@ Summary <- R6::R6Class(
           self$stratification_joint <- TRUE
         } else {
           self$stratification <- stratification
-          self$stratification <- TRUE
+          self$stratification_joint <- TRUE
         }
       } else{
         stop("please input at least two objects of class either TEstimator or SEstimator for comparison!")
