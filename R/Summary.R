@@ -11,7 +11,7 @@ Summary <- R6::R6Class(
     RCT.study.name = NA,
     RWD.study.name = NA,
 
-    initialize = function(...){
+    initialize = function(..., stratification = NULL, stratification_joint = NULL){
       #browser()
       objs <- list(...)
       SEstimator.id <- find_SEstimator_obj(...)
@@ -23,7 +23,7 @@ Summary <- R6::R6Class(
       # else, if there is no object of class SEstimator, meaning we are comparing
       # objects of class TEstimator without making covariates balanced across objects.
       # then we are comparing estimates on the level of confounders_treatment_name
-      # across objects of class TEstimator
+      # across objects of class TEstimator, or we specify stratification and stratification_joint
       if(SEstimator.id>0){
         if("name" %in% colnames(objs[[SEstimator.id]]$estimates$CATE)){
           self$stratification <- unique(objs[[SEstimator.id]]$estimates$CATE$name)
@@ -34,8 +34,14 @@ Summary <- R6::R6Class(
           self$stratification_joint <- TRUE
         }
       } else if (TEstimator.id>0) {
-        self$stratification <- objs[[TEstimator.id]]$.__enclos_env__$private$confounders_treatment_name
-        self$stratification_joint <- TRUE
+        if(is.null(stratification)){
+          message("You do not specify variable for group_by, then we specify stratification==confounders_treatment_name")
+          self$stratification <- objs[[TEstimator.id]]$.__enclos_env__$private$confounders_treatment_name
+          self$stratification_joint <- TRUE
+        } else {
+          self$stratification <- stratification
+          self$stratification <- TRUE
+        }
       } else{
         stop("please input at least two objects of class either TEstimator or SEstimator for comparison!")
       }

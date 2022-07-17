@@ -698,7 +698,7 @@ rho2 <- c("x2","x3",0)
 # simulating data
 target.data <- RCTrep::DGM(trial=TRUE,  n_rct, var_name, p_success_rct, tau, y0, log.ps=0, binary = TRUE, noise=1, rho1, rho2)
 
-vars_name <- list(confounders_treatment_name=c("x1","x2"),
+vars_name <- list(confounders_treatment_name=c("x1","x2","x3","x4","x5"),
                   treatment_name=c('z'),
                   outcome_name=c('y')
 )
@@ -712,16 +712,21 @@ target.obj <- TEstimator_wrapper(
   data.public = TRUE
 )
 
-target.obj <- TEstimator_wrapper(
+source.obj <- TEstimator_wrapper(
   Estimator = "DR",
   data = target.data,
-  name = "RWD",
+  name = "RWD2",
   vars_name = vars_name,
   treatment_method = "glm",
   outcome_method = "glm",
-  data.public = TRUE,
-  two_models = TRUE
+  data.public = TRUE
+  #two_models = FALSE
 )
 
 target.obj$plot_CATE()
-target.obj$get_CATE()
+source.obj$plot_CATE()
+fusion <- Summary$new(target.obj,
+                      source.obj)
+fusion$plot()
+
+
