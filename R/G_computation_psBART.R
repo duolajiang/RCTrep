@@ -39,6 +39,7 @@ G_computation_psBART <- R6::R6Class(
       private$set_ATE()
       private$set_CATE(private$confounders_treatment_name,TRUE)
       private$isTrial <- isTrial
+      self$id <- paste(self$id, private$gc.method, sep = "/")
     },
 
     summary = function(stratification, stratification_joint=TRUE){

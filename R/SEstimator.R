@@ -27,7 +27,7 @@ SEstimator <- R6::R6Class(
       self$statistics <- source.obj$statistics
       self$id <- paste(private$source.obj$id,
                        self$weighting_estimator,
-                       length(self$confounders_sampling_name),sep = '+')
+                       length(self$confounders_sampling_name),sep = '/')
       private$isTrial <- source.obj$.__enclos_env__$private$isTrial
     },
 

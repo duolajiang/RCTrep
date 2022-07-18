@@ -79,7 +79,10 @@ A data frame. If \code{stratification_joint=TRUE}, then the method returns a dat
 \subsection{Method \code{plot_CATE()}}{
 Plot the forest plot of conditional average treatment effect of subgroups defined by \code{stratification} and \code{stratification_joint}. The method first call public method \code{get_CATE(stratification,stratification_joint)}, then plot the results.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TEstimator$plot_CATE(stratification, stratification_joint = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TEstimator$plot_CATE(
+  stratification = private$confounders_treatment_name,
+  stratification_joint = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

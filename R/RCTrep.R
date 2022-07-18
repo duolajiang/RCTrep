@@ -74,7 +74,7 @@ RCTREP <- function(TEstimator = "G_computation", SEstimator = "Balancing",
     outcome_method = outcome_method, treatment_method = treatment_method, two_models = two_models,
     outcome_formula = outcome_formula, treatment_formula = treatment_formula,
     data.public = data.public,
-    #strata_cut = strata_cut,
+    strata_cut = strata_cut_source,
     ...
   )
 
@@ -84,7 +84,7 @@ RCTREP <- function(TEstimator = "G_computation", SEstimator = "Balancing",
     outcome_formula = outcome_formula, treatment_formula = treatment_formula,
     data.public = data.public,
     isTrial = TRUE,
-    #strata_cut = strata_cut,
+    strata_cut = strata_cut_target,
      ...
   )
 

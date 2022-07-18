@@ -360,6 +360,8 @@ keep_common_data <- function(data, common.data){
 
 
 DR.estimator <- function(z=z,y=y,y.hat=y.hat,ps=ps,w=w,t=1){
+  z <- as.numeric(as.character(z))
+  y <- as.numeric(as.character(y))
   if(t==1){
     y.est <- sum((z*y/ps-(z-ps)/ps*y.hat)*w)/sum(w)
   } else {
@@ -369,6 +371,8 @@ DR.estimator <- function(z=z,y=y,y.hat=y.hat,ps=ps,w=w,t=1){
 }
 
 IPW.estimator <- function(z=z,y=y,ps=ps,w=w,t=1){
+  z <- as.numeric(as.character(z))
+  y <- as.numeric(as.character(y))
   if(t==1){
     y.est <- sum(z*y*w/ps)/sum(z*w/ps)
   } else {

@@ -316,7 +316,7 @@ TEstimator <- R6::R6Class(
       group_id <- group_data %>% group_indices()
       n_groups <- dim(group_strata)[1]
       group_sample_size <- group_size(group_data)
-      cate <- se <- size <- y1.hat <- y0.hat <- NULL
+      cate <- se <- size <- y1.hat <- y0.hat <- pt <- py <- NULL
       for (i in seq(n_groups)) {
         subgroup.id.in.data <- self$data[group_id == i, "id"]
         cate_y1_y0_se <- private$est_ATE_SE(subgroup.id.in.data)
@@ -325,9 +325,11 @@ TEstimator <- R6::R6Class(
         cate[i] <- cate_y1_y0_se$est
         se[i] <- cate_y1_y0_se$se
         size[i] <- group_sample_size[i]
+        pt[i] <- mean(as.numeric(as.character(self$data[group_id == i, private$treatment_name])))
+        py[i] <- mean(as.numeric(as.character(self$data[group_id == i, private$outcome_name])))
         # print(i)
       }
-      CATE_mean_se <- cbind(group_strata, y1.hat, y0.hat, cate, se, size)
+      CATE_mean_se <- cbind(group_strata, y1.hat, y0.hat, cate, se, size, pt, py)
       CATE_mean_se <- as.data.frame(CATE_mean_se)
       # browser()
       # colnames(CATE_mean_se) <- c(colnames(patterns),"cate","se")
@@ -336,7 +338,7 @@ TEstimator <- R6::R6Class(
 
     est_CATEestimation4SeperateStratification = function(stratification) {
       # browser()
-      group_var <- group_level <- cate <- se <- size <- y1.hat <- y0.hat <- density <- NULL
+      group_var <- group_level <- cate <- se <- size <- y1.hat <- y0.hat <- density <- pt <- py <- NULL
       i <- 1
       for (var_name in stratification) {
         group_data <- self$data %>% group_by(across(var_name))
@@ -354,6 +356,8 @@ TEstimator <- R6::R6Class(
           cate[i] <- cate_y1_y0_se$est
           se[i] <- cate_y1_y0_se$se
           size[i] <- group_sample_size[group_id]
+          pt[i] <- mean(as.numeric(as.character(self$data[group_id_4each_obs == group_id, private$treatment_name])))
+          py[i] <- mean(as.numeric(as.character(self$data[group_id_4each_obs == group_id, private$outcome_name])))
 
           i <- i + 1
         }
@@ -368,6 +372,8 @@ TEstimator <- R6::R6Class(
         cate = cate,
         se = se,
         size = size,
+        pt = pt,
+        py = py,
         stringsAsFactors = FALSE
       )
       return(CATE_mean_se)

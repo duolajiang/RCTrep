@@ -12,7 +12,7 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
                                outcome_formula = NULL, treatment_formula = NULL,
                                data.public=TRUE,
                                isTrial = FALSE,
-                               #strata_cut = strata_cut,
+                               strata_cut = NULL,
                                ...) {
   #browser()
   mcall <- match.call()
@@ -119,21 +119,21 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
     )
   } else {}
 
-  # browser()
-  # if (!is.null(strata_cut)) {
-  #   for (i in 1:length(strata_cut)) {
-  #     strata_cut_var_name <- names(strata_cut[i])
-  #     obj$data[, strata_cut_var_name] <- as.character(cut(obj$data[, strata_cut_var_name],
-  #                                                         breaks = strata_cut[[i]]$breaks,
-  #                                                         labels = strata_cut[[i]]$labels,
-  #                                                         include.lowest = TRUE,
-  #                                                         ordered_result = TRUE
-  #                                                         ))
-  #     }
-  # }
+  #browser()
+  if (!is.null(strata_cut)) {
+     for (i in 1:length(strata_cut)) {
+       strata_cut_var_name <- names(strata_cut[i])
+       obj$data[, strata_cut_var_name] <- as.character(cut(obj$data[, strata_cut_var_name],
+                                                           breaks = strata_cut[[i]]$breaks,
+                                                           labels = strata_cut[[i]]$labels,
+                                                           include.lowest = TRUE,
+                                                           ordered_result = TRUE
+                                                           ))
+     }
+    obj$estimates$CATE<- obj$get_CATE(stratification = obj$.__enclos_env__$private$confounders_treatment_name,
+                                      stratification_joint = TRUE)
+   }
 
-
-  #obj$estimates$CATE<- obj$get_CATE(stratification, stratification_joint)
 
   #browser()
   if(!data.public){

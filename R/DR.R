@@ -49,6 +49,7 @@ DR <- R6::R6Class(
       private$set_ATE()
       private$set_CATE(private$confounders_treatment_name,TRUE)
       private$isTrial <- isTrial
+      self$id <- paste(self$id, paste(private$treatment_method,private$outcome_method, sep = "_"), sep = "/")
     }
   ),
 
@@ -227,13 +228,18 @@ DR <- R6::R6Class(
 
     fit_outcome_BART = function(two_models, ...) {
       if (two_models) {
-        # browser()
-        t.level <- unique(self$data[, private$treatment_name])
-        level.order <- order(t.level)
-        t0 <- t.level[match(1, level.order)]
-        t1 <- t.level[match(2, level.order)]
-        train.t0.id <- (self$data[, private$treatment_name] == t0)
-        train.t1.id <- (self$data[, private$treatment_name] == t1)
+        if(is.factor(class(self$data[,private$treatment_name]))){
+          # browser()
+          t.level <- unique(self$data[, private$treatment_name])
+          level.order <- order(t.level)
+          t0 <- t.level[match(1, level.order)]
+          t1 <- t.level[match(2, level.order)]
+          train.t0.id <- (self$data[, private$treatment_name] == t0)
+          train.t1.id <- (self$data[, private$treatment_name] == t1)
+        } else {
+          train.t0.id <- (self$data[, private$treatment_name] == 0)
+          train.t1.id <- (self$data[, private$treatment_name] == 1)
+        }
 
         x.train.1 <- self$data[train.t1.id, c(private$confounders_treatment_name)]
         x.train.0 <- self$data[train.t1.id, c(private$confounders_treatment_name)]
@@ -258,6 +264,7 @@ DR <- R6::R6Class(
 
       } else {
         x.train <- self$data[, c(private$confounders_treatment_name,private$treatment_name)]
+        x.train[,private$treatment_name] <- as.numeric(as.character(x.train[,private$treatment_name]))
         y.train <- self$data[, private$outcome_name]
         if(length(private$confounders_treatment_factor)>0){
           x.train <- fastDummies::dummy_cols(x.train, select_columns= private$confounders_treatment_factor,

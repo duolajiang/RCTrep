@@ -35,7 +35,7 @@ IPW <- R6::R6Class(
       private$set_ATE()
       private$set_CATE(private$confounders_treatment_name,TRUE)
       private$isTrial <- isTrial
-
+      self$id <- paste(self$id, private$method, sep = "/")
     },
 
     summary = function(stratification){

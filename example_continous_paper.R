@@ -703,13 +703,17 @@ vars_name <- list(confounders_treatment_name=c("x1","x2","x3","x4","x5"),
                   outcome_name=c('y')
 )
 
+
+
 target.obj <- TEstimator_wrapper(
   Estimator = "IPW",
   data = target.data,
   name = "RWD",
   vars_name = vars_name,
   treatment_method = "BART",
-  data.public = TRUE
+  data.public = TRUE,
+  strata_cut = list(x1 = list(breaks = c(min(target.data$x1),max(target.data$x1)),
+                              labels = c(1)))
 )
 
 source.obj <- TEstimator_wrapper(
@@ -718,15 +722,17 @@ source.obj <- TEstimator_wrapper(
   name = "RWD2",
   vars_name = vars_name,
   treatment_method = "glm",
-  outcome_method = "glm",
+  outcome_method = "BART",
   data.public = TRUE
-  #two_models = FALSE
+  #two_models = TRUE
 )
 
 target.obj$plot_CATE()
 source.obj$plot_CATE()
 fusion <- Summary$new(target.obj,
-                      source.obj)
+                      source.obj,
+                      stratification=c("x1","x2"),
+                      stratification_joint = TRUE)
 fusion$plot()
 
 
