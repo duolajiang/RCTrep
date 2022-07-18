@@ -17,7 +17,7 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
   #browser()
   mcall <- match.call()
   if (Estimator == "G_computation") {
-    if ((!is.factor(data[, vars_name$outcome_name]))&(length(unique(data[, vars_name$outcome_name]))==2)) {
+    if ((!is.factor(data[, vars_name$outcome_name]))&(outcome_method != "BART")) {
       message("you are classifiying, but outcome class is numeric, we are converting the outcome to factor!")
       data[,vars_name$outcome_name] <- as.factor(data[,vars_name$outcome_name])
     }
@@ -69,6 +69,10 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
       message("treatment class is numeric, we are converting it to factor")
       data[, vars_name$treatment_name] <- as.factor(data[, vars_name$treatment_name])
     }
+    if(is.factor(data[, vars_name$treatment_name]) & (treatment_method=="BART")) {
+      message("treatment class is factor, BART needs numeric value, we are converting it to numeric")
+      data[, vars_name$treatment_name] <- is.numeric(is.character(data[, vars_name$treatment_name]))
+    }
     obj <- IPW$new(
       df = data,
       vars_name = vars_name,
@@ -79,6 +83,7 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
       ...
     )
   } else if (Estimator == "DR") {
+    #browser()
     if (!is.factor(data[, vars_name$outcome_name]) & (outcome_method!='BART')) {
       message("outcome class is numeric, we are converting it to factor")
       data[, vars_name$outcome_name] <- as.factor(data[, vars_name$outcome_name])
@@ -91,7 +96,8 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
       message("your treatment class is factor for BART outcome modeling, we are converting it to numeric")
       data[, vars_name$treatment_name] <- as.numeric(as.character(data[, vars_name$treatment_name]))
     }
-    if(is.factor(data[, vars_name$outcome_name]) & (outcome_method=='BART')) {
+    if(is.factor(data[, vars_name$outcome_name]) & (outcome_method=='BART'))
+      {
       message("your outcome class is factor for BART outcome modeling, we are converting it to numeric")
       data[, vars_name$outcome_name] <- as.numeric(as.character(data[, vars_name$outcome_name]))
     }

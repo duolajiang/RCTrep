@@ -721,14 +721,15 @@ source.obj <- TEstimator_wrapper(
   data = target.data,
   name = "RWD2",
   vars_name = vars_name,
-  treatment_method = "glm",
-  outcome_method = "BART",
+  treatment_method = "BART",
+  outcome_method = "logreg",
   data.public = TRUE
   #two_models = TRUE
 )
 
-target.obj$plot_CATE()
+#target.obj$plot_CATE()
 source.obj$plot_CATE()
+source.obj$diagnosis_t_overlap()
 fusion <- Summary$new(target.obj,
                       source.obj,
                       stratification=c("x1","x2"),

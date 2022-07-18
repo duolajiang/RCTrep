@@ -18,7 +18,7 @@ DR <- R6::R6Class(
                           outcome_method, outcome_formula,two_models,isTrial, ...) {
       super$initialize(df, vars_name, name)
       #browser()
-      self$data[, private$outcome_name] <- as.numeric(levels(self$data[, private$outcome_name])[self$data[, private$outcome_name]])
+      #self$data[, private$outcome_name] <- as.numeric(levels(self$data[, private$outcome_name])[self$data[, private$outcome_name]])
       private$treatment_method <- treatment_method
       private$treatment_formula <- treatment_formula
       private$outcome_method <- outcome_method
@@ -42,6 +42,16 @@ DR <- R6::R6Class(
         self$model$treatment <- private$fit_treatment(...)
         self$ps.est <- private$est_ps()
       }
+
+      if(is.factor(self$data[, private$outcome_name])){
+        self$data[,private$outcome_name] <- as.numeric(as.character(self$data[,private$outcome_name]))
+      }
+
+      if(is.factor(self$data[, private$treatment_name])){
+        self$data[,private$treatment_name] <- as.numeric(as.character(self$data[,private$treatment_name]))
+      }
+
+      # browser()
       # self$model$treatment <- private$fit_treatment(...)
       # self$model$outcome <- private$fit_outcome(two_models, ...)
       # self$ps.est <- private$est_ps()
@@ -263,6 +273,8 @@ DR <- R6::R6Class(
         return(model = list(model.y1 = model.y1, model.y0 = model.y0))
 
       } else {
+        #browser()
+
         x.train <- self$data[, c(private$confounders_treatment_name,private$treatment_name)]
         x.train[,private$treatment_name] <- as.numeric(as.character(x.train[,private$treatment_name]))
         y.train <- self$data[, private$outcome_name]
@@ -315,6 +327,7 @@ DR <- R6::R6Class(
 
 
     est_potentialOutcomes_BART= function(two_models) {
+      #browser()
       if (two_models) {
         data <- self$data[, private$confounders_treatment_name]
         if(length(private$confounders_treatment_factor)>0){

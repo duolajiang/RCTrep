@@ -96,7 +96,7 @@ TEstimator <- R6::R6Class(
       #browser()
       data.cate <- self$get_CATE(stratification, stratification_joint)
       colnames.subgroups <- colnames(data.cate)
-      var_names <- colnames.subgroups[!colnames.subgroups %in% c("y1.hat","y0.hat","cate","se","size")]
+      var_names <- colnames.subgroups[!colnames.subgroups %in% c("y1.hat","y0.hat","cate","se","size","pt","py")]
       var_names_data <- data.cate[,var_names]
       subgroup_name_level <- apply(var_names_data, 1, function(x) paste(var_names, x, sep = "=", collapse = ","))
       subgroup_name_level <- factor(subgroup_name_level, levels = subgroup_name_level, ordered = T)
