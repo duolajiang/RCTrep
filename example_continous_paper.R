@@ -728,8 +728,9 @@ source.obj <- TEstimator_wrapper(
 )
 
 #target.obj$plot_CATE()
-source.obj$plot_CATE()
-source.obj$diagnosis_t_overlap()
+target.obj$plot_CATE()
+target.obj$diagnosis_t_overlap()
+target.obj$diagnosis_y_overlap()
 fusion <- Summary$new(target.obj,
                       source.obj,
                       stratification=c("x1","x2"),

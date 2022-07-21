@@ -210,6 +210,8 @@ TEstimator <- R6::R6Class(
 
       }
 
+      print(data)
+
       tgrob <- ggpubr::text_grob(c("Treatment overlap within subpopulations"))
       ggpubr::ggarrange(tgrob, NULL, p.prop, p.count, ncol=2, nrow=2, heights = c(1,5))
 
@@ -225,36 +227,71 @@ TEstimator <- R6::R6Class(
       }
 
       if(test_binary(self$data[,private$outcome_name])){
-        p.count.t1 <- self$data %>%
+        self$data %>%
           select(vars_name, private$outcome_name, private$treatment_name) %>%
-          filter(eval(parse(text=private$treatment_name)) == "1") %>%
+          #filter(eval(parse(text=private$treatment_name)) == "1") %>%
           mutate(group_name = apply(.[,vars_name], 1, function(x)
             paste(vars_name,x,sep = "=",collapse = ","))) %>%
-          select(group_name, private$outcome_name) %>%
+          print() %>%
           ggplot(aes(x=group_name, fill=factor(eval(parse(text = private$outcome_name))))) +
           geom_bar(stat = "count") +
           labs(fill = "outcome") +
-          ggtitle("survival count in treatment group")+
+          ggtitle("Outcome overlap within subpopulations")+
           coord_flip() +
-          theme(legend.position="none")
-
-        p.count.t0 <- self$data %>%
-          select(vars_name, private$outcome_name, private$treatment_name) %>%
-          filter(eval(parse(text=private$treatment_name)) == "0") %>%
-          mutate(group_name = apply(.[,vars_name], 1, function(x)
-            paste(vars_name,x,sep = "=",collapse = ","))) %>%
-          select(group_name, private$outcome_name) %>%
-          ggplot(aes(x=group_name, fill=factor(eval(parse(text = private$outcome_name))))) +
-          geom_bar(stat = "count") +
-          labs(fill = "outcome") +
-          ggtitle("survival count in control group")+
-          coord_flip() +
+          facet_wrap(~eval(parse(text=private$treatment_name))) +
           theme(axis.text.y=element_blank(),
                 axis.ticks.y=element_blank(),
                 axis.title.y=element_blank())
 
-        tgrob <- ggpubr::text_grob(c("Outcome overlap within subpopulations"))
-        ggpubr::ggarrange(tgrob, NULL, p.count.t1, p.count.t0,ncol=2, nrow=2, heights = c(1,5))
+
+        # p.count <- self$data %>%
+        #   select(vars_name, private$outcome_name, private$treatment_name) %>%
+        #   #filter(eval(parse(text=private$treatment_name)) == "1") %>%
+        #   mutate(group_name = apply(.[,vars_name], 1, function(x)
+        #     paste(vars_name,x,sep = "=",collapse = ","))) %>%
+        #   #select(group_name, private$outcome_name) %>%
+        #   ggplot(aes(x=group_name, fill=factor(eval(parse(text = private$outcome_name))))) +
+        #   geom_bar(stat = "count") +
+        #   labs(fill = "outcome") +
+        #   ggtitle("Outcome overlap within subpopulations")+
+        #   coord_flip() +
+        #   facet_wrap(~eval(parse(text=private$treatment_name))) +
+        #   theme(axis.text.y=element_blank(),
+        #         axis.ticks.y=element_blank(),
+        #         axis.title.y=element_blank())
+
+
+
+        # p.count.t1 <- self$data %>%
+        #   select(vars_name, private$outcome_name, private$treatment_name) %>%
+        #   filter(eval(parse(text=private$treatment_name)) == "1") %>%
+        #   mutate(group_name = apply(.[,vars_name], 1, function(x)
+        #     paste(vars_name,x,sep = "=",collapse = ","))) %>%
+        #   select(group_name, private$outcome_name) %>%
+        #   ggplot(aes(x=group_name, fill=factor(eval(parse(text = private$outcome_name))))) +
+        #   geom_bar(stat = "count") +
+        #   labs(fill = "outcome") +
+        #   ggtitle("survival count in treatment group")+
+        #   coord_flip() +
+        #   theme(legend.position="none")
+        #
+        # p.count.t0 <- self$data %>%
+        #   select(vars_name, private$outcome_name, private$treatment_name) %>%
+        #   filter(eval(parse(text=private$treatment_name)) == "0") %>%
+        #   mutate(group_name = apply(.[,vars_name], 1, function(x)
+        #     paste(vars_name,x,sep = "=",collapse = ","))) %>%
+        #   select(group_name, private$outcome_name) %>%
+        #   ggplot(aes(x=group_name, fill=factor(eval(parse(text = private$outcome_name))))) +
+        #   geom_bar(stat = "count") +
+        #   labs(fill = "outcome") +
+        #   ggtitle("survival count in control group")+
+        #   coord_flip() +
+        #   theme(axis.text.y=element_blank(),
+        #         axis.ticks.y=element_blank(),
+        #         axis.title.y=element_blank())
+
+        #tgrob <- ggpubr::text_grob(c("Outcome overlap within subpopulations"))
+        #ggpubr::ggarrange(tgrob, NULL, p.count.t1, p.count.t0,ncol=2, nrow=2, heights = c(1,5))
 
       } else {
         p.dis <- self$data %>%

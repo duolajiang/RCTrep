@@ -106,35 +106,50 @@ TEstimator_pp <- R6::R6Class(
         vars_name <- stratification
       }
 
-      p.count.t1 <- self$statistics$density_confounders %>%
-        filter(eval(parse(text=private$treatment_name)) == "1") %>%
+      self$statistics$density_confounders %>%
         mutate(group_name = apply(.[,vars_name], 1, function(x)
           paste(vars_name,x,sep = "=",collapse = ","))) %>%
         group_by(across(all_of(c("group_name", private$outcome_name)))) %>%
-        summarise(count=sum(count)) %>%
+        print() %>%
         ggplot(aes(x=group_name, y=count, fill=factor(eval(parse(text = private$outcome_name))))) +
-        geom_bar(stat = "identity") +
+        geom_bar(stat = "count") +
         labs(fill = "outcome") +
-        ggtitle("survival count in treatment group")+
+        ggtitle("Outcome overlap within subpopulations")+
         coord_flip() +
-        theme(legend.position="none")
-
-      p.count.t0 <- self$statistics$density_confounders %>%
-        filter(eval(parse(text=private$treatment_name)) == "0") %>%
-        mutate(group_name = apply(.[,vars_name], 1, function(x)
-          paste(vars_name,x,sep = "=",collapse = ","))) %>%
-        group_by(across(all_of(c("group_name", private$outcome_name)))) %>%
-        summarise(count=sum(count)) %>%
-        ggplot(aes(x=group_name, y=count, fill=factor(eval(parse(text = private$outcome_name))))) +
-        geom_bar(stat = "identity") +
-        labs(fill = "outcome") +
-        ggtitle("survival count in control group")+
-        coord_flip() +
+        facet_wrap(~eval(parse(text=private$treatment_name))) +
         theme(axis.text.y=element_blank(),
               axis.ticks.y=element_blank(),
               axis.title.y=element_blank())
 
-      ggarrange(p.count.t1, p.count.t0, ncol=2, nrow=1)
+      # p.count.t1 <- self$statistics$density_confounders %>%
+      #   filter(eval(parse(text=private$treatment_name)) == "1") %>%
+      #   mutate(group_name = apply(.[,vars_name], 1, function(x)
+      #     paste(vars_name,x,sep = "=",collapse = ","))) %>%
+      #   group_by(across(all_of(c("group_name", private$outcome_name)))) %>%
+      #   summarise(count=sum(count)) %>%
+      #   ggplot(aes(x=group_name, y=count, fill=factor(eval(parse(text = private$outcome_name))))) +
+      #   geom_bar(stat = "identity") +
+      #   labs(fill = "outcome") +
+      #   ggtitle("survival count in treatment group")+
+      #   coord_flip() +
+      #   theme(legend.position="none")
+      #
+      # p.count.t0 <- self$statistics$density_confounders %>%
+      #   filter(eval(parse(text=private$treatment_name)) == "0") %>%
+      #   mutate(group_name = apply(.[,vars_name], 1, function(x)
+      #     paste(vars_name,x,sep = "=",collapse = ","))) %>%
+      #   group_by(across(all_of(c("group_name", private$outcome_name)))) %>%
+      #   summarise(count=sum(count)) %>%
+      #   ggplot(aes(x=group_name, y=count, fill=factor(eval(parse(text = private$outcome_name))))) +
+      #   geom_bar(stat = "identity") +
+      #   labs(fill = "outcome") +
+      #   ggtitle("survival count in control group")+
+      #   coord_flip() +
+      #   theme(axis.text.y=element_blank(),
+      #         axis.ticks.y=element_blank(),
+      #         axis.title.y=element_blank())
+      #
+      # ggarrange(p.count.t1, p.count.t0, ncol=2, nrow=1)
 
     }
 
