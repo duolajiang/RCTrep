@@ -43,7 +43,7 @@ IPW <- R6::R6Class(
       plot.ps.overall <- ggplot2::ggplot(data=data.ps, aes(x=ps, color=treatment, fill=treatment)) +
         geom_density(alpha=.5)
       plot.ps.subgroup <- private$plot_aggregate_ps(stratification)
-      tgrob <- text_grob(c("Propensity score overlap"))
+      tgrob <- ggpubr::text_grob(c("Propensity score overlap"))
 
       plot.agg <- ggpubr::ggarrange(tgrob, NULL, plot.ps.overall, plot.ps.subgroup, ncol = 2, nrow = 2, heights = c(1,5))
 
