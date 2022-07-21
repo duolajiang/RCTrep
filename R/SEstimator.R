@@ -77,6 +77,8 @@ SEstimator <- R6::R6Class(
         stop("stratification_joint must be TRUE for now, the function has not been completed yet.")
       }
 
+      print(data)
+
       tgrob <- ggpubr::text_grob(c("Sampling overlap within subpopulations"))
       ggpubr::ggarrange(tgrob, NULL, p.prop, p.count, nrow=2, ncol=2, heights = c(1,5))
 
