@@ -4,6 +4,7 @@
 library(MASS)
 library(mvtnorm)
 library(dplyr)
+
 set.seed(123)
 # ===================================
 n_rct <- 5000; n_rwd <- 5000
