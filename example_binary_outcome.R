@@ -1,8 +1,8 @@
 library(dplyr)
-source.data <- RCTrep::source.data.binary
-target.data <- RCTrep::target.data.binary
+source.data <- RCTrep::source.binary.data
+target.data <- RCTrep::target.binary.data
 
-vars_name <- list(confounders_treatment=c("x1","x2","x3","x4","x5","x6"),
+vars_name <- list(confounders_treatment_name=c("x1","x2","x3","x4","x5","x6"),
                   confounders_sampling=c("x1","x2","x3","x4","x5","x6"),
                   treatment_name=c('z'),
                   outcome_name=c('y')
@@ -48,3 +48,28 @@ source.data %>% group_by(across(all_of(c(vars_name$confounders_treatment,vars_na
   summarise(ybar=mean(y=="1"), obs=n())
 target.data %>% group_by(across(all_of(c(vars_name$confounders_treatment,vars_name$treatment_name)))) %>%
   summarise(ybar=mean(y=="1"), obs=n())
+
+source.data <- as.data.frame(source.data)
+target.data <- as.data.frame(target.data)
+#source.data$y <- as.factor(source.data$y)
+#source.data$z <- as.factor(source.data$z)
+
+
+obj.g_com.LReg <- TEstimator_wrapper(
+  Estimator = "G_computation",
+  data = source.data,
+  name = "NKR",
+  vars_name = vars_name,
+  outcome_method = "glm",
+  outcome_formula = y ~ x1 + x2 + x3 + z + z:x1 + z:x2 +z:x3+ z:x6,
+  data.public = TRUE
+)
+
+obj.g_com.LReg$diagnosis_y_overlap(stratification = c("x1","x2"), stratification_joint = FALSE)
+
+
+
+
+
+
+

@@ -5,6 +5,7 @@
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggpubr ggtexttable ggarrange
 #' @import dplyr
+#' @import tidyr
 TEstimator <- R6::R6Class(
   "TEstimator",
   #-------------------------public fields-----------------------------#
@@ -218,30 +219,59 @@ TEstimator <- R6::R6Class(
     },
 
     diagnosis_y_overlap = function(stratification, stratification_joint=TRUE){
+
       #browser()
 
       if(missing(stratification)){
-        vars_name <- private$confounders_treatment_name
-      } else{
-        vars_name <- stratification
+        stratification <- private$confounders_treatment_name
       }
 
       if(test_binary(self$data[,private$outcome_name])){
-        self$data %>%
-          select(vars_name, private$outcome_name, private$treatment_name) %>%
-          #filter(eval(parse(text=private$treatment_name)) == "1") %>%
-          mutate(group_name = apply(.[,vars_name], 1, function(x)
-            paste(vars_name,x,sep = "=",collapse = ","))) %>%
-          print() %>%
-          ggplot(aes(x=group_name, fill=factor(eval(parse(text = private$outcome_name))))) +
-          geom_bar(stat = "count") +
-          labs(fill = "outcome") +
-          ggtitle("Outcome overlap within subpopulations")+
-          coord_flip() +
-          facet_wrap(~eval(parse(text=private$treatment_name))) +
-          theme(axis.text.y=element_blank(),
-                axis.ticks.y=element_blank(),
-                axis.title.y=element_blank())
+        if(stratification_joint==TRUE){
+          df <- self$data %>%
+            select(stratification, private$outcome_name, private$treatment_name) %>%
+            #filter(eval(parse(text=private$treatment_name)) == "1") %>%
+            mutate(group_name = apply(.[,stratification], 1, function(x)
+              paste(stratification,x,sep = "=",collapse = ",")))
+          p <- ggplot(data=df, aes(x=group_name, fill=factor(eval(parse(text = private$outcome_name))))) +
+            geom_bar(stat = "count") +
+            labs(fill = "outcome") +
+            ggtitle("Outcome overlap within subpopulations")+
+            coord_flip() +
+            facet_wrap(~eval(parse(text=private$treatment_name))) +
+            theme(axis.title.y=element_blank())
+
+          print(df %>% group_by(across(c("group_name",private$treatment_name, private$outcome_name))) %>% summarise(count=n()))
+          p
+
+        } else{
+          df <- self$data %>%
+            select(stratification, private$treatment_name, private$outcome_name) %>%
+            tidyr::gather(key = "variable", value = "measurement", -c(private$treatment_name,private$outcome_name)) %>%
+            mutate(group_name = paste(variable,measurement,sep="="))
+
+          p <- ggplot(data=df, aes(x=group_name, fill=factor(eval(parse(text = private$outcome_name))))) +
+                geom_bar(stat = "count") +
+                labs(fill = "outcome") +
+                ggtitle("Outcome overlap within subpopulations")+
+                coord_flip() +
+                facet_wrap(~eval(parse(text=private$treatment_name))) +
+                theme(axis.title.y=element_blank())
+
+          print(df %>% group_by(across(c("group_name", private$treatment_name, private$outcome_name))) %>% summarise(count=n()))
+          p
+          # df <- lapply(stratification, function(x) self$data %>%
+          #              mutate(group_name = apply(as.matrix(.[,x]), 1, function(y) paste(x,y,sep="="))) %>%
+          #              group_by(group_name, eval(parse(text=private$treatment_name))) %>%
+          #              summarise(count=n())
+          # )
+          # data <- data.frame()
+          # for (df.strata in df) {
+          #   data <- bind_rows(data, df.strata)
+          # }
+          # colnames(data) <- c("group_name",private$treatment_name,"count")
+        }
+
 
 
         # p.count <- self$data %>%

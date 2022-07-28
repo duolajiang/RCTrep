@@ -17,7 +17,7 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
   #browser()
   mcall <- match.call()
   if (Estimator == "G_computation") {
-    if ((!is.factor(data[, vars_name$outcome_name]))&(outcome_method != "BART")) {
+    if ((!is.factor(data[, vars_name$outcome_name]))&(outcome_method != "BART")&(length(unique(data[, vars_name$outcome_name]))==2)) {
       message("you are classifiying, but outcome class is numeric, we are converting the outcome to factor!")
       data[,vars_name$outcome_name] <- as.factor(data[,vars_name$outcome_name])
     }
