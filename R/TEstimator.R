@@ -121,22 +121,32 @@ TEstimator <- R6::R6Class(
       return(cate_plot)
     },
 
-    plot_y1_y0 = function(stratification, stratification_joint = TRUE){
-      #browser()
-      # data.cate <- self$get_CATE(stratification, stratification_joint)
-      # colnames.subgroups <- colnames(data.cate)
-      # var_names <- colnames.subgroups[!colnames.subgroups %in% c("y1.hat","y0.hat")]
-      # var_names_data <- data.cate[,var_names]
-      # subgroup_name_level <- apply(var_names_data, 1, function(x) paste(var_names, x, sep = "=", collapse = ","))
-      # subgroup_name_level <- factor(subgroup_name_level, levels = subgroup_name_level, ordered = T)
-      #
-      # #browser()
-      # df <- data.cate %>%
-      #   select(cate,se,size) %>%
-      #   mutate(group=subgroup_name_level,
-      #          ci_l=cate-1.98*se,
-      #          ci_u=cate+1.98*se)
-
+    plot_y1_y0 = function(stratification, stratification_joint = TRUE, seperate = FALSE){
+      if(stratification_joint==TRUE){
+        df <- self$get_CATE(stratification, stratification_joint) %>%
+          select(stratification, y1.hat, y0.hat) %>%
+          gather(key="potential_outcome", value="est", y1.hat, y0.hat) %>%
+          mutate(group_name = apply(.[,stratification], 1, function(x)
+            paste(stratification,x,sep = "=",collapse = ",")))
+      } else{
+        df <- self$get_CATE(stratification, stratification_joint) %>%
+          select(name, value, y1.hat, y0.hat) %>%
+          gather(y1.hat, y0.hat, -name, -value) %>%
+          rename(potential_outcome = y1.hat,
+                 est = y0.hat) %>%
+          mutate(group_name = paste(name,"=",value,sep = ""))
+      }
+      if(seperate == TRUE){
+        ggplot(data=df, aes(x=group_name, y=est)) +
+          geom_bar(stat = "identity", position = position_dodge()) +
+          facet_wrap(~potential_outcome) +
+          coord_flip()
+      } else {
+        ggplot(data=df, aes(x=group_name, y=est,
+                            group = potential_outcome, fill=potential_outcome)) +
+          geom_bar(stat = "identity", position = position_dodge()) +
+          coord_flip()
+        }
     },
 
     diagnosis_t_overlap = function(stratification, stratification_joint=TRUE){

@@ -54,7 +54,7 @@ target.data <- as.data.frame(target.data)
 #source.data$y <- as.factor(source.data$y)
 #source.data$z <- as.factor(source.data$z)
 
-
+library(RCTrep)
 obj.g_com.LReg <- TEstimator_wrapper(
   Estimator = "G_computation",
   data = source.data,
@@ -65,7 +65,9 @@ obj.g_com.LReg <- TEstimator_wrapper(
   data.public = TRUE
 )
 
-obj.g_com.LReg$diagnosis_y_overlap(stratification = c("x1","x2"), stratification_joint = FALSE)
+obj.g_com.LReg$plot_y1_y0(stratification = c("x1","x2"), stratification_joint = TRUE, seperate = FALSE)
+obj.g_com.LReg$diagnosis_t_overlap(stratification = c("x1","x2"), stratification_joint = TRUE)
+obj.g_com.LReg$diagnosis_y_overlap(stratification = c("x1","x2"), stratification_joint = TRUE)
 
 
 
