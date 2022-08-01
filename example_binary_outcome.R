@@ -65,12 +65,10 @@ obj.g_com.LReg <- TEstimator_wrapper(
   data.public = TRUE
 )
 
+obj.g_com.LReg$plot_CATE(stratification = c("x1","x2"), stratification_joint = TRUE)
 obj.g_com.LReg$plot_y1_y0(stratification = c("x1","x2"), stratification_joint = TRUE, seperate = FALSE)
 obj.g_com.LReg$diagnosis_t_overlap(stratification = c("x1","x2"), stratification_joint = TRUE)
 obj.g_com.LReg$diagnosis_y_overlap(stratification = c("x1","x2"), stratification_joint = TRUE)
-
-
-
 
 
 

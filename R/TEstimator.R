@@ -115,8 +115,7 @@ TEstimator <- R6::R6Class(
                       width = .3, position = position_dodge(0.5)) +
         geom_vline(xintercept = 0, color = "black", linetype = "dashed", alpha = .5) +
         ggtitle("Estimate of conditional average treatment effect.") +
-        theme(plot.title = element_text(),
-              legend.position = "none")
+        theme(plot.title = element_text())
 
       return(cate_plot)
     },
