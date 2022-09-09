@@ -146,7 +146,7 @@ Summary <- R6::R6Class(
       for(obj in list(...)){
         if("TEstimator" %in% class(obj)){
           obj.data <- obj$get_CATE(self$stratification,self$stratification_joint) %>%
-            mutate(estimator=obj$id, study=obj$name)
+            mutate(estimator=obj$id, study=obj$name) %>% select(-pt,-py)
         } else {
           obj.data <- obj$estimates$CATE %>% mutate(estimator=obj$id, study=obj$name)
         }
