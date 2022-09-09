@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 ```
 # RCTrep: An R package for validation of methods for treatment effect estimation using real-world data
 
-<!-- badges: start -->
+<img src="https://zenodo.org/badge/437073752.svg">
 **RCTrep** is an R package to validate methods for **conditional average treatment effect (CATE)** estimation using **real-world data (RWD)**. Validation of methods for treatment effect estimation using RWD is challenging because we do not observe the true treatment effect for each individual ![formula14](man/figures/CodeCogsEqn14.svg) - a fundamental problem of **causal inference** - hence we can only estimate treatment effect using observed data. Randomized control trial (RCT) assigns individuals to treatment <img src="https://latex.codecogs.com/svg.image?Z=1" /> or control groups <img src="https://latex.codecogs.com/svg.image?Z=0"> with known probability ![formula13](man/figures/CodeCogsEqn13.svg)
 , hence two groups are balanced in terms of observed and unobserved covariates. The difference in outcomes between groups can be merely attributed to realization of treatment <img src="https://latex.codecogs.com/svg.image?Z">, and hence the treatment effect is the simple difference in means of outcomes and is unbiased given identification assumption holds. However, in case we don't know the true probability ![formula13](man/figures/CodeCogsEqn13.svg) in RWD, without knowing the ground truth, _**how can we validate the methods for treatment effect estimation?**_
 
