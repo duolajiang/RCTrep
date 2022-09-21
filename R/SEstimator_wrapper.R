@@ -1,16 +1,16 @@
 #' @export
-SEstimator_wrapper <- function(estimator, target.obj, source.obj, confounders_sampling_name, method="glm", ...){
-  if(estimator=="Exact"){
+SEstimator_wrapper <- function(Estimator, target.obj, source.obj, confounders_sampling_name, method="glm", ...){
+  if(Estimator=="Exact"){
     obj <- SEexact$new(target.obj=target.obj,
                        source.obj=source.obj,
                        confounders_sampling_name=confounders_sampling_name)
-  } else if(estimator=="ISW"){
+  } else if(Estimator=="ISW"){
     obj <- SEisw$new(target.obj=target.obj,
                      source.obj=source.obj,
                      confounders_sampling_name=confounders_sampling_name,
                      weighting_method = method,
                      ...)
-  } else if(estimator=="Subclass"){
+  } else if(Estimator=="Subclass"){
     obj <- SEsubclass$new(target.obj=target.obj,
                      source.obj=source.obj,
                      confounders_sampling_name=confounders_sampling_name,

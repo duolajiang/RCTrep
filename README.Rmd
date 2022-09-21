@@ -115,7 +115,7 @@ target.obj <- TEstimator_wrapper(
 #### Step 2.2: Estimation of weighted treatment effect of RWD
 ```{r,message=FALSE, warning=FALSE}
 # step2.2: Estimation of weighted treatment effect
-source.obj.rep <- SEstimator_wrapper(estimator="Exact",
+source.obj.rep <- SEstimator_wrapper(Estimator="Exact",
                                 target.obj=target.obj,
                                 source.obj=source.obj,
                                 confounders_sampling_name=confounders_sampling_name)

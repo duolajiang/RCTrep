@@ -100,7 +100,11 @@ Plot the forest plot of conditional average treatment effect of subgroups define
 \if{latex}{\out{\hypertarget{method-plot_y1_y0}{}}}
 \subsection{Method \code{plot_y1_y0()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TEstimator$plot_y1_y0(stratification, stratification_joint = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TEstimator$plot_y1_y0(
+  stratification,
+  stratification_joint = TRUE,
+  seperate = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 }
