@@ -1,0 +1,27 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  RCTrep: An R package for validation of estimators
+  for treatment effect
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Lingjie
+    family-names: Shen
+    email: L.Shen@uvt.nl
+    affiliation: Tilburg University
+    orcid: 'https://orcid.org/0000-0002-9354-8088'
+  - given-names: Maurits
+    family-names: Kaptein
+    email: m.c.kaptein@tilburguniversity.edu
+    affiliation: Tilburg University
+    orcid: 'https://orcid.org/0000-0002-6316-7524'
+  - orcid: 'https://orcid.org/0000-0002-0947-8970'
+    given-names: 'Gijs '
+    family-names: Geleijnse
+    email: g.geleijnse@iknl.nl
+    affiliation: IKNL
