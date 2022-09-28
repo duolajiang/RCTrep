@@ -5,6 +5,7 @@ cff-version: 1.2.0
 title: >-
   RCTrep: An R package for validation of estimators
   for treatment effect
+doi: 10.5281/zenodo.7064307
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
