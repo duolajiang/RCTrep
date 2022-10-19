@@ -84,8 +84,8 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
     )
   } else if (Estimator == "DR") {
     #browser()
-    if (!is.factor(data[, vars_name$outcome_name]) & (outcome_method!='BART')) {
-      message("outcome class is numeric, we are converting it to factor")
+    if (!is.factor(data[, vars_name$outcome_name]) & (outcome_method!='BART') & (length(unique(data[, vars_name$outcome_name]))==2)) {
+      message("binary outcome, class is numeric, outcome method is not BART. We are converting it to factor")
       data[, vars_name$outcome_name] <- as.factor(data[, vars_name$outcome_name])
     }
     if (!is.factor(data[, vars_name$treatment_name]) & (treatment_method != 'BART')) {

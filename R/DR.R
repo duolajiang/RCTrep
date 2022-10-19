@@ -180,6 +180,7 @@ DR <- R6::R6Class(
 
 
     fit_outcome = function(two_models, ...) {
+      #browser()
       if (two_models) {
         # browser()
         t.level <- unique(self$data[, private$treatment_name])
@@ -297,7 +298,7 @@ DR <- R6::R6Class(
     },
 
     est_potentialOutcomes = function(two_models) {
-      # browser()
+      #browser()
       data0 <- data1 <- self$data[, c(private$confounders_treatment_name, private$treatment_name)]
       t.level <- unique(self$data[, private$treatment_name])
       level.order <- order(t.level)

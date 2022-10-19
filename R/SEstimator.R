@@ -31,11 +31,15 @@ SEstimator <- R6::R6Class(
       private$isTrial <- source.obj$.__enclos_env__$private$isTrial
     },
 
-    EstimateRep = function(stratification=self$confounders_sampling_name, stratification_joint=TRUE) {
+    EstimateRep = function(stratification, stratification_joint=TRUE) {
       #browser()
-      private$set_weighted_ATE_SE()
-      private$set_weighted_CATE_SE(stratification = stratification,
-                                   stratification_joint = stratification_joint)
+      if (length(intersect(stratification, self$confounders_sampling_name))>0) {
+        stop("stratification should not include variables in confounders_sampling_name, please re-specify the stratification!!!")
+      } else {
+        private$set_weighted_ATE_SE()
+        private$set_weighted_CATE_SE(stratification = stratification,
+                                     stratification_joint = stratification_joint)
+      }
     },
 
     diagnosis_s_overlap = function(stratification=NULL, stratification_joint=TRUE){

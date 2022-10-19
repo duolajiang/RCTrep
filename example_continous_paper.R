@@ -191,31 +191,31 @@ target.obj <- TEstimator_wrapper(
 
 strata <- c("x1","x4")
 confounders_sampling_name <- c("x2","x6")
-source.gc.exact <- SEstimator_wrapper(estimator="Exact",target.obj=target.obj, source.obj=source.obj.gc,confounders_sampling_name=confounders_sampling_name)
+source.gc.exact <- SEstimator_wrapper(Estimator="Exact",target.obj=target.obj, source.obj=source.obj.gc,confounders_sampling_name=confounders_sampling_name)
 source.gc.exact$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
-source.gc.isw <- SEstimator_wrapper(estimator="ISW",target.obj=target.obj, source.obj=source.obj.gc,confounders_sampling_name=confounders_sampling_name, method="glm")
+source.gc.isw <- SEstimator_wrapper(Estimator="ISW",target.obj=target.obj, source.obj=source.obj.gc,confounders_sampling_name=confounders_sampling_name, method="glm")
 source.gc.isw$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
-source.gc.subclass <- SEstimator_wrapper(estimator="Subclass",target.obj=target.obj, source.obj=source.obj.gc,confounders_sampling_name=confounders_sampling_name)
+source.gc.subclass <- SEstimator_wrapper(Estimator="Subclass",target.obj=target.obj, source.obj=source.obj.gc,confounders_sampling_name=confounders_sampling_name)
 source.gc.subclass$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
-source.ipw.exact <- SEstimator_wrapper(estimator="Exact",target.obj=target.obj, source.obj=source.obj.ipw,confounders_sampling_name=confounders_sampling_name)
+source.ipw.exact <- SEstimator_wrapper(Estimator="Exact",target.obj=target.obj, source.obj=source.obj.ipw,confounders_sampling_name=confounders_sampling_name)
 source.ipw.exact$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
-source.ipw.isw <- SEstimator_wrapper(estimator="ISW",target.obj=target.obj, source.obj=source.obj.ipw,confounders_sampling_name=confounders_sampling_name, method="glm")
+source.ipw.isw <- SEstimator_wrapper(Estimator="ISW",target.obj=target.obj, source.obj=source.obj.ipw,confounders_sampling_name=confounders_sampling_name, method="glm")
 source.ipw.isw$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
-source.ipw.subclass <- SEstimator_wrapper(estimator="Subclass",target.obj=target.obj, source.obj=source.obj.ipw,confounders_sampling_name=confounders_sampling_name)
+source.ipw.subclass <- SEstimator_wrapper(Estimator="Subclass",target.obj=target.obj, source.obj=source.obj.ipw,confounders_sampling_name=confounders_sampling_name)
 source.ipw.subclass$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
-source.dr.exact <- SEstimator_wrapper(estimator="Exact",target.obj=target.obj, source.obj=source.obj.dr,confounders_sampling_name=confounders_sampling_name)
+source.dr.exact <- SEstimator_wrapper(Estimator="Exact",target.obj=target.obj, source.obj=source.obj.dr,confounders_sampling_name=confounders_sampling_name)
 source.dr.exact$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
-source.dr.isw <- SEstimator_wrapper(estimator="ISW",target.obj=target.obj, source.obj=source.obj.dr,confounders_sampling_name=confounders_sampling_name, method="glm")
+source.dr.isw <- SEstimator_wrapper(Estimator="ISW",target.obj=target.obj, source.obj=source.obj.dr,confounders_sampling_name=confounders_sampling_name, method="glm")
 source.dr.isw$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
-source.dr.subclass <- SEstimator_wrapper(estimator="Subclass",target.obj=target.obj, source.obj=source.obj.dr,confounders_sampling_name=confounders_sampling_name)
+source.dr.subclass <- SEstimator_wrapper(Estimator="Subclass",target.obj=target.obj, source.obj=source.obj.dr,confounders_sampling_name=confounders_sampling_name)
 source.dr.subclass$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
 fusion <- Summary$new(target.obj,
