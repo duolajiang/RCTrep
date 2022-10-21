@@ -128,7 +128,7 @@ obj.f2.w <- SEstimator_wrapper(estimator="Exact",
 obj.f1.w$EstimateRep(stratification = c("Stage2","age","male"), stratification_joint = FALSE)
 obj.f2.w$EstimateRep(stratification = c("Stage2","age","male"), stratification_joint = FALSE)
 
-fusion <- Summary$new(obj.f1.w,
+fusion <- Fusion$new(obj.f1.w,
                       obj.f2.w,
                       obj.quasar)
 
@@ -183,7 +183,7 @@ obj.ncr2quasar$EstimateRep(stratification = c("Stage2","age"), stratification_jo
 obj.korea2quasar$EstimateRep(stratification = c("Stage2","age"), stratification_joint = FALSE)
 
 
-fusion <- Summary$new(obj.ncr,
+fusion <- Fusion$new(obj.ncr,
                       obj.ncr2quasar,
                       obj.korea,
                       obj.korea2quasar,
@@ -200,7 +200,7 @@ obj.ncr2korea <- SEstimator_wrapper(estimator="Exact_pp",
                                     source.obj=obj.ncr,
                                     confounders_sampling_name=c("Stage2","pT"))
 obj.ncr2korea$EstimateRep(stratification = c("Stage2","pT"), stratification_joint = TRUE)
-fusion <- Summary$new(obj.ncr,
+fusion <- Fusion$new(obj.ncr,
                       obj.korea,
                       obj.ncr2korea)
 fusion$plot()

@@ -8,6 +8,7 @@
 #' @field ps: a numeric vector of length n where n is row number of \code{self$data}.
 #'
 #' @importFrom PSweight PSweight
+#' @export
 IPW <- R6::R6Class(
   "IPW",
   inherit = TEstimator,

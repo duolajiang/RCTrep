@@ -106,10 +106,10 @@ target.obj <- TEstimator_wrapper(
   isTrial = TRUE
 )
 
-source.obj.rep <- SEstimator_wrapper(estimator="Exact",
+source.obj.rep <- SEstimator_wrapper(Estimator="Exact",
                                 target.obj=target.obj,
                                 source.obj=source.obj,
-                                confounders_sampling_name=c("x1","x2","x3","x4","x5","x6"))
+                                confounders_sampling_name=c("x2","x6"))
 source.obj.rep$EstimateRep(stratification = c("x1","x3","x4","x5"))
 
 destination <- '~lshen/Downloads/plot_wexa_obj_source_model_summary.pdf'
@@ -135,7 +135,7 @@ dev.off()
 #target.obj$diagnosis_y_overlap(stratification = c("x1","x3"))
 #source.obj$diagnosis_y_overlap(stratification = c("x1","x3"))
 
-fusion <- Summary$new(target.obj,
+fusion <- Fusion$new(target.obj,
                       source.obj,
                       source.obj.rep)
 destination <- '~lshen/Downloads/plot_wexa_compare.pdf'
@@ -218,7 +218,7 @@ source.dr.isw$EstimateRep(stratification = strata, stratification_joint = TRUE)
 source.dr.subclass <- SEstimator_wrapper(Estimator="Subclass",target.obj=target.obj, source.obj=source.obj.dr,confounders_sampling_name=confounders_sampling_name)
 source.dr.subclass$EstimateRep(stratification = strata, stratification_joint = TRUE)
 
-fusion <- Summary$new(target.obj,
+fusion <- Fusion$new(target.obj,
                       #source.obj.gc,
                       source.gc.exact,
                       source.gc.isw,
@@ -232,7 +232,7 @@ fusion <- Summary$new(target.obj,
                       source.dr.isw,
                       source.dr.subclass)
 
-destination <- '~lshen/Downloads/plot_all_compares.pdf'
+destination <- 'man/figures/plot_all_compares.pdf'
 pdf(file=destination, width = 14, height = 7)
 fusion$plot()
 dev.off()
@@ -255,7 +255,7 @@ output <- RCTREP(TEstimator="G_computation", SEstimator = "Exact",
                  confounders_sampling_name = c("x1","x2","x3","x4","x5","x6"),
                  stratification = c("x1","x3","x4","x5"), stratification_joint = TRUE)
 
-fusion <- Summary$new(output$target.obj,
+fusion <- Fusion$new(output$target.obj,
                       output$source.obj,
                       output$source.rep.obj)
 
@@ -281,7 +281,7 @@ output <- RCTREP(TEstimator="G_computation", SEstimator = "Exact",
                  confounders_sampling_name = confounders_sampling_name,
                  stratification = strata, stratification_joint = TRUE)
 
-fusion <- Summary$new(output$target.obj,
+fusion <- Fusion$new(output$target.obj,
                       output$source.obj,
                       output$source.rep.obj)
 
@@ -334,7 +334,7 @@ source.rep.obj <- SEstimator_wrapper(estimator="Eexact_pp",
                                      source.obj=source.obj,
                                      confounders_sampling_name=c("x2","x6"))
 source.rep.obj$EstimateRep(stratification = strata, stratification_joint = FALSE)
-fusion <- Summary$new(target.obj,
+fusion <- Fusion$new(target.obj,
                       source.obj,
                       source.rep.obj)
 
@@ -440,7 +440,7 @@ source.rep.obj <- SEstimator_wrapper(estimator="Exact_pp",
                                      source.obj=source.obj,
                                      confounders_sampling_name=c("x2","x6"))
 source.rep.obj$EstimateRep(stratification = vars_rct, stratification_joint = FALSE)
-fusion <- Summary$new(target.obj,
+fusion <- Fusion$new(target.obj,
                       source.obj,
                       source.rep.obj)
 
@@ -482,7 +482,7 @@ source.obj.1$EstimateRep(stratification = c("x1","x2","x3","x4","x5","x6"), stra
 source.obj.2 <- SEstimator_wrapper(estimator="Exact_pp",target.obj=target.obj, source.obj=source.obj,confounders_sampling_name= c("x1","x2","x3","x4","x5","x6"))
 source.obj.2$EstimateRep(stratification = c("x1","x2","x3","x4","x5","x6"), stratification_joint = FALSE)
 
-fusion <- Summary$new(target.obj,
+fusion <- Fusion$new(target.obj,
                       source.obj,
                       source.obj.1,
                       source.obj.2)
@@ -731,7 +731,7 @@ source.obj <- TEstimator_wrapper(
 target.obj$plot_CATE()
 target.obj$diagnosis_t_overlap()
 target.obj$diagnosis_y_overlap()
-fusion <- Summary$new(target.obj,
+fusion <- Fusion$new(target.obj,
                       source.obj,
                       stratification=c("x1","x2"),
                       stratification_joint = TRUE)

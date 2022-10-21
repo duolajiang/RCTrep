@@ -1,6 +1,6 @@
 #' @export
-Summary <- R6::R6Class(
-  "Summary",
+Fusion <- R6::R6Class(
+  "Fusion",
   #-------------------------public fields-----------------------------#
   public = list(
     objs.cate.data = data.frame(),

@@ -38,6 +38,7 @@ SEisw <- R6::R6Class(
 
       nss <- dim(source)[1]
       # in this way, sum(weight) == number of observations in source data
+      # so when compute weighted average = mean(weight_i*tau_i) = \frac{1}{n}\sum_{i=1}^{n}weight_i*tau_i = \frac{1}{n}\sum_{i=1}^{n}weight * nss/ sum(weight)*tau_i where \sum_{i}^{n}weight_i = 1
       weight <- weight * nss/ sum(weight)
 
       return(weight)
