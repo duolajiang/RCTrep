@@ -31,14 +31,29 @@ SEstimator <- R6::R6Class(
       private$isTrial <- source.obj$.__enclos_env__$private$isTrial
     },
 
-    EstimateRep = function(stratification, stratification_joint=TRUE) {
+    EstimateRep = function(stratification=self$confounders_sampling_name, stratification_joint=TRUE) {
       #browser()
-      if (length(intersect(stratification, self$confounders_sampling_name))>0) {
-        stop("stratification should not include variables in confounders_sampling_name, please re-specify the stratification!!!")
-      } else {
-        private$set_weighted_ATE_SE()
+      private$set_weighted_ATE_SE()
+
+      if(stratification_joint==FALSE){
+        message("since stratitification is FALSE, then for each strata,
+                we will balance confounders_sampling_name which are not used to stratify!")
         private$set_weighted_CATE_SE(stratification = stratification,
-                                     stratification_joint = stratification_joint)
+                                     stratification_joint = FALSE)
+      } else{
+        if (all(self$confounders_sampling_name %in% stratification)==TRUE){
+          message("since confounders_sampling_name is a subset of stratification,
+                  in each strata, the weight for each individual is 1")
+          self$estimates$CATE <- private$source.obj$get_CATE(stratification = stratification,
+                                                             stratification_joint = TRUE)
+        } else {
+          message("since confounders_sampling_name and stratification is overlapped,
+                  in each strata, the weight for each individual according to variables
+                  in setdiff(confounders_sampling_name,stratificaiton), i.e., the variables in set confounders_sampling_name
+                  while not in the set stratificaiton.")
+          private$set_weighted_CATE_SE(stratification = stratification,
+                                       stratification_joint = TRUE)
+        }
       }
     },
 
@@ -118,18 +133,11 @@ SEstimator <- R6::R6Class(
     },
 
     set_weighted_CATE_SE = function(stratification, stratification_joint) {
-      if (!is.null(stratification)) {
-        if(isTRUE(all.equal(stratification,self$confounders_sampling_name))&stratification_joint){
-          self$estimates$CATE <- private$source.obj$get_CATE(stratification = stratification,
-                                                             stratification_joint = stratification_joint)
+      if (stratification_joint) {
+        self$estimates$CATE <- private$est_WeightedCATEestimation4JointStratification(stratification)
         } else {
-          if (stratification_joint) {
-            self$estimates$CATE <- private$est_WeightedCATEestimation4JointStratification(stratification)
-          } else {
-            self$estimates$CATE <- private$est_WeightedCATEestimation4SeperateStratification(stratification)
+          self$estimates$CATE <- private$est_WeightedCATEestimation4SeperateStratification(stratification)
           }
-        }
-      }
     },
 
     est_WeightedCATEestimation4JointStratification = function(stratification) {
@@ -199,24 +207,27 @@ SEstimator <- R6::R6Class(
           #  target.subgroup.data <- private$target.obj$data[(private$target.obj$data$name==var_name) & (private$target.obj$data$value==as.numeric(var_level)),]
           #}
 
-
-          weight <- private$get_weight(
-            source = source.subgroup.data,
-            target = target.subgroup.data,
-            vars_weighting = vars_weighting_subgroup
-          )
-
           group_var[i] <- var_name
           group_level[i] <- var_level
-          cate_y1_y0_se <- private$source.obj$.__enclos_env__$private$est_weighted_ATE_SE(source.subgroup.id.in.data, weight)
-          y1.hat[i] <- cate_y1_y0_se$y1.hat
-          y0.hat[i] <- cate_y1_y0_se$y0.hat
-          cate[i] <- cate_y1_y0_se$est
-          se[i] <- cate_y1_y0_se$se
-          size[i] <- ifelse(private$ispublic, dim(source.subgroup.data)[1],
-                            sum(source.subgroup.data$size))
-          #size[i] <- ifelse(private$ispublic, ((sum(weight))^{2}) / (sum(weight^{2})), sum(weight))
-          i <- i + 1
+
+          if(length(vars_weighting_subgroup)==0){
+            cate_y1_y0_se <- private$source.obj$.__enclos_env__$private$est_ATE_SE(source.subgroup.id.in.data)
+          } else {
+            weight <- private$get_weight(
+              source = source.subgroup.data,
+              target = target.subgroup.data,
+              vars_weighting = vars_weighting_subgroup
+            )
+            cate_y1_y0_se <- private$source.obj$.__enclos_env__$private$est_weighted_ATE_SE(source.subgroup.id.in.data, weight)
+          }
+            y1.hat[i] <- cate_y1_y0_se$y1.hat
+            y0.hat[i] <- cate_y1_y0_se$y0.hat
+            cate[i] <- cate_y1_y0_se$est
+            se[i] <- cate_y1_y0_se$se
+            size[i] <- ifelse(private$ispublic, dim(source.subgroup.data)[1],
+                              sum(source.subgroup.data$size))
+            #size[i] <- ifelse(private$ispublic, ((sum(weight))^{2}) / (sum(weight^{2})), sum(weight))
+            i <- i + 1
         }
       }
       # the output element from group_keys() is not a vector/numeric, hence needs to convert to data.frame reshape(4*1)
