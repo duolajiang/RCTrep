@@ -20,7 +20,7 @@ SEstimator_wrapper <- function(Estimator, target.obj, source.obj,
                      confounders_sampling_name=confounders_sampling_name,
                      ...)
   } else {
-    obj <- SEexact_pp$new(target.obj=target.obj,
+    obj <- SEstimator_pp$new(target.obj=target.obj,
                               source.obj=source.obj,
                               confounders_sampling_name=confounders_sampling_name)
   }

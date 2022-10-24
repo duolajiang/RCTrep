@@ -1,6 +1,6 @@
 #' @export
-SEexact_pp <- R6::R6Class(
-  "SEexact_pp",
+SEstimator_pp <- R6::R6Class(
+  "SEstimator_pp",
   inherit = SEstimator,
   public = list(
     weighting_estimator = "Exact",
