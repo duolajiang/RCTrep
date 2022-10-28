@@ -39,7 +39,7 @@ IPW <- R6::R6Class(
       self$id <- paste(self$id, private$method, sep = "/")
     },
 
-    summary = function(stratification){
+    diagnosis_t_ignorability = function(stratification){
       data.ps <- data.frame(treatment=self$data[,private$treatment_name], ps=self$ps.est)
       plot.ps.overall <- ggplot2::ggplot(data=data.ps, aes(x=ps, color=treatment, fill=treatment)) +
         geom_density(alpha=.5)

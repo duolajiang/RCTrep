@@ -42,7 +42,7 @@ G_computation_psBART <- R6::R6Class(
       self$id <- paste(self$id, private$gc.method, sep = "/")
     },
 
-    summary = function(stratification, stratification_joint=TRUE){
+    diagnosis_t_ignorability = function(stratification, stratification_joint=TRUE){
       #browser()
       if(missing(stratification)){
         stratification <- private$confounders_treatment_name

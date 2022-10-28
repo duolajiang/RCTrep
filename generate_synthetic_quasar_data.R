@@ -44,21 +44,23 @@ CATE_mean_se <- CateRctByOneStrata(name = c("Stage2","Stage2",
                                    p0 = c(0.185,0.58,0.24,0.211,0.124,0.194,0.254,0.28),
                                    samplesize1 = c(1073,131,1006,616,185,428,678,331),
                                    samplesize0 = c(1073,129,973,644,185,427,673,332))
-RCT.univariate.p <- list(Stage=c("Stage2",2,0,1,1-0.91,0.91),
+RCT.univariate.p <- list(Stage2=c("Stage2",2,0,1,1-0.91,0.91),
                          male=c("male",2,0,1,1-0.62,0.62),
-                         age_at_diagnosis=c("age",4,1,2,3,4,0.11,0.26,0.42,0.21))
+                         age=c("age",4,1,2,3,4,0.11,0.26,0.42,0.21))
 quasar.agg <- list(ATE_mean = AteRct(year=5),
                    ATE_se = 0.01,
                    CATE_mean_se = CATE_mean_se,
                    univariate_p = RCT.univariate.p,
                    n = 2406)
 
-quasar.synthetic <- RCTrep:::GenerateSyntheticData(dim(source.data)[1],
-                                                   quasar.agg,
-                                                   unique(quasar.agg$CATE_mean_se$name))
+quasar.synthetic <- RCTrep::GenerateSyntheticData(margin_dis="bernoulli_categorical",
+                                                  N=dim(source.data)[1],
+                                                  margin=RCT.univariate.p,
+                                                  var_name=c("Stage2","male","age"))
+
 quasar.synthetic$age <- as.factor(quasar.synthetic$age)
 
-quasar.obj <- Synthetic_TEstimator$new(df = quasar.synthetic,
+quasar.obj <- TEstimator_Synthetic$new(df = quasar.synthetic,
                                        estimates=quasar.agg,
                                        vars_name = c("Stage2","male","age"),
                                        name = "RCT",

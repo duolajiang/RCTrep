@@ -13,7 +13,7 @@ A base R6 class for G_computation estimator for average treatment effect
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{G_computation_psBART$new()}}
-\item \href{#method-summary}{\code{G_computation_psBART$summary()}}
+\item \href{#method-diagnosis_t_ignorability}{\code{G_computation_psBART$diagnosis_t_ignorability()}}
 \item \href{#method-clone}{\code{G_computation_psBART$clone()}}
 }
 }
@@ -47,11 +47,14 @@ A base R6 class for G_computation estimator for average treatment effect
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-summary"></a>}}
-\if{latex}{\out{\hypertarget{method-summary}{}}}
-\subsection{Method \code{summary()}}{
+\if{html}{\out{<a id="method-diagnosis_t_ignorability"></a>}}
+\if{latex}{\out{\hypertarget{method-diagnosis_t_ignorability}{}}}
+\subsection{Method \code{diagnosis_t_ignorability()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{G_computation_psBART$summary(stratification, stratification_joint = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{G_computation_psBART$diagnosis_t_ignorability(
+  stratification,
+  stratification_joint = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 }

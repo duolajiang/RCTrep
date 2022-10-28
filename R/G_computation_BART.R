@@ -41,7 +41,7 @@ G_computation_BART <- R6::R6Class(
 
     },
 
-    summary = function(stratification, stratification_joint=TRUE){
+    diagnosis_t_ignorability = function(stratification, stratification_joint=TRUE){
       #browser()
       if(missing(stratification)){
         stratification <- private$confounders_treatment_name

@@ -15,13 +15,13 @@ TEstimator_pp <- R6::R6Class(
       private$confounders_treatment_name = obj$.__enclos_env__$private$confounders_treatment_name
       private$treatment_name = obj$.__enclos_env__$private$treatment_name
       private$outcome_name = obj$.__enclos_env__$private$outcome_name
-      private$summary_inherent = obj$summary(private$confounders_treatment_name)
+      private$diagnosis_t_ignorability_inherent = obj$diagnosis_t_ignorability(private$confounders_treatment_name)
       private$isTrial = obj$.__enclos_env__$private$isTrial
       # IPW can't use aggregate since it has non-overlap group, need some data cleaning
     },
 
-    summary = function(){
-      private$summary_inherent
+    diagnosis_t_ignorability = function(){
+      private$diagnosis_t_ignorability_inherent
     },
 
     diagnosis_t_overlap = function(stratification=private$confounders_treatment_name, stratification_joint=TRUE){
@@ -157,7 +157,7 @@ TEstimator_pp <- R6::R6Class(
 
   private = list(
     confounders_treatment_name = NA,
-    summary_inherent = list(),
+    diagnosis_t_ignorability_inherent = list(),
 
     est_ATE_SE = function(index) {
       #browser()

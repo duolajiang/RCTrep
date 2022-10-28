@@ -114,7 +114,7 @@ source.obj.rep$EstimateRep(stratification = c("x1","x3","x4","x5"))
 
 destination <- '~lshen/Downloads/plot_wexa_obj_source_model_summary.pdf'
 pdf(file=destination, width = 18, height = 5)
-source.obj$summary()
+source.obj$diagnosis_t_ignorability()
 dev.off()
 
 destination <- '~lshen/Downloads/plot_wexa_obj_source_t_overlap.pdf'
@@ -131,6 +131,12 @@ destination <- '~lshen/Downloads/plot_wexa_obj_sourcerep_s_overlap.pdf'
 pdf(file=destination, width = 7, height = 4)
 source.obj.rep$diagnosis_s_overlap()
 dev.off()
+
+destination <- 'man/figures/plot_wexa_obj_sourcerep_s_ignorability.pdf'
+pdf(file=destination, width = 7, height = 4)
+source.obj.rep$diagnosis_s_ignorability()
+dev.off()
+
 
 #target.obj$diagnosis_y_overlap(stratification = c("x1","x3"))
 #source.obj$diagnosis_y_overlap(stratification = c("x1","x3"))
@@ -329,7 +335,7 @@ class(source.obj)
 head(source.obj$data)
 
 strata <- c("x1","x4")
-source.rep.obj <- SEstimator_wrapper(estimator="Eexact_pp",
+source.rep.obj <- SEstimator_wrapper(Estimator="Exact",
                                      target.obj=target.obj,
                                      source.obj=source.obj,
                                      confounders_sampling_name=c("x2","x6"))
@@ -367,44 +373,31 @@ target.obj <- TEstimator_wrapper(
   isTrial = TRUE
 )
 
+vars_rct <- c("x1","x2","x3","x4","x5","x6")
+RCT.estimates <- list(ATE_mean = target.obj$estimates$ATE$est,
+                      ATE_se = target.obj$estimates$ATE$se,
+                      CATE_mean_se = target.obj$get_CATE(vars_rct,FALSE))
+
 emp.p1 <- mean(target.data$x1)
 emp.p2 <- mean(target.data$x2)
 emp.p3 <- mean(target.data$x3)
 emp.p4 <- mean(target.data$x4)
 emp.p5 <- mean(target.data$x5)
 emp.p6 <- mean(target.data$x6)
-
-#vars_rct <- c("x1","x2","x3")
-vars_rct <- c("x1","x2","x3","x4","x5","x6")
-
 t.d <- target.data[,vars_rct]
 n <- dim(source.data)[1]
 pw.cor <- gdata::upperTriangle(cor(t.d), diag = FALSE, byrow = TRUE)
-myCop <- copula::normalCopula(param=pw.cor,
-                      dim = 6, dispstr = "un")
-myMvd <- copula::mvdc(copula=myCop,
-                      margins = c("binom","binom","binom","binom","binom","binom"),
-                      paramMargins=list(list(1, emp.p1),
-                                        list(1, emp.p2),
-                                        list(1, emp.p3),
-                                        list(1, emp.p4),
-                                        list(1, emp.p5),
-                                        list(1, emp.p6)))
-synthetic.data <- copula::rMvdc(n, myMvd)
-synthetic.data <- data.frame(x1=synthetic.data[,1],
-                             x2=synthetic.data[,2],
-                             x3=synthetic.data[,3],
-                             x4=synthetic.data[,4],
-                             x5=synthetic.data[,5],
-                             x6=synthetic.data[,6])
+synthetic.data <- RCTrep::GenerateSyntheticData(
+  margin_dis="bernoulli",
+  N=n,
+  margin=list(emp.p1,emp.p2,emp.p3,emp.p4,emp.p5,emp.p6),
+  var_name=vars_rct,
+  pw.cor=pw.cor)
+
 
 apply(synthetic.data, 2, mean)
-c(mean(target.data$x1),mean(target.data$x2),mean(target.data$x3),
-  mean(target.data$x4),mean(target.data$x5),mean(target.data$x6))
+c(emp.p1,emp.p2,emp.p3,emp.p4,emp.p5,emp.p6)
 
-RCT.summary <- list(ATE_mean = target.obj$estimates$ATE$est,
-                    ATE_se = target.obj$estimates$ATE$se,
-                    CATE_mean_se = target.obj$get_CATE(vars_rct,FALSE))
 
 synthetic.data <- synthetic.data %>%
   arrange(across(vars_rct))
@@ -414,16 +407,12 @@ source.data <- semi_join(source.data, synthetic.data, by = vars_rct)
 synthetic.data %>% group_by(across(all_of(vars_rct))) %>% summarise(n=n())
 source.data %>% group_by(across(all_of(vars_rct))) %>% summarise(n=n())
 
-apply(synthetic.data, 2, mean)
-c(emp.p3,emp.p4,emp.p5)
-
-target.obj <- Synthetic_TEstimator$new(df = synthetic.data,
+target.obj <- TEstimator_Synthetic$new(df = synthetic.data,
                                        estimates=RCT.summary,
-                                       vars_name = vars_rct,
+                                       vars_name = list(confounders_treatment_name=vars_rct),
                                        name = "RCT",
                                        isTrial = TRUE,
-                                       data.public = FALSE)
-target.obj$data
+                                       data.public = TRUE)
 
 source.obj <- TEstimator_wrapper(
   Estimator = "G_computation",
@@ -432,19 +421,19 @@ source.obj <- TEstimator_wrapper(
   outcome_method = "glm",
   outcome_form=y ~ x1 + x2 + x3 + z + z:x1 + z:x2 +z:x3+ z:x6,
   name = "RWD",
-  data.public = FALSE
+  data.public = TRUE
 )
 
-source.rep.obj <- SEstimator_wrapper(estimator="Exact_pp",
+source.rep.obj <- SEstimator_wrapper(Estimator="Exact",
                                      target.obj=target.obj,
                                      source.obj=source.obj,
                                      confounders_sampling_name=c("x2","x6"))
 source.rep.obj$EstimateRep(stratification = vars_rct, stratification_joint = FALSE)
 fusion <- Fusion$new(target.obj,
-                      source.obj,
-                      source.rep.obj)
+                     source.obj,
+                     source.rep.obj)
 
-destination <- '~lshen/Downloads/plot_exa_3.pdf'
+destination <- 'man/figures/plot_exa_3.pdf'
 pdf(file=destination, width = 7, height = 4)
 fusion$plot()
 dev.off()
@@ -476,10 +465,10 @@ target.obj <- TEstimator_wrapper(
   isTrial = TRUE
 )
 
-source.obj.1 <- SEstimator_wrapper(estimator="Exact_pp",target.obj=target.obj, source.obj=source.obj,confounders_sampling_name=c("x2","x6"))
+source.obj.1 <- SEstimator_wrapper(estimator="Exact",target.obj=target.obj, source.obj=source.obj,confounders_sampling_name=c("x2","x6"))
 source.obj.1$EstimateRep(stratification = c("x1","x2","x3","x4","x5","x6"), stratification_joint = FALSE)
 
-source.obj.2 <- SEstimator_wrapper(estimator="Exact_pp",target.obj=target.obj, source.obj=source.obj,confounders_sampling_name= c("x1","x2","x3","x4","x5","x6"))
+source.obj.2 <- SEstimator_wrapper(estimator="Exact",target.obj=target.obj, source.obj=source.obj,confounders_sampling_name= c("x1","x2","x3","x4","x5","x6"))
 source.obj.2$EstimateRep(stratification = c("x1","x2","x3","x4","x5","x6"), stratification_joint = FALSE)
 
 fusion <- Fusion$new(target.obj,
@@ -563,13 +552,13 @@ vars_name <- list(confounders_treatment=c("x1","x2","x3","x4","x5","x6"),
                   outcome_name=c('y')
 )
 
-output <- RCTREP(Estimator="G_computation", weighting_estimator = "Balancing",
+output <- RCTREP(TEstimator="G_computation", SEstimator = "Exact",
                  outcome_method = "glm",
                  outcome_form=y ~ x1 + x2 + x3 + z + z:x1 + z:x2 +z:x3+ z:x6,
                  source.data=source.data, target.data=target.data, vars_name=vars_name,
                  stratification = strata, stratification_joint = strata_joint,
                  data.public = data.public)
-output$source.obj$summary()
+output$source.obj$diagnosis_t_ignorability
 summary(target.obj = output$target.obj, source.obj = output$source.obj)
 
 ##########################################################

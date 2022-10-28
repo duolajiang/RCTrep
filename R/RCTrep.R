@@ -56,7 +56,7 @@
 #' @return
 #' @export
 #' @import R6
-RCTREP <- function(TEstimator = "G_computation", SEstimator = "Balancing",
+RCTREP <- function(TEstimator = "G_computation", SEstimator = "Exact",
                    source.data = source.data, target.data = target.data,
                    source.name = "RWD", target.name = "RCT",
                    vars_name,

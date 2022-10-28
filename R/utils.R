@@ -186,15 +186,15 @@ getVariableNameAndLevels4SummaryStudy <- function(univariate_p, stratification) 
   return(var_names_levels)
 }
 
-getPatternDensityBasedOnUnivariateDistribution <- function(pattern, study, stratification) {
+getPatternDensityBasedOnUnivariateDistribution <- function(pattern, margin, var_name) {
   # browser()
-  if (length(stratification) > 1) {
-    var_marginal_tables <- VarMarginalTable(study$univariate_p, stratification)
+  if (length(var_name) > 1) {
+    var_marginal_tables <- VarMarginalTable(margin, var_name)
     density <- Copula(pattern, var_marginal_tables)
   } else {
     # convert data.frame to vector
     pattern <- pattern[, colnames(pattern)]
-    density <- VarMarginalTable(study$univariate_p, stratification)[[1]]
+    density <- VarMarginalTable(margin, var_name)[[1]]
     density <- density[match(pattern, density[, 1]), "density"]
   }
   return(density)
@@ -538,4 +538,32 @@ find_RWD_study_name <- function(...){
   return(study.names)
 }
 
+PatternDistribution <- function(margin, var_name) {
+  #browser()
+  # if (class(data) == "data.frame") {
+  #   pattern_data <- data %>%
+  #     group_by(across(all_of(vars_weighting)))
+  #   pattern_id_4each_obs <- pattern_data %>% group_indices()
+  #   pattern_density <- pattern_data %>% summarise(n = n())
+  #   pattern_density$density <- pattern_density$n / sum(pattern_density$n)
+  #   pattern_density <- dplyr::select(pattern_density, -n)
+  #   return(list(pattern_id_4each_obs, pattern_density))
+  # } else {
+  var_names_levels <- getVariableNameAndLevels4SummaryStudy(margin, var_name)
+  pattern <- getPatternDataFrame(var_names_levels)
+  density <- getPatternDensityBasedOnUnivariateDistribution(pattern, margin, var_name)
+  pattern_density <- cbind(pattern, density)
+  return(pattern_density)
+  #}
+}
 
+# SelectionScoreModeling <- function(data,  vars_weighting, weighting_method,...) {
+#   model <- caret::train(
+#     x = data[, vars_weighting],
+#     y = data$selection,
+#     method = weighting_method,
+#     ...
+#   )
+#   selection_score <- predict(model, type = "prob")[data$selection == 0, c("1")]
+#   return(selection_score)
+# }

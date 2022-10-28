@@ -76,7 +76,7 @@ TEstimator <- R6::R6Class(
     #' @return A data frame. If \code{stratification_joint=TRUE}, then the method returns a data frame with N rows and J columns, where N represents the number of subgroups, and J is equal to the sum of number of variables in \code{stratification} and 3 (three additional columns with name \code{cate}, \code{se}, and \code{size}, representing the estimated conditional average treatment effect of this subgroup, standard error of the estimate, and the sample size of the subgroup). If \code{stratification_joint=FALSE}, then the method returns a data frame with N rows and 5 columns, where N represents the number of subgroups stratified by each variable in \code{stratification} and 5 columns with name \code{name}, \code{value}, \code{cate}, \code{se}, and \code{size}, representing the name of a variable used to stratify the population, a level of the variable, the estimated conditional average treatment effect of this subgroup, standard error of the estimate, and the sample size of the subgroup).
     get_CATE = function(stratification, stratification_joint=TRUE) {
       # browser()
-      if("Synthetic_TEstimator" %in% class(self)) {
+      if("TEstimator_Synthetic" %in% class(self)) {
         return(self$estimates$CATE)
       }
 
@@ -349,7 +349,7 @@ TEstimator <- R6::R6Class(
 
     },
 
-    summary = function(){}
+    diagnosis_t_ignorability = function(){}
 
   ),
   #-------------------------private fields and methods----------------------------#

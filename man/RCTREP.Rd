@@ -6,7 +6,7 @@
 \usage{
 RCTREP(
   TEstimator = "G_computation",
-  SEstimator = "Balancing",
+  SEstimator = "Exact",
   source.data = source.data,
   target.data = target.data,
   source.name = "RWD",

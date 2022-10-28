@@ -39,7 +39,7 @@ A base R6 class for inverse propensity score weighting estimator of average trea
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{IPW$new()}}
-\item \href{#method-summary}{\code{IPW$summary()}}
+\item \href{#method-diagnosis_t_ignorability}{\code{IPW$diagnosis_t_ignorability()}}
 \item \href{#method-clone}{\code{IPW$clone()}}
 }
 }
@@ -64,11 +64,11 @@ A base R6 class for inverse propensity score weighting estimator of average trea
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-summary"></a>}}
-\if{latex}{\out{\hypertarget{method-summary}{}}}
-\subsection{Method \code{summary()}}{
+\if{html}{\out{<a id="method-diagnosis_t_ignorability"></a>}}
+\if{latex}{\out{\hypertarget{method-diagnosis_t_ignorability}{}}}
+\subsection{Method \code{diagnosis_t_ignorability()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{IPW$summary(stratification)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{IPW$diagnosis_t_ignorability(stratification)}\if{html}{\out{</div>}}
 }
 
 }

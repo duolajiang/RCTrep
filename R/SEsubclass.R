@@ -8,8 +8,7 @@ SEsubclass <- R6::R6Class(
 
     initialize = function(target.obj, source.obj,
                           weighting_method="glm",
-                          confounders_sampling,
-                          ...){
+                          confounders_sampling){
       super$initialize(target.obj, source.obj,weighting_method,confounders_sampling_name)
       self$weighting_method <- weighting_method
     }

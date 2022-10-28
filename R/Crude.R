@@ -13,7 +13,7 @@ Crude <- R6::R6Class(
       private$isTrial <- isTrial
     },
 
-    summary = function(stratification, stratification_joint=TRUE){
+    diagnosis_t_ignorability = function(stratification, stratification_joint=TRUE){
       if(missing(stratification)){
         stratification <- private$confounders_treatment_name
       }

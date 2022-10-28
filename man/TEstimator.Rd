@@ -15,7 +15,7 @@ A base R6 class for estimator of average treatment effect that implements the co
 \item \href{#method-plot_y1_y0}{\code{TEstimator$plot_y1_y0()}}
 \item \href{#method-diagnosis_t_overlap}{\code{TEstimator$diagnosis_t_overlap()}}
 \item \href{#method-diagnosis_y_overlap}{\code{TEstimator$diagnosis_y_overlap()}}
-\item \href{#method-summary}{\code{TEstimator$summary()}}
+\item \href{#method-diagnosis_t_ignorability}{\code{TEstimator$diagnosis_t_ignorability()}}
 \item \href{#method-clone}{\code{TEstimator$clone()}}
 }
 }
@@ -127,11 +127,11 @@ Plot the forest plot of conditional average treatment effect of subgroups define
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-summary"></a>}}
-\if{latex}{\out{\hypertarget{method-summary}{}}}
-\subsection{Method \code{summary()}}{
+\if{html}{\out{<a id="method-diagnosis_t_ignorability"></a>}}
+\if{latex}{\out{\hypertarget{method-diagnosis_t_ignorability}{}}}
+\subsection{Method \code{diagnosis_t_ignorability()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TEstimator$summary()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TEstimator$diagnosis_t_ignorability()}\if{html}{\out{</div>}}
 }
 
 }

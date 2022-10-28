@@ -1,6 +1,6 @@
 #' @export
-Synthetic_TEstimator <- R6::R6Class(
-  "Synthetic_TEstimator",
+TEstimator_Synthetic <- R6::R6Class(
+  "TEstimator_Synthetic",
   inherit = TEstimator,
   public = list(
     initialize = function(df, estimates, vars_name, name, isTrial, data.public=FALSE){
@@ -9,7 +9,7 @@ Synthetic_TEstimator <- R6::R6Class(
       self$estimates$ATE$est <- estimates$ATE_mean
       self$estimates$ATE$se <- estimates$ATE_se
       self$estimates$CATE <- estimates$CATE_mean_se
-      private$confounders_treatment_name <- vars_name
+      private$confounders_treatment_name <- vars_name$confounders_treatment_name
       # self$data should be joint distribution of confounders with sample size
       if(data.public){
         self$data <- df
