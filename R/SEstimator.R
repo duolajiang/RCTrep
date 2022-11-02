@@ -98,13 +98,8 @@ SEstimator <- R6::R6Class(
 
       print(data)
 
-      tgrob <- ggpubr::text_grob(c("Sampling overlap within subpopulations"))
-      ggpubr::ggarrange(tgrob, NULL, p.prop, p.count, nrow=2, ncol=2, heights = c(1,5))
+      ggpubr::ggarrange(p.prop, p.count, nrow=1, ncol=2)
 
-      # out <- list(aggregate.stats = data,
-      #             plot.aggregate = p)
-      #
-      # out
     },
 
     # class SEstimator_pp has unique implementation
@@ -149,7 +144,8 @@ SEstimator <- R6::R6Class(
         geom_bar(stat='identity', position='dodge') +
         ylab("proportion") +
         coord_flip() +
-        theme(legend.position="none")
+        #title("Balance of covariates within sub-popultions between samples") +
+        theme(legend.position="right")
 
       p.combined
 

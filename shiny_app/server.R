@@ -1,11 +1,16 @@
 server <- function(input, output,session) {
   output$CATE_plot <- renderPlot({
-    source.obj$plot_CATE(stratification = c(input$cate_stratification), input$cate_stratification_joint)
+    source.obj$plot_CATE(stratification = c(input$validation_stratification), input$validation_stratification_joint)
     })
 
-  output$CATE_numeric <- renderTable({
-    source.obj$get_CATE(stratification = c(input$cate_stratification), input$cate_stratification_joint)
+  output$y1_y0_plot <- renderPlot({
+    source.obj$plot_y1_y0(stratification = c(input$validation_stratification), input$validation_stratification_joint)
   })
+
+  output$CATE_numeric <- renderTable({
+    source.obj$get_CATE(stratification = c(input$validation_stratification), input$validation_stratification_joint)
+  })
+
 
   output$diagnosis_t_overlap_plot <- renderPlot({
      source.obj$diagnosis_t_overlap(stratification = c(input$diagnosis_t_stratification),

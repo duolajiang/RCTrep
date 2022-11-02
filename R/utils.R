@@ -428,7 +428,7 @@ DGM <- function(trial,n, var_name, p_success,tau, y0, log.ps=NULL, binary=FALSE,
     pr <- 1/(1+exp(-log.OR.norm))
     data$y <- as.factor(rbinom(n,1,pr))
   } else {
-    data$y <- y0 + tau*z + rnorm(noise)
+    data$y <- y0 + tau*z + rnorm(n)
   }
   AdjustATE <- ATEAdjustment(tau,y0,data)
   NoAdjustATE <- mean(data[data$z==1,'y'])-mean(data[data$z==0,'y'])

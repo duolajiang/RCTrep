@@ -39,18 +39,65 @@ IPW <- R6::R6Class(
       self$id <- paste(self$id, private$method, sep = "/")
     },
 
-    diagnosis_t_ignorability = function(stratification){
-      data.ps <- data.frame(treatment=self$data[,private$treatment_name], ps=self$ps.est)
-      plot.ps.overall <- ggplot2::ggplot(data=data.ps, aes(x=ps, color=treatment, fill=treatment)) +
-        geom_density(alpha=.5)
-      plot.ps.subgroup <- private$plot_aggregate_ps(stratification)
-      tgrob <- ggpubr::text_grob(c("Propensity score overlap"))
+    diagnosis_t_ignorability = function(stratification, stratification_joint=TRUE){
+      #browser()
+      if(missing(stratification)){
+        vars_name <- private$confounders_treatment_name
+      } else{
+        vars_name <- stratification
+      }
 
-      plot.agg <- ggpubr::ggarrange(tgrob, NULL, plot.ps.overall, plot.ps.subgroup, ncol = 2, nrow = 2, heights = c(1,5))
+      message("to be continued... This function is to check if
+              confounders_treatment_name are balanced between treatment and control groups")
 
-      out <- list(est.cate = self$estimates$CATE,
-                  plot.agg = plot.agg)
-      out
+      weight <- ifelse(self$data[,private$treatment_name]==1, 1/self$ps.est, 1/(1-self$ps.est))
+      weight_sum_1 <- sum(weight[self$data[,private$treatment_name]==1])
+      weight_sum_0 <- sum(weight[self$data[,private$treatment_name]==0])
+      weight <- ifelse(self$data[,private$treatment_name]==1,
+                       weight/weight_sum_1,weight/weight_sum_0)
+
+      p.t1 <- self$data %>%
+        bind_cols(weight=weight) %>%
+        filter(self$data[,private$treatment_name] == 1) %>%
+        group_by(across(all_of(private$confounders_treatment_name))) %>%
+        summarise(size.agg=sum(weight)) %>%
+        ungroup() %>%
+        mutate(prop=size.agg/sum(size.agg),
+               treatment="1")
+
+      p.t0 <- self$data %>%
+        bind_cols(weight=weight) %>%
+        filter(self$data[,private$treatment_name] == 0) %>%
+        group_by(across(all_of(private$confounders_treatment_name))) %>%
+        summarise(size.agg=sum(weight)) %>%
+        ungroup() %>%
+        mutate(prop=size.agg/sum(size.agg),
+               treatment="0")
+
+      p.combined <- rbind(p.t1, p.t0) %>%
+        mutate(group_name = apply(.[,vars_name], 1, function(x)
+          paste(vars_name,x,sep = "=",collapse = ","))) %>%
+        ggplot(aes(x=group_name, y=prop, fill=treatment)) +
+        geom_bar(stat='identity', position='dodge') +
+        ylab("proportion") +
+        coord_flip() +
+        #title("Balance of covariates within sub-popultions between samples") +
+        theme(legend.position="right")
+
+      p.combined
+
+
+      # data.ps <- data.frame(treatment=self$data[,private$treatment_name], ps=self$ps.est)
+      # plot.ps.overall <- ggplot2::ggplot(data=data.ps, aes(x=ps, color=treatment, fill=treatment)) +
+      #   geom_density(alpha=.5)
+      # plot.ps.subgroup <- private$plot_aggregate_ps(stratification)
+      # tgrob <- ggpubr::text_grob(c("Propensity score overlap"))
+      #
+      # plot.agg <- ggpubr::ggarrange(tgrob, NULL, plot.ps.overall, plot.ps.subgroup, ncol = 2, nrow = 2, heights = c(1,5))
+      #
+      # out <- list(est.cate = self$estimates$CATE,
+      #             plot.agg = plot.agg)
+      # out
     }
 
   ),

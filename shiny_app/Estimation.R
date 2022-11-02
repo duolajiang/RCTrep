@@ -37,5 +37,5 @@ objs <- list(target.obj=target.obj,
              source.obj.rep=source.obj.rep)
 
 saveRDS(objs,
-        file = "objs.rds")
+        file = "shiny_app/objs.rds")
 
