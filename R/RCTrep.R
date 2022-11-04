@@ -88,7 +88,7 @@ RCTREP <- function(TEstimator = "G_computation", SEstimator = "Exact",
      ...
   )
 
-  source.rep.obj <- SEstimator_wrapper(estimator=SEstimator,
+  source.rep.obj <- SEstimator_wrapper(Estimator=SEstimator,
                                        target.obj=target.obj,
                                        source.obj=source.obj,
                                        confounders_sampling_name=confounders_sampling_name)

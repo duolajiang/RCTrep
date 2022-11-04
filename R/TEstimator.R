@@ -228,9 +228,7 @@ TEstimator <- R6::R6Class(
     },
 
     diagnosis_y_overlap = function(stratification, stratification_joint=TRUE){
-
       #browser()
-
       if(missing(stratification)){
         stratification <- private$confounders_treatment_name
       }
@@ -334,9 +332,9 @@ TEstimator <- R6::R6Class(
 
       } else {
         p.dis <- self$data %>%
-            select(vars_name, private$outcome_name, private$treatment_name) %>%
-            mutate(group_name = apply(.[,vars_name], 1, function(x)
-              paste(vars_name,x,sep = "=",collapse = ","))) %>%
+            select(stratification, private$outcome_name, private$treatment_name) %>%
+            mutate(group_name = apply(.[,stratification], 1, function(x)
+              paste(stratification,x,sep = "=",collapse = ","))) %>%
             ggplot(aes(x=group_name, y=eval(parse(text = private$outcome_name)), fill=factor(eval(parse(text = private$treatment_name))))) +
             geom_boxplot() +
             ylab("outcome") +

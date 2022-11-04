@@ -133,7 +133,7 @@ G_computation_psBART <- R6::R6Class(
 
     gc.method = NULL,
     gc.formula = NULL,
-    var_approach = NULL,
+    var_approach = "Bayesian",
     iterations = 1,
     confounders_treatment_factor = NULL,
 

@@ -159,7 +159,7 @@ SEstimator <- R6::R6Class(
     ispublic = NA,
     isTrial = NA,
 
-    get_weight = function(){},
+    get_weight = function(source.data,target.data, vars_weighting){},
 
     set_weighted_ATE_SE = function() {
       #browser()
