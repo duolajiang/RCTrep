@@ -29,7 +29,7 @@ Fusion <- R6::R6Class(
           self$stratification <- unique(objs[[SEstimator.id]]$estimates$CATE$name)
           self$stratification_joint <- FALSE
         } else {
-          strata.id <- !colnames(objs[[SEstimator.id]]$estimates$CATE) %in% c("y1.hat","y0.hat","cate","se","size")
+          strata.id <- !colnames(objs[[SEstimator.id]]$estimates$CATE) %in% c("y1.hat","y0.hat","cate","se","size","pt","py")
           self$stratification <- colnames(objs[[SEstimator.id]]$estimates$CATE)[strata.id]
           self$stratification_joint <- TRUE
         }
@@ -146,9 +146,15 @@ Fusion <- R6::R6Class(
       for(obj in list(...)){
         if("TEstimator" %in% class(obj)){
           obj.data <- obj$get_CATE(self$stratification,self$stratification_joint) %>%
-            mutate(estimator=obj$id, study=obj$name) %>% select(-pt,-py)
-        } else {
+            mutate(estimator=obj$id, study=obj$name) %>% select(-c("pt","py"))
+          if("pt" %in% colnames(obj.data)) obj.data <- obj.data %>% select(-pt)
+          if("py" %in% colnames(obj.data)) obj.data <- obj.data %>% select(-py)
+        } else if ("SEstimator" %in% class(obj)){
           obj.data <- obj$estimates$CATE %>% mutate(estimator=obj$id, study=obj$name)
+          if("pt" %in% colnames(obj.data)) obj.data <- obj.data %>% select(-pt)
+          if("py" %in% colnames(obj.data)) obj.data <- obj.data %>% select(-py)
+        } else {
+          stop("only class TEstimator and SEstimator are allowed as input!")
         }
         self$objs.cate.data <- rbind(self$objs.cate.data, obj.data)
       }

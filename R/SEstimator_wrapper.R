@@ -16,6 +16,7 @@ SEstimator_wrapper <- function(Estimator, target.obj, source.obj,
                        source.obj=source.obj,
                        confounders_sampling_name=confounders_sampling_name)
   } else if (Estimator=="ISW"){
+    # more allowable methods, see train() function method arguments of model lists in caret package.
     obj <- SEisw$new(target.obj=target.obj,
                      source.obj=source.obj,
                      confounders_sampling_name=confounders_sampling_name,
@@ -23,6 +24,7 @@ SEstimator_wrapper <- function(Estimator, target.obj, source.obj,
                      sampling_formula = sampling_formula,
                      ...)
   } else if (Estimator=="Subclass"){
+    # more allowable methods, see matchit() distance arguments in MatchIt package.
     obj <- SEsubclass$new(target.obj=target.obj,
                           source.obj=source.obj,
                           confounders_sampling_name=confounders_sampling_name,

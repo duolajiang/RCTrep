@@ -68,7 +68,7 @@ A base R6 class for inverse propensity score weighting estimator of average trea
 \if{latex}{\out{\hypertarget{method-diagnosis_t_ignorability}{}}}
 \subsection{Method \code{diagnosis_t_ignorability()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{IPW$diagnosis_t_ignorability(stratification)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{IPW$diagnosis_t_ignorability(stratification, stratification_joint = TRUE)}\if{html}{\out{</div>}}
 }
 
 }

@@ -46,6 +46,7 @@ SEstimator <- R6::R6Class(
                   in each strata, the weight for each individual is 1")
           self$estimates$CATE <- private$source.obj$get_CATE(stratification = stratification,
                                                              stratification_joint = TRUE)
+          #self$estimates$CATE <- cbind(self$estimates$CATE,'pt','py')
         } else {
           message("since confounders_sampling_name and stratification is overlapped,
                   in each strata, the weight for each individual according to variables

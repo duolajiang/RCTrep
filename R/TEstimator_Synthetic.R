@@ -3,7 +3,7 @@ TEstimator_Synthetic <- R6::R6Class(
   "TEstimator_Synthetic",
   inherit = TEstimator,
   public = list(
-    initialize = function(df, estimates, vars_name, name, isTrial, data.public=FALSE){
+    initialize = function(data, estimates, vars_name, name, isTrial, data.public=FALSE){
       #browser()
       self$name <- name
       self$estimates$ATE$est <- estimates$ATE_mean
@@ -12,15 +12,15 @@ TEstimator_Synthetic <- R6::R6Class(
       private$confounders_treatment_name <- vars_name$confounders_treatment_name
       # self$data should be joint distribution of confounders with sample size
       if(data.public){
-        self$data <- df
+        self$data <- data
       } else {
-        self$data <- df %>%
+        self$data <- data %>%
           group_by(across(all_of(private$confounders_treatment_name))) %>%
           summarise(size=n())
       }
       self$data$id <- seq(dim(self$data)[1])
-      self$id <- "Gold"
-      self$statistics <- list(n=dim(df)[1],
+      self$id <- "Crude"
+      self$statistics <- list(n=dim(data)[1],
                               density_confounders=private$est_joint_denstiy())
       private$isTrial <- isTrial
     }

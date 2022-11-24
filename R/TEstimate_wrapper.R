@@ -17,6 +17,15 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
   #browser()
   mcall <- match.call()
   if (Estimator == "G_computation") {
+    if(outcome_method %in% c("BART","psBART")){
+      class.confounders <- lapply(data[,vars_name$confounders_treatment_name], class)
+      if('character' %in% class.confounders) stop("You are using BART, character must be converted to factor!")
+      for (variable in vars_name$confounder_treatment_name) {
+        empty_level <- data %>% count(across(variable)) %>% summarise(empty_level=any(n==0))
+        if(empty_level$empty_level==TRUE) stop(glue::glue("{variable} has empty level! Please drop the empty level!"))
+      }
+    }
+
     if ((!is.factor(data[, vars_name$outcome_name]))&(outcome_method != "BART")&(length(unique(data[, vars_name$outcome_name]))==2)) {
       message("you are classifiying, but outcome class is numeric, we are converting the outcome to factor!")
       data[,vars_name$outcome_name] <- as.factor(data[,vars_name$outcome_name])
