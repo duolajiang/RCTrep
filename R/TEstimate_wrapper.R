@@ -16,7 +16,16 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
                                ...) {
   #browser()
   mcall <- match.call()
-  if (Estimator == "G_computation") {
+  if ((Estimator == "G_computation") & (outcome_method == "psBART_impute")){
+    obj <- G_computation_psBART_impute$new(
+      df = data,
+      name = name,
+      vars_name = vars_name,
+      gc.method = outcome_method,
+      gc.formula = outcome_formula,
+      isTrial = isTrial,
+      ...
+    )} else if (Estimator == "G_computation") {
     if(outcome_method %in% c("BART","psBART")){
       class.confounders <- lapply(data[,vars_name$confounders_treatment_name], class)
       if('character' %in% class.confounders) stop("You are using BART, character must be converted to factor!")
@@ -131,16 +140,6 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
       vars_name = vars_name,
       name = name,
       isTrial = isTrial
-    )
-  } else if ((Estimator == "G_computation") & (outcome_method == "psBART_impute")){
-    obj <- G_computation_psBART_impute$new(
-      df = data,
-      name = name,
-      vars_name = vars_name,
-      gc.method = outcome_method,
-      gc.formula = outcome_formula,
-      isTrial = isTrial,
-      ...
     )
   } else {}
 
