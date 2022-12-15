@@ -4,8 +4,8 @@
 #' @import geex
 #' @import ggplot2
 #' @import fastDummies
-G_computation_psBART <- R6::R6Class(
-  "G_computation_psBART",
+G_computation_psBART_impute <- R6::R6Class(
+  "G_computation_psBART_impute",
   inherit = TEstimator,
   #-------------------------public fields-----------------------------#
   public = list(
@@ -35,7 +35,7 @@ G_computation_psBART <- R6::R6Class(
       self$data$y1.hat.var <- po_mean_var$y1.hat.var
       self$data$y0.hat.var <- po_mean_var$y0.hat.var
       self$data$ite.var <- self$data$y1.hat.var + self$data$y0.hat.var
-      self$resi <- private$est_residual()
+      #self$resi <- private$est_residual()
       private$set_ATE()
       private$set_CATE(private$confounders_treatment_name,TRUE)
       private$isTrial <- isTrial
@@ -139,13 +139,15 @@ G_computation_psBART <- R6::R6Class(
 
     fit = function(...) {
       #browser()
-      x.train <- self$data[, c(private$confounders_treatment_name, private$treatment_name,"ps")]
+      train.id <- self$data %>% filter(!is.na(private$outcome_name)) %>% select(id)
+
+      x.train <- self$data[train.id, c(private$confounders_treatment_name, private$treatment_name,"ps")]
       if(length(private$confounders_treatment_factor)>0){
         x.train <- fastDummies::dummy_cols(x.train, select_columns= private$confounders_treatment_factor,
                                            remove_selected_columns = TRUE)
       }
       x.train <- as.matrix(x.train)
-      y.train <- as.matrix(self$data[, private$outcome_name])
+      y.train <- as.matrix(self$data[train.id, private$outcome_name])
       if (length(unique(self$data[, private$outcome_name]))>2) {
         model <- BART::wbart(x.train=x.train, y.train = y.train, ...)
       } else {
@@ -219,8 +221,10 @@ G_computation_psBART <- R6::R6Class(
     # compute deviance for continuous outcome/binary outcome
     est_residual = function() {
       #browser()
-      y <- self$data[,private$outcome_name]
-      if (length(unique(self$data[, private$outcome_name]))>2) {
+      train.id <- self$data %>% filter(!is.na(private$outcome_name)) %>% select(id)
+
+      y <- self$data[train.id,private$outcome_name]
+      if (length(unique(y))>2) {
         y.hat <- self$model$yhat.train.mean
         resi <- (y-y.hat)^2
       } else {

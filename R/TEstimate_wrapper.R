@@ -132,6 +132,16 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
       name = name,
       isTrial = isTrial
     )
+  } else if ((Estimator == "G_computation") & (outcome_method == "psBART_impute")){
+    obj <- G_computation_psBART_impute$new(
+      df = data,
+      name = name,
+      vars_name = vars_name,
+      gc.method = outcome_method,
+      gc.formula = outcome_formula,
+      isTrial = isTrial,
+      ...
+    )
   } else {}
 
   #browser()
