@@ -35,7 +35,7 @@ G_computation_psBART_impute <- R6::R6Class(
       self$data$y1.hat.var <- po_mean_var$y1.hat.var
       self$data$y0.hat.var <- po_mean_var$y0.hat.var
       self$data$ite.var <- self$data$y1.hat.var + self$data$y0.hat.var
-      #self$resi <- private$est_residual()
+      self$resi <- private$est_residual()
       private$set_ATE()
       private$set_CATE(private$confounders_treatment_name,TRUE)
       private$isTrial <- isTrial
@@ -51,7 +51,7 @@ G_computation_psBART_impute <- R6::R6Class(
       residuals.overall <- mean(self$resi)
       residuals.subgroups <- private$aggregate_residual(stratification)
 
-      if(test_binary(self$data[,private$outcome_name])){
+      if(test_binary(self$data[!is.na(self$data[,private$outcome_name]),private$outcome_name])){
         colnames.subgroups <- colnames(residuals.subgroups)
         var_names <- colnames.subgroups[!colnames.subgroups %in% c("sample.size","res.mean", "res.se")]
         var_names_data <- residuals.subgroups[,var_names]
@@ -139,16 +139,16 @@ G_computation_psBART_impute <- R6::R6Class(
 
     fit = function(...) {
       #browser()
-      train.id <- self$data %>% filter(!is.na(private$outcome_name)) %>% select(id)
+      train.id <- self$data %>% filter(!is.na(!!as.name(private$outcome_name))) %>% select(id)
 
-      x.train <- self$data[train.id, c(private$confounders_treatment_name, private$treatment_name,"ps")]
+      x.train <- self$data[train.id$id, c(private$confounders_treatment_name, private$treatment_name,"ps")]
       if(length(private$confounders_treatment_factor)>0){
         x.train <- fastDummies::dummy_cols(x.train, select_columns= private$confounders_treatment_factor,
                                            remove_selected_columns = TRUE)
       }
       x.train <- as.matrix(x.train)
-      y.train <- as.matrix(self$data[train.id, private$outcome_name])
-      if (length(unique(self$data[, private$outcome_name]))>2) {
+      y.train <- as.matrix(self$data[train.id$id, private$outcome_name])
+      if (length(unique(y.train))>2) {
         model <- BART::wbart(x.train=x.train, y.train = y.train, ...)
       } else {
         model <- BART::pbart(x.train=x.train, y.train = y.train, ...)
@@ -221,9 +221,9 @@ G_computation_psBART_impute <- R6::R6Class(
     # compute deviance for continuous outcome/binary outcome
     est_residual = function() {
       #browser()
-      train.id <- self$data %>% filter(!is.na(private$outcome_name)) %>% select(id)
+      train.id <- self$data %>% filter(!is.na(!!as.name(private$outcome_name))) %>% select(id)
 
-      y <- self$data[train.id,private$outcome_name]
+      y <- self$data[train.id$id,private$outcome_name]
       if (length(unique(y))>2) {
         y.hat <- self$model$yhat.train.mean
         resi <- (y-y.hat)^2
@@ -250,7 +250,7 @@ G_computation_psBART_impute <- R6::R6Class(
       data0 <- as.matrix(data0)
       data1 <- as.matrix(data1)
 
-      if(length(unique(self$data[, private$outcome_name]))>2){
+      if(length(unique(self$data[!is.na(self$data[,private$outcome_name]), private$outcome_name]))>2){
         y1.hat <- predict(self$model, newdata = data1)
         y0.hat <- predict(self$model, newdata = data0)
         y1.hat.mean <- apply(y1.hat, 2, mean)
@@ -272,31 +272,33 @@ G_computation_psBART_impute <- R6::R6Class(
     },
 
     aggregate_residual = function(stratification) {
+      #browser()
       group_data <- self$data %>%
+        filter(!is.na(!!as.name(private$outcome_name))) %>%
         group_by(across(all_of(stratification)))
       group_strata <- group_data %>% group_keys()
       group_id <- group_data %>% group_indices()
       n_groups <- dim(group_strata)[1]
       group_sample_size <- group_size(group_data)
-      if(test_binary(self$data[,private$outcome_name])){
+      if(test_binary(self$data[!is.na(self$data[,private$outcome_name]),private$outcome_name])){
         res.mean <- res.se <- sample.size <- NULL
         for (i in seq(n_groups)) {
           # for binary outcome, how to evaluate model fit?
-          subgroup.id.in.data <- self$data[group_id == i, "id"]
-          res.mean[i] <- sum(self$resi[subgroup.id.in.data])/group_sample_size[i]
-          res.se[i] <- sqrt(var(self$resi[subgroup.id.in.data])/group_sample_size[i])
+          subgroup.id.in.data <- group_data[group_id == i, "id"]
+          res.mean[i] <- sum(self$resi[subgroup.id.in.data$id])/group_sample_size[i]
+          res.se[i] <- sqrt(var(self$resi[subgroup.id.in.data$id])/group_sample_size[i])
           sample.size[i] <- group_sample_size[i]
         }
         res <- cbind(group_strata, sample.size, res.mean, res.se)
       } else {
         res.mean <- res.se <- sample.size <- msr <- sesr <- NULL
         for (i in seq(n_groups)) {
-          subgroup.id.in.data <- self$data[group_id == i, "id"]
-          res.mean[i] <- sum(self$resi[subgroup.id.in.data])/group_sample_size[i]
-          res.se[i] <- sqrt(var(self$resi[subgroup.id.in.data])/group_sample_size[i])
+          subgroup.id.in.data <- group_data[group_id == i, "id"]
+          res.mean[i] <- sum(self$resi[subgroup.id.in.data$id])/group_sample_size[i]
+          res.se[i] <- sqrt(var(self$resi[subgroup.id.in.data$id])/group_sample_size[i])
           # mean of squared residual
-          msr[i] <- sum((self$resi[subgroup.id.in.data])^2)/group_sample_size[i]
-          sesr[i] <- sqrt(var((self$resi[subgroup.id.in.data])^2)/group_sample_size[i])
+          msr[i] <- sum((self$resi[subgroup.id.in.data$id])^2)/group_sample_size[i]
+          sesr[i] <- sqrt(var((self$resi[subgroup.id.in.data$id])^2)/group_sample_size[i])
           sample.size[i] <- group_sample_size[i]
         }
         res <- cbind(group_strata, sample.size, res.mean, res.se, msr, sesr)

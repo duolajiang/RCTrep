@@ -17,6 +17,13 @@ TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
   #browser()
   mcall <- match.call()
   if ((Estimator == "G_computation") & (outcome_method == "psBART_impute")){
+    if(is.factor(data[, vars_name$outcome_name])&(length(levels(data[,vars_name$outcome_name]))==2)) {
+      message("you are classifiying using BART, outcome class should be numeric; we are converting the outcome to numeric!")
+      data[,vars_name$outcome_name] <- as.numeric(as.character(data[,vars_name$outcome_name]))
+    }
+    message("you are classifiying using BART, outcome class should be numeric; we are converting the outcome to numeric!")
+    data[,vars_name$outcome_name] <- as.numeric(as.character(data[,vars_name$outcome_name]))
+
     obj <- G_computation_psBART_impute$new(
       df = data,
       name = name,

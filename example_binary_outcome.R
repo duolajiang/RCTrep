@@ -70,6 +70,18 @@ obj.g_com.LReg$plot_y1_y0(stratification = c("x1","x2"), stratification_joint = 
 obj.g_com.LReg$diagnosis_t_overlap(stratification = c("x1","x2"), stratification_joint = TRUE)
 obj.g_com.LReg$diagnosis_y_overlap(stratification = c("x1","x2"), stratification_joint = TRUE)
 
-
-
-
+# ==================================================
+# ==================================================
+source.data[1:100,'y'] <- NA
+library(RCTrep)
+obj.g_com.psBART <- TEstimator_wrapper(
+  Estimator = "G_computation",
+  data = source.data,
+  name = "NKR",
+  vars_name = vars_name,
+  outcome_method = "psBART_impute",
+  data.public = TRUE
+)
+obj.g_com.psBART$plot_CATE(c("x1",'x2'),TRUE)
+obj.g_com.psBART$diagnosis_y_overlap(c('x1','x2'),TRUE)
+obj.g_com.psBART$diagnosis_t_ignorability()
