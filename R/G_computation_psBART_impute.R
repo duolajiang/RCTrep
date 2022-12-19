@@ -273,8 +273,10 @@ G_computation_psBART_impute <- R6::R6Class(
 
     aggregate_residual = function(stratification) {
       #browser()
+      n <- sum(!is.na(self$data[,private$outcome_name]))
       group_data <- self$data %>%
         filter(!is.na(!!as.name(private$outcome_name))) %>%
+        mutate(id=seq(n)) %>%
         group_by(across(all_of(stratification)))
       group_strata <- group_data %>% group_keys()
       group_id <- group_data %>% group_indices()

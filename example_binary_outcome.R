@@ -84,4 +84,4 @@ obj.g_com.psBART <- TEstimator_wrapper(
 )
 obj.g_com.psBART$plot_CATE(c("x1",'x2'),TRUE)
 obj.g_com.psBART$diagnosis_y_overlap(c('x1','x2'),TRUE)
-obj.g_com.psBART$diagnosis_t_ignorability()
+obj.g_com.psBART$diagnosis_t_ignorability(c('x1','x3'),TRUE)
