@@ -138,7 +138,7 @@ G_computation_psBART_impute <- R6::R6Class(
     confounders_treatment_factor = NULL,
 
     fit = function(...) {
-      #browser()
+      browser()
       train.id <- self$data %>% filter(!is.na(!!as.name(private$outcome_name))) %>% select(id)
 
       x.train <- self$data[train.id$id, c(private$confounders_treatment_name, private$treatment_name,"ps")]
@@ -237,7 +237,7 @@ G_computation_psBART_impute <- R6::R6Class(
     },
 
     est_potentialOutcomes_mean_var = function() {
-      #browser()
+      browser()
       data0 <- data1 <- self$data[, c(private$confounders_treatment_name, private$treatment_name,"ps")]
       data0[, private$treatment_name] <- 0
       data1[, private$treatment_name] <- 1
