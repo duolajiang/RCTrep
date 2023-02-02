@@ -1,5 +1,5 @@
 ##########################################################
-## Working example in Introduction.
+## Example in section 1.3. Demonstration of usage
 ##########################################################
 library(RCTrep)
 source.data <- RCTrep::source.data
@@ -23,7 +23,7 @@ fusion <- Fusion$new(output$target.obj,
 fusion$plot()
 
 ##########################################################
-## Working example in section "Usage"
+## Example in Section 5. Basic usage
 ##########################################################
 library(RCTrep)
 source.data <- RCTrep::source.data
