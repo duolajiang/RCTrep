@@ -6,11 +6,12 @@
 
 ################## Sandwich Variance in binary group case####################################################
 #' @importFrom numDeriv jacobian
+#' @importFrom stats plogis
 sand_bin.modified <- function(z, y, n, ftilt, thetaest, W = NULL, XY = NULL, eest, m0est, m1est, family = "gaussian", offset.e, type = "e", weight.external = NULL) {
   p <- ncol(W)
   q <- ncol(XY)
 
-  # matrix to calucalte mu0,mu1 correlation
+  # matrix to calculate mu0,mu1 correlation
   a <- matrix(0, 2, length(thetaest))
 
   ## score function
@@ -187,261 +188,260 @@ sand_bin.modified <- function(z, y, n, ftilt, thetaest, W = NULL, XY = NULL, ees
 
 
 ################## Sandwich Variance in multiple group case####################################################
-
-sand_mul <- function(z, y, n, ncate, ftilt, thetaest, W = NULL, XY = NULL, eest, mest, family = "gaussian", offset.e, type = "e") {
-  p <- ncol(W)
-  q <- ncol(XY)
-
-  # matrix to calucalte correlation
-  a <- matrix(0, ncate, length(thetaest))
-
-  ## score function
-  if (type == "e") {
-    p <- ncol(W)
-    phi <- function(theta) {
-      mu <- theta[1:ncate]
-      beta <- theta[(ncate + 1):(ncate + (ncate - 1) * p)]
-      e <- rep(1, n)
-      for (i in 1:(ncate - 1)) {
-        etmp <- exp(W %*% beta[((i - 1) * p + 1):(i * p)])
-        e <- cbind(e, etmp)
-      }
-      e <- e / (apply(e, 1, sum))
-      wtt <- (1 / e) * ftilt(e)
-      fmu <- c()
-      fbeta <- c()
-      for (i in 1:ncate) {
-        fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
-        fmu <- rbind(fmu, fmutmp)
-      }
-      for (i in 2:ncate) {
-        fbetatmp <- ((z == i) - e[, i]) * W
-        fbeta <- cbind(fbeta, fbetatmp)
-      }
-
-      f <- rbind(fmu, t(fbeta))
-      return(f)
-    }
-    diag(a) <- 1
-  } else if (type == "ec") {
-    phi <- function(theta) {
-      mu <- theta[1:ncate]
-      wtt <- (1 / eest) * ftilt(eest, weight.external)
-      fmu <- c()
-      fbeta <- c()
-      for (i in 1:ncate) {
-        fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
-        fmu <- rbind(fmu, fmutmp)
-      }
-
-      f <- rbind(fmu)
-      return(f)
-    }
-    diag(a) <- 1
-  } else if (type == "ea") {
-    phi <- function(theta) {
-      mu <- theta[1:ncate]
-      augz <- theta[(ncate + 1):(2 * ncate)]
-      augh <- theta[(2 * ncate + 1):(3 * ncate)]
-      beta <- theta[(3 * ncate + 1):(3 * ncate + (ncate - 1) * p)]
-      gamma <- theta[(3 * ncate + (ncate - 1) * p + 1):(3 * ncate + (ncate - 1) * p + ncate * q)]
-
-      e <- rep(1, n)
-      for (i in 1:(ncate - 1)) {
-        etmp <- exp(W %*% beta[((i - 1) * p + 1):(i * p)])
-        e <- cbind(e, etmp)
-      }
-      e <- e / (apply(e, 1, sum))
-      wtt <- (1 / e) * ftilt(e)
-
-      # outcome aug
-      m <- c()
-      if (family == "gaussian") {
-        for (i in 1:ncate) {
-          mtmp <- c(XY %*% gamma[((i - 1) * q + 1):(i * q)])
-          m <- cbind(m, mtmp)
-        }
-      } else if (family == "binomial") {
-        for (i in 1:ncate) {
-          mtmp <- plogis(c(XY %*% gamma[((i - 1) * q + 1):(i * q)]))
-          m <- cbind(m, mtmp)
-        }
-      } else if (family == "poisson") {
-        for (i in 1:ncate) {
-          mtmp <- exp(c(XY %*% gamma[((i - 1) * q + 1):(i * q)])) * offset.e
-          m <- cbind(m, mtmp)
-        }
-      }
-
-      fmu <- c()
-      fbeta <- c()
-      fgamma <- c()
-      faugz <- c()
-      faugh <- c()
-
-      for (i in 1:ncate) {
-        fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
-        fmu <- rbind(fmu, fmutmp)
-        fgammatmp <- XY * (y - m[, i]) * (z == i)
-        fgamma <- cbind(fgamma, fgammatmp)
-        faugztmp <- (m[, i] - augz[i]) * wtt[, i] * (z == i)
-        faughtmp <- ftilt(e) * (m[, i] - augh[i])
-        faugz <- rbind(faugz, faugztmp)
-        faugh <- rbind(faugh, faughtmp)
-      }
-      for (i in 2:ncate) {
-        fbetatmp <- ((z == i) - e[, i]) * W
-        fbeta <- cbind(fbeta, fbetatmp)
-      }
-
-      f <- rbind(fmu, faugz, faugh, t(fbeta), t(fgamma))
-      return(f)
-    }
-    for (i in 1:ncate) {
-      a[i, c(i, 2 * ncate + i)] <- 1
-      a[i, ncate + i] <- -1
-    }
-  } else if (type == "ecac") {
-    phi <- function(theta) {
-      mu <- theta[1:ncate]
-      augz <- theta[(ncate + 1):(2 * ncate)]
-      augh <- theta[(2 * ncate + 1):(3 * ncate)]
-      htilt <- ftilt(eest, weight.external)
-      wtt <- (1 / eest) * htilt
-
-      fmu <- c()
-      faugz <- c()
-      faugh <- c()
-
-      for (i in 1:ncate) {
-        fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
-        fmu <- rbind(fmu, fmutmp)
-        faugztmp <- (mest[, i] - augz[i]) * wtt[, i] * (z == i)
-        faughtmp <- htilt * (mest[, i] - augh[i])
-        faugz <- rbind(faugz, faugztmp)
-        faugh <- rbind(faugh, faughtmp)
-      }
-
-      f <- rbind(fmu, faugz, faugh)
-      return(f)
-    }
-    for (i in 1:ncate) {
-      a[i, c(i, 2 * ncate + i)] <- 1
-      a[i, ncate + i] <- -1
-    }
-  } else if (type == "eca") {
-    phi <- function(theta) {
-      mu <- theta[1:ncate]
-      augz <- theta[(ncate + 1):(2 * ncate)]
-      augh <- theta[(2 * ncate + 1):(3 * ncate)]
-      gamma <- theta[(3 * ncate + 1):(3 * ncate + ncate * q)]
-
-      htilt <- ftilt(eest, weight.external)
-      wtt <- (1 / eest) * htilt
-
-      m <- c()
-
-      if (family == "gaussian") {
-        for (i in 1:ncate) {
-          mtmp <- c(XY %*% gamma[((i - 1) * q + 1):(i * q)])
-          m <- cbind(m, mtmp)
-        }
-      } else if (family == "binomial") {
-        for (i in 1:ncate) {
-          mtmp <- plogis(c(XY %*% gamma[((i - 1) * q + 1):(i * q)]))
-          m <- cbind(m, mtmp)
-        }
-      } else if (family == "poisson") {
-        for (i in 1:ncate) {
-          mtmp <- exp(c(XY %*% gamma[((i - 1) * q + 1):(i * q)])) * offset.e
-          m <- cbind(m, mtmp)
-        }
-      }
-
-      fmu <- c()
-      fgamma <- c()
-      faugz <- c()
-      faugh <- c()
-
-      for (i in 1:ncate) {
-        fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
-        fmu <- rbind(fmu, fmutmp)
-        fgammatmp <- XY * (y - m[, i]) * (z == i)
-        fgamma <- cbind(fgamma, fgammatmp)
-        faugztmp <- (m[, i] - augz[i]) * wtt[, i] * (z == i)
-        faughtmp <- htilt * (m[, i] - augh[i])
-        faugz <- rbind(faugz, faugztmp)
-        faugh <- rbind(faugh, faughtmp)
-      }
-
-      f <- rbind(fmu, faugz, faugh, t(fgamma))
-      return(f)
-    }
-
-    for (i in 1:ncate) {
-      a[i, c(i, 2 * ncate + i)] <- 1
-      a[i, ncate + i] <- -1
-    }
-  } else if (type == "eac") {
-    phi <- function(theta) {
-      mu <- theta[1:ncate]
-      augz <- theta[(ncate + 1):(2 * ncate)]
-      augh <- theta[(2 * ncate + 1):(3 * ncate)]
-      beta <- theta[(3 * ncate + 1):(3 * ncate + (ncate - 1) * p)]
-
-      e <- rep(1, n)
-      for (i in 1:(ncate - 1)) {
-        etmp <- exp(W %*% beta[((i - 1) * p + 1):(i * p)])
-        e <- cbind(e, etmp)
-      }
-      e <- e / (apply(e, 1, sum))
-      htilt <- ftilt(e)
-      wtt <- (1 / e) * htilt
-
-      fmu <- c()
-      fbeta <- c()
-      faugz <- c()
-      faugh <- c()
-
-      for (i in 1:ncate) {
-        fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
-        fmu <- rbind(fmu, fmutmp)
-        faugztmp <- (mest[, i] - augz[i]) * wtt[, i] * (z == i)
-        faughtmp <- htilt * (mest[, i] - augh[i])
-        faugz <- rbind(faugz, faugztmp)
-        faugh <- rbind(faugh, faughtmp)
-      }
-      for (i in 2:ncate) {
-        fbetatmp <- ((z == i) - e[, i]) * W
-        fbeta <- cbind(fbeta, fbetatmp)
-      }
-
-      f <- rbind(fmu, faugz, faugh, t(fbeta))
-      return(f)
-    }
-    for (i in 1:ncate) {
-      a[i, c(i, 2 * ncate + i)] <- 1
-      a[i, ncate + i] <- -1
-    }
-  }
-
-  mphi <- function(theta) {
-    rowMeans(phi(theta))
-  }
-
-  # define the meat B, covariance operator
-  Omega <- function(theta) {
-    phis <- phi(theta)
-    return(tcrossprod(phis) / n)
-  }
-
-  Atheta <- jacobian(mphi, thetaest)
-  invAtheta <- solve(Atheta)
-
-  # calculate the sandwich variance
-  Vtmp <- invAtheta %*% Omega(thetaest) %*% t(invAtheta) / n
-
-  covmu <- a %*% Vtmp %*% t(a)
-
-  return(covmu)
-}
+# sand_mul <- function(z, y, n, ncate, ftilt, thetaest, W = NULL, XY = NULL, eest, mest, family = "gaussian", offset.e, type = "e") {
+#   p <- ncol(W)
+#   q <- ncol(XY)
+#
+#   # matrix to calucalte correlation
+#   a <- matrix(0, ncate, length(thetaest))
+#
+#   ## score function
+#   if (type == "e") {
+#     p <- ncol(W)
+#     phi <- function(theta) {
+#       mu <- theta[1:ncate]
+#       beta <- theta[(ncate + 1):(ncate + (ncate - 1) * p)]
+#       e <- rep(1, n)
+#       for (i in 1:(ncate - 1)) {
+#         etmp <- exp(W %*% beta[((i - 1) * p + 1):(i * p)])
+#         e <- cbind(e, etmp)
+#       }
+#       e <- e / (apply(e, 1, sum))
+#       wtt <- (1 / e) * ftilt(e)
+#       fmu <- c()
+#       fbeta <- c()
+#       for (i in 1:ncate) {
+#         fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
+#         fmu <- rbind(fmu, fmutmp)
+#       }
+#       for (i in 2:ncate) {
+#         fbetatmp <- ((z == i) - e[, i]) * W
+#         fbeta <- cbind(fbeta, fbetatmp)
+#       }
+#
+#       f <- rbind(fmu, t(fbeta))
+#       return(f)
+#     }
+#     diag(a) <- 1
+#   } else if (type == "ec") {
+#     phi <- function(theta) {
+#       mu <- theta[1:ncate]
+#       wtt <- (1 / eest) * ftilt(eest, weight.external)
+#       fmu <- c()
+#       fbeta <- c()
+#       for (i in 1:ncate) {
+#         fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
+#         fmu <- rbind(fmu, fmutmp)
+#       }
+#
+#       f <- rbind(fmu)
+#       return(f)
+#     }
+#     diag(a) <- 1
+#   } else if (type == "ea") {
+#     phi <- function(theta) {
+#       mu <- theta[1:ncate]
+#       augz <- theta[(ncate + 1):(2 * ncate)]
+#       augh <- theta[(2 * ncate + 1):(3 * ncate)]
+#       beta <- theta[(3 * ncate + 1):(3 * ncate + (ncate - 1) * p)]
+#       gamma <- theta[(3 * ncate + (ncate - 1) * p + 1):(3 * ncate + (ncate - 1) * p + ncate * q)]
+#
+#       e <- rep(1, n)
+#       for (i in 1:(ncate - 1)) {
+#         etmp <- exp(W %*% beta[((i - 1) * p + 1):(i * p)])
+#         e <- cbind(e, etmp)
+#       }
+#       e <- e / (apply(e, 1, sum))
+#       wtt <- (1 / e) * ftilt(e)
+#
+#       # outcome aug
+#       m <- c()
+#       if (family == "gaussian") {
+#         for (i in 1:ncate) {
+#           mtmp <- c(XY %*% gamma[((i - 1) * q + 1):(i * q)])
+#           m <- cbind(m, mtmp)
+#         }
+#       } else if (family == "binomial") {
+#         for (i in 1:ncate) {
+#           mtmp <- stat::plogis(c(XY %*% gamma[((i - 1) * q + 1):(i * q)]))
+#           m <- cbind(m, mtmp)
+#         }
+#       } else if (family == "poisson") {
+#         for (i in 1:ncate) {
+#           mtmp <- exp(c(XY %*% gamma[((i - 1) * q + 1):(i * q)])) * offset.e
+#           m <- cbind(m, mtmp)
+#         }
+#       }
+#
+#       fmu <- c()
+#       fbeta <- c()
+#       fgamma <- c()
+#       faugz <- c()
+#       faugh <- c()
+#
+#       for (i in 1:ncate) {
+#         fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
+#         fmu <- rbind(fmu, fmutmp)
+#         fgammatmp <- XY * (y - m[, i]) * (z == i)
+#         fgamma <- cbind(fgamma, fgammatmp)
+#         faugztmp <- (m[, i] - augz[i]) * wtt[, i] * (z == i)
+#         faughtmp <- ftilt(e) * (m[, i] - augh[i])
+#         faugz <- rbind(faugz, faugztmp)
+#         faugh <- rbind(faugh, faughtmp)
+#       }
+#       for (i in 2:ncate) {
+#         fbetatmp <- ((z == i) - e[, i]) * W
+#         fbeta <- cbind(fbeta, fbetatmp)
+#       }
+#
+#       f <- rbind(fmu, faugz, faugh, t(fbeta), t(fgamma))
+#       return(f)
+#     }
+#     for (i in 1:ncate) {
+#       a[i, c(i, 2 * ncate + i)] <- 1
+#       a[i, ncate + i] <- -1
+#     }
+#   } else if (type == "ecac") {
+#     phi <- function(theta) {
+#       mu <- theta[1:ncate]
+#       augz <- theta[(ncate + 1):(2 * ncate)]
+#       augh <- theta[(2 * ncate + 1):(3 * ncate)]
+#       htilt <- ftilt(eest, weight.external)
+#       wtt <- (1 / eest) * htilt
+#
+#       fmu <- c()
+#       faugz <- c()
+#       faugh <- c()
+#
+#       for (i in 1:ncate) {
+#         fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
+#         fmu <- rbind(fmu, fmutmp)
+#         faugztmp <- (mest[, i] - augz[i]) * wtt[, i] * (z == i)
+#         faughtmp <- htilt * (mest[, i] - augh[i])
+#         faugz <- rbind(faugz, faugztmp)
+#         faugh <- rbind(faugh, faughtmp)
+#       }
+#
+#       f <- rbind(fmu, faugz, faugh)
+#       return(f)
+#     }
+#     for (i in 1:ncate) {
+#       a[i, c(i, 2 * ncate + i)] <- 1
+#       a[i, ncate + i] <- -1
+#     }
+#   } else if (type == "eca") {
+#     phi <- function(theta) {
+#       mu <- theta[1:ncate]
+#       augz <- theta[(ncate + 1):(2 * ncate)]
+#       augh <- theta[(2 * ncate + 1):(3 * ncate)]
+#       gamma <- theta[(3 * ncate + 1):(3 * ncate + ncate * q)]
+#
+#       htilt <- ftilt(eest, weight.external)
+#       wtt <- (1 / eest) * htilt
+#
+#       m <- c()
+#
+#       if (family == "gaussian") {
+#         for (i in 1:ncate) {
+#           mtmp <- c(XY %*% gamma[((i - 1) * q + 1):(i * q)])
+#           m <- cbind(m, mtmp)
+#         }
+#       } else if (family == "binomial") {
+#         for (i in 1:ncate) {
+#           mtmp <- stat::plogis(c(XY %*% gamma[((i - 1) * q + 1):(i * q)]))
+#           m <- cbind(m, mtmp)
+#         }
+#       } else if (family == "poisson") {
+#         for (i in 1:ncate) {
+#           mtmp <- exp(c(XY %*% gamma[((i - 1) * q + 1):(i * q)])) * offset.e
+#           m <- cbind(m, mtmp)
+#         }
+#       }
+#
+#       fmu <- c()
+#       fgamma <- c()
+#       faugz <- c()
+#       faugh <- c()
+#
+#       for (i in 1:ncate) {
+#         fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
+#         fmu <- rbind(fmu, fmutmp)
+#         fgammatmp <- XY * (y - m[, i]) * (z == i)
+#         fgamma <- cbind(fgamma, fgammatmp)
+#         faugztmp <- (m[, i] - augz[i]) * wtt[, i] * (z == i)
+#         faughtmp <- htilt * (m[, i] - augh[i])
+#         faugz <- rbind(faugz, faugztmp)
+#         faugh <- rbind(faugh, faughtmp)
+#       }
+#
+#       f <- rbind(fmu, faugz, faugh, t(fgamma))
+#       return(f)
+#     }
+#
+#     for (i in 1:ncate) {
+#       a[i, c(i, 2 * ncate + i)] <- 1
+#       a[i, ncate + i] <- -1
+#     }
+#   } else if (type == "eac") {
+#     phi <- function(theta) {
+#       mu <- theta[1:ncate]
+#       augz <- theta[(ncate + 1):(2 * ncate)]
+#       augh <- theta[(2 * ncate + 1):(3 * ncate)]
+#       beta <- theta[(3 * ncate + 1):(3 * ncate + (ncate - 1) * p)]
+#
+#       e <- rep(1, n)
+#       for (i in 1:(ncate - 1)) {
+#         etmp <- exp(W %*% beta[((i - 1) * p + 1):(i * p)])
+#         e <- cbind(e, etmp)
+#       }
+#       e <- e / (apply(e, 1, sum))
+#       htilt <- ftilt(e)
+#       wtt <- (1 / e) * htilt
+#
+#       fmu <- c()
+#       fbeta <- c()
+#       faugz <- c()
+#       faugh <- c()
+#
+#       for (i in 1:ncate) {
+#         fmutmp <- (y - mu[i]) * wtt[, i] * (z == i)
+#         fmu <- rbind(fmu, fmutmp)
+#         faugztmp <- (mest[, i] - augz[i]) * wtt[, i] * (z == i)
+#         faughtmp <- htilt * (mest[, i] - augh[i])
+#         faugz <- rbind(faugz, faugztmp)
+#         faugh <- rbind(faugh, faughtmp)
+#       }
+#       for (i in 2:ncate) {
+#         fbetatmp <- ((z == i) - e[, i]) * W
+#         fbeta <- cbind(fbeta, fbetatmp)
+#       }
+#
+#       f <- rbind(fmu, faugz, faugh, t(fbeta))
+#       return(f)
+#     }
+#     for (i in 1:ncate) {
+#       a[i, c(i, 2 * ncate + i)] <- 1
+#       a[i, ncate + i] <- -1
+#     }
+#   }
+#
+#   mphi <- function(theta) {
+#     rowMeans(phi(theta))
+#   }
+#
+#   # define the meat B, covariance operator
+#   Omega <- function(theta) {
+#     phis <- phi(theta)
+#     return(tcrossprod(phis) / n)
+#   }
+#
+#   Atheta <- jacobian(mphi, thetaest)
+#   invAtheta <- solve(Atheta)
+#
+#   # calculate the sandwich variance
+#   Vtmp <- invAtheta %*% Omega(thetaest) %*% t(invAtheta) / n
+#
+#   covmu <- a %*% Vtmp %*% t(a)
+#
+#   return(covmu)
+# }

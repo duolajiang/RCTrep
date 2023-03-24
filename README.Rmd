@@ -125,19 +125,19 @@ source.obj.rep$EstimateRep(stratification = c("x1","x3","x4","x5"))
 
 ### Step 3: Assumptions and model diagnosis
 This step diagnoses model assumption for G-computation (covariats balance for IPW), treatment overlap assumption, outcome overlap assumption, and sampling overlap assumption.
-```{r,message=FALSE, warning=FALSE}
-source.obj$summary()
+```{r warning=FALSE, paged.print=TRUE}
+source.obj$diagnosis_t_ignorability()
 source.obj$diagnosis_t_overlap()
-target.obj$diagnosis_t_overlap()
+source.obj.rep$diagnosis_s_ignorability()
 source.obj.rep$diagnosis_s_overlap()
 ```
 
 ### Step 4: Model Validation
 This step compare the estimates from RWD with those from RCT data, and validate difference methods using RWD.
-```{r, message=FALSE, warning=FALSE}
-fusion <- Summary$new(target.obj,
-                      source.obj,
-                      source.obj.rep)
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+fusion <- Fusion$new(target.obj,
+                     source.obj,
+                     source.obj.rep)
 fusion$evaluate()
 fusion$plot()
 ```

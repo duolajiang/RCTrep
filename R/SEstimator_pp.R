@@ -1,4 +1,3 @@
-#' @export
 SEstimator_pp <- R6::R6Class(
   "SEstimator_pp",
   inherit = SEstimator,

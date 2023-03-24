@@ -1,7 +1,6 @@
 #' @title R6 class: Doubly robust estimator base class
 #' @description A base R6 class for doubly robust estimator of average treatment effect that implements comment methods.
 #' @importfrom PSweight PSweight
-#' @export
 DR <- R6::R6Class(
   "DR",
   inherit = TEstimator,

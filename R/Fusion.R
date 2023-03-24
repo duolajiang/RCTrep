@@ -1,3 +1,8 @@
+#' @title Validation of estimates of conditional average treatment effects in objects of class \code{TEstimator} and \code{SEstimator}.
+#'
+#' @param ... objects of class \code{TEstimator} and \code{SEstimator}.
+#' @param stratification a character vector specifying variables. The variables are used to select sub-populations individually or in combination depending on \code{stratification_joint}. Default value is NULL.
+#' @param stratification_joint a logical indicating if subpopulations are selected based on levels of individual variable in \code{stratification} or levels of combined variables in \code{stratifiation}. Default value is NULL.
 #' @export
 Fusion <- R6::R6Class(
   "Fusion",

@@ -1,3 +1,52 @@
+#' @title Visualizing validation results according to four steps, namely, set-selection, estimation, diagnosis, and validation
+#' @param source.obj an instantiated object of class \code{TEstimator}. The estimates of conditional average treatment effects are compared to those from \code{target.obj}.
+#' @param target.obj an instantiated object of class \code{TEstimator}. The estimates of conditional average treatment effect are regarded as unbiased of truth.
+#' @param source.obj.rep an instantiated object of class \code{SEstimator}. The estimates of conditional average treatment effects are compared to those from \code{target.obj}.
+#' @examples
+#' \dontrun{
+#' source.data <- RCTrep::source.data
+#' target.data <- RCTrep::target.data
+#'
+#' vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
+#'                   treatment_name = c('z'),
+#'                   outcome_name = c('y')
+#' )
+#' confounders_sampling_name <- c("x2","x6")
+#'
+#' Estimate conditional average treatment effect
+#' source.obj <- TEstimator_wrapper(
+#'  Estimator = "G_computation",
+#'  data = source.data,
+#'  vars_name = vars_name,
+#'  outcome_method = "glm",
+#'  outcome_form=y ~ x1 + x2 + x3 + z + z:x1 + z:x2 +z:x3+ z:x6,
+#'  name = "RWD",
+#'  data.public = FALSE
+#' )
+#'
+#' target.obj <- TEstimator_wrapper(
+#'  Estimator = "Crude",
+#'  data = target.data,
+#'  vars_name = vars_name,
+#'  name = "RCT",
+#'  data.public = FALSE,
+#'  isTrial = TRUE
+#' )
+#'
+#' Estimate the weighted conditional average treatment effect of source.obj
+#' strata <- c("x1","x4")
+#' source.rep.obj <- SEstimator_wrapper(Estimator = "Exact",
+#'                                      target.obj = target.obj,
+#'                                      source.obj = source.obj,
+#'                                      confounders_sampling_name =
+#'                                      confounders_sampling_name)
+#' source.rep.obj$EstimateRep(stratification = strata, stratification_joint = TRUE)
+#'
+#' call_dashboard(source.obj = source.obj,
+#'                target.obj = target.obj,
+#'                source.obj.rep = source.obj.rep)
+#' }
+#'
 #' @export
 #' @import shiny
 #' @import shinydashboard

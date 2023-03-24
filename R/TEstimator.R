@@ -1,9 +1,8 @@
 #' @title R6 class: Estimator base class
-#' @description A base R6 class for estimator of average treatment effect that implements the common methods, such as \code{\link{RCTrep}}, \code{\link{get_CATE}}, \code{\link{plot_CATE}}, inheritted by \code{\link{G_computation_base}}, \code{\link{IPW_base}}, and \code{\link{DR_base}} class.
+#' @description A base R6 class for estimator of average treatment effect that implements the common methods, such as \code{RCTrep}, \code{get_CATE()}, \code{plot_CATE()}, inheritted by \code{G_computation}, \code{IPW}, and \code{DR} class.
 #'
-#' @export
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggpubr ggtexttable ggarrange
+#' @import ggplot2
+#' @import ggpubr
 #' @import dplyr
 #' @import tidyr
 TEstimator <- R6::R6Class(
@@ -136,12 +135,12 @@ TEstimator <- R6::R6Class(
           mutate(group_name = paste(name,"=",value,sep = ""))
       }
       if(seperate == TRUE){
-        ggplot(data=df, aes(x=group_name, y=est)) +
+        ggplot2::ggplot(data=df, aes(x=group_name, y=est)) +
           geom_bar(stat = "identity", position = position_dodge()) +
           facet_wrap(~potential_outcome) +
           coord_flip()
       } else {
-        ggplot(data=df, aes(x=group_name, y=est,
+        ggplot2::ggplot(data=df, aes(x=group_name, y=est,
                             group = potential_outcome, fill=potential_outcome)) +
           geom_bar(stat = "identity", position = position_dodge()) +
           coord_flip()

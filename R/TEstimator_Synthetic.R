@@ -1,4 +1,3 @@
-#' @export
 TEstimator_Synthetic <- R6::R6Class(
   "TEstimator_Synthetic",
   inherit = TEstimator,

@@ -9,6 +9,7 @@
   return(formula_string)
 }
 
+#' @importFrom stats as.formula
 .GetFormulaOutcome <- function(outcome, treatment, xvars) {
   # browser()
   formula_outcome <- as.formula(paste(outcome, "~", treatment, "+", .FormulaXGeneration(xvars), sep = ""))
@@ -260,7 +261,7 @@ Copula <- function(patterns, var_marginal_tables) {
   return(density)
 }
 
-
+#' @importFrom stats qnorm
 LowerUpperNormalCopula <- function(pattern, var_marginal_tables) {
   lower <- upper <- NULL
   #
@@ -339,7 +340,7 @@ generateSyntheticData <- function(N, PatternDistributionDataFrame_Target) {
   return(syntheticdata)
 }
 
-
+#' @importFrom stats as.formula
 .GetFormulaSelectionScore <- function(xvars) {
   formula_selection <- as.formula(paste("selection~", .FormulaXGeneration(xvars), sep = ""))
   return(formula_selection)
@@ -381,7 +382,42 @@ IPW.estimator <- function(z=z,y=y,ps=ps,w=w,t=1){
   return(y.est)
 }
 
+#' @title Generating RCT data or observational data for examples used in the package
+#' @param trial Logical indicating whether the treatment is randomly assigned in the generated data. If TRUE, RCT data is generated. Otherwise, observational data is generated.
+#' @param n A numeric value indicating the number of observations in the generated data
+#' @param var_name A character vector indicating the names of covariates
+#' @param p_success the success probability of binary variables of covariates
+#' @param tau a character indicating the generation of the true treatment effect of each individual
+#' @param y0 a character indicating the generation of the potential outcome under control
+#' @param log.ps a numeric value indicating the logit of propensity score
+#' @param binary logical indicating whether the outcome is binary or continous variable
+#' @param noise a numeric value indicating the standard error of normal distribution for noise term of continuous outcome generation
+#' @param ... an optional argument indicating pairwise correlation between covariates.
+#' @return a data frame
+#'
+#' @examples
+#' \dontrun{
+#' n_rct <- 5000; n_rwd <- 5000
+#' var_name <- c("x1","x2","x3","x4","x5","x6")
+#' p_success_rct <- c(0.7,0.9,0.2,0.3,0.2,0.3)
+#' p_success_rwd <- c(0.2,0.2,0.8,0.8,0.7,0.8)
+#' tau <- "6*x2+x6+2"
+#' y0 <- "x1"
+#' log.ps <- "x1*x2+x3*x4+5*x5+x6"
+#' rho1 <- c("x1","x2",0)
+#' rho2 <- c("x2","x3",0)
 
+# simulating data
+#' target.data <- RCTrep::DGM(trial=TRUE,  n_rct, var_name,
+#'                            p_success_rct, tau, y0, log.ps=0,
+#'                            binary = FALSE, noise=1, rho1, rho2)
+#' source.data <- RCTrep::DGM(trial=FALSE, n_rwd, var_name,
+#'                            p_success_rwd, tau, y0, log.ps,
+#'                            binary = FALSE, noise=1, rho1, rho2)
+#' }
+#'
+#'
+#' @importFrom stats rbinom sd rnorm
 #' @export
 DGM <- function(trial,n, var_name, p_success,tau, y0, log.ps=NULL, binary=FALSE, noise=1, ...){
   # p <- length(var_name)
@@ -444,6 +480,7 @@ DGM <- function(trial,n, var_name, p_success,tau, y0, log.ps=NULL, binary=FALSE,
 }
 
 ## adjustment covariate ATE vs no adjustment covariate ATE vs true ATE, see the difference
+#' @importFrom stats lm predict
 ATEAdjustment <- function(tau,y0,data){
   formula <- y ~ eval(y0) + z:eval(tau)
   g_compu <- lm(formula, data = data)

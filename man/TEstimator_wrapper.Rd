@@ -21,28 +21,34 @@ TEstimator_wrapper(
 )
 }
 \arguments{
-\item{Estimator}{A character specifying an estimator for average treatment effect. The allowed estimators for \code{Estimator} are: \code{"G_computation"}, \code{"IPW"}, and \code{"DR"}. The corresponding object will be created by the wrapper function \code{\link{Estimate()}}. The default is \code{"G_computation"}, which, along with \code{outcome_method="glm"} model the potential outcomes.}
+\item{Estimator}{A character specifying an estimator for conditional average treatment effect. The allowed estimators for \code{TEstimator} are: \code{"G_computation"}, \code{"IPW"}, and \code{"DR"}. The corresponding object will be created by the wrapper function \code{TEstimator_wrapper()}. The default is \code{"G_computation"}, which, along with \code{outcome_method="glm"} model the potential outcomes.}
 
-\item{data}{A data frame containing variables in \code{vars_name}.}
+\item{data}{A data frame containing variables named in \code{vars_name} and possible other variables.}
 
-\item{vars_name}{A list containing four vectors \code{confounders_internal}, \code{confounders_external}, \code{treatment_name}, and \code{outcome_name}. \code{confounders_internal} is a character vector containing the adjustment variables, which, along with \code{Estimator} and the corresponding \code{outcome_method} or \code{treatment_method} to correct for confounding; \code{confounders_external} is a character vector containing variables for weighting as to generalize estimates from \code{source.data} to \code{target.data}; \code{outcome_name} is a character vector of length one containing the variable name of outcome; \code{treatment_name} is a character vector of length one containing the variable name of treatment.}
+\item{vars_name}{A list containing four vectors \code{confounders_treatment_name}, \code{treatment_name}, and \code{outcome_name}. \code{confounders_treatment_name} is a character vector containing the adjustment variables, which, along with \code{TEstimator} and the corresponding \code{outcome_method} or \code{treatment_method} to correct for confounding; \code{outcome_name} is a character vector of length one containing the variable name of outcome; \code{treatment_name} is a character vector of length one containing the variable name of treatment.}
 
-\item{outcome_method}{A string specifying which model for outcome, treatment, and selection to use. Possible values are found using \code{names(getModelInfo())}. See \url{http://topepo.github.io/caret/train-models-by-tag.html}. A list of functions can also be passed for a custom model function. See \url{http://topepo.github.io/caret/using-your-own-model-in-train.html} for details.}
+\item{name}{A character indicating the name of the output object}
 
-\item{treatment_method}{A string specifying which model for outcome, treatment, and selection to use. Possible values are found using \code{names(getModelInfo())}. See \url{http://topepo.github.io/caret/train-models-by-tag.html}. A list of functions can also be passed for a custom model function. See \url{http://topepo.github.io/caret/using-your-own-model-in-train.html} for details.}
+\item{outcome_method}{A character specifying a model for outcome. Possible values are found using \code{names(getModelInfo())}. See \url{http://topepo.github.io/caret/train-models-by-tag.html}. Default is "glm".}
 
-\item{two_models}{An optional logical indicating whether potential outcomes should be modeled separately when \code{Estimator="DR"}. Default is FALSE.}
+\item{treatment_method}{A character specifying a model for treatment. Possible values are found using \code{names(getModelInfo())}. See \url{http://topepo.github.io/caret/train-models-by-tag.html}. Default is "glm".}
 
-\item{outcome_formula}{An optional object of class \code{formula} describing the outcome model, treatment model, and selection model.}
+\item{two_models}{An optional logical indicating whether potential outcomes should be modeled separately when \code{TEstimator="DR"}. Default is \code{FALSE}.}
 
-\item{treatment_formula}{An optional object of class \code{formula} describing the outcome model, treatment model, and selection model.}
+\item{outcome_formula}{An optional object of class \code{formula} describing the outcome model specification when \code{Estimator="G_computation"} or \code{Estimator="DR"}.}
 
-\item{strata_cut}{An optional list containing lists. Each component is a list with tag named by a variable to discretize, containing \code{break} which is a vector specifying the interval of range of the variable to divide, \code{lable} which is a string vector specifying how to code value in the variable according to which interval they fall. The leftmost interval corresponds to level one, the next leftmost to level two and so on. This parameter is useful in the case we concern the integrated treatment effect conditioning on variables with multiple levels (for instance, continuous variable or ordinal variable with multiple levels). Note that we first model based on these continuous variables, then we discretize these variables according to \code{strata_cut} by modifying the public variable \code{data} of \code{Estimator} object in wrap function \code{\link{Estimate}}, and calculate the weight for generalization based on the discretized variables.}
+\item{treatment_formula}{An optional object of class \code{formula} describing the treatment model specification when \code{Estimator="IPW"} or \code{Estimator="DR"}}
 
-\item{...}{An optional arguments passed to \code{fit()} of each estimator object for model training and tuning. See \url{https://topepo.github.io/caret/model-training-and-tuning.html} for details.}
+\item{data.public}{An optional logical indicating whether individual-level \code{data} is public in the output object. Default is TRUE.}
+
+\item{isTrial}{An optional logical indicating whether the treatment assignment of \code{data} is random or unknown.}
+
+\item{strata_cut}{An optional list containing lists. Each component is a list with tag named by a variable in \code{data} to discretize, containing \code{break} which is a vector specifying the interval of range of the variable to divide, \code{lable} which is a character vector specifying how to code value in the variable according to which interval they fall. The leftmost interval corresponds to level one, the next leftmost to level two and so on. This parameter is useful in the case we concern the integrated treatment effect conditioning on variables with multiple levels (for instance, continuous variable or ordinal variable with multiple levels). Note that we first model based on these continuous variables, then we discretize these variables according to \code{strata_cut}. The variables in \code{data} of the output object are discretized.}
+
+\item{...}{An optional argument passed to the private function \code{fit()} of each class for model training and tuning. See \url{https://topepo.github.io/caret/model-training-and-tuning.html} for details.}
 }
 \value{
-An object of class \code{\link{Estimator}}.
+An object of class \code{TEstimator}.
 }
 \description{
 The function \code{Estimate} is used to estimate the average treatment effect obtained from \code{data}. If TEstimator is G_computation and outcome_method is BART, then make sure that treatment and outcome column is integer/numeric, no matter the outcome is binary or continuous.

@@ -1,4 +1,3 @@
-#' @export
 SEstimator <- R6::R6Class(
   "SEstimator",
   #-------------------------public fields-----------------------------#

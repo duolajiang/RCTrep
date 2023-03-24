@@ -1,4 +1,3 @@
-#' @export
 SEisw <- R6::R6Class(
   "SEisw",
   inherit = SEstimator,

@@ -4,7 +4,7 @@
 \alias{TEstimator}
 \title{R6 class: Estimator base class}
 \description{
-A base R6 class for estimator of average treatment effect that implements the common methods, such as \code{\link{RCTrep}}, \code{\link{get_CATE}}, \code{\link{plot_CATE}}, inheritted by \code{\link{G_computation_base}}, \code{\link{IPW_base}}, and \code{\link{DR_base}} class.
+A base R6 class for estimator of average treatment effect that implements the common methods, such as \code{RCTrep}, \code{get_CATE()}, \code{plot_CATE()}, inheritted by \code{G_computation}, \code{IPW}, and \code{DR} class.
 }
 \section{Methods}{
 \subsection{Public methods}{

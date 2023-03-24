@@ -1,6 +1,3 @@
-#' @title R6 class: G_computation base class
-#' @description A base R6 class for G_computation estimator for average treatment effect
-#' @export
 #' @import geex
 #' @import ggplot2
 #' @import fastDummies

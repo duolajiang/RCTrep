@@ -1,11 +1,21 @@
 #' @title Estimator for average treatment effect wrapper function
-#'
 #' @description The function \code{Estimate} is used to estimate the average treatment effect obtained from \code{data}. If TEstimator is G_computation and outcome_method is BART, then make sure that treatment and outcome column is integer/numeric, no matter the outcome is binary or continuous.
 #'
 #' @param data A data frame containing variables in \code{vars_name}.
-#' @inheritParams RCTREP
-#'
-#' @return An object of class \code{\link{Estimator}}.
+#' @param Estimator A character specifying an estimator for conditional average treatment effect. The allowed estimators for \code{TEstimator} are: \code{"G_computation"}, \code{"IPW"}, and \code{"DR"}. The corresponding object will be created by the wrapper function \code{TEstimator_wrapper()}. The default is \code{"G_computation"}, which, along with \code{outcome_method="glm"} model the potential outcomes.
+#' @param data A data frame containing variables named in \code{vars_name} and possible other variables.
+#' @param vars_name A list containing four vectors \code{confounders_treatment_name}, \code{treatment_name}, and \code{outcome_name}. \code{confounders_treatment_name} is a character vector containing the adjustment variables, which, along with \code{TEstimator} and the corresponding \code{outcome_method} or \code{treatment_method} to correct for confounding; \code{outcome_name} is a character vector of length one containing the variable name of outcome; \code{treatment_name} is a character vector of length one containing the variable name of treatment.
+#' @param name A character indicating the name of the output object
+#' @param outcome_method A character specifying a model for outcome. Possible values are found using \code{names(getModelInfo())}. See \url{http://topepo.github.io/caret/train-models-by-tag.html}. Default is "glm".
+#' @param treatment_method A character specifying a model for treatment. Possible values are found using \code{names(getModelInfo())}. See \url{http://topepo.github.io/caret/train-models-by-tag.html}. Default is "glm".
+#' @param two_models An optional logical indicating whether potential outcomes should be modeled separately when \code{TEstimator="DR"}. Default is \code{FALSE}.
+#' @param outcome_formula An optional object of class \code{formula} describing the outcome model specification when \code{Estimator="G_computation"} or \code{Estimator="DR"}.
+#' @param treatment_formula An optional object of class \code{formula} describing the treatment model specification when \code{Estimator="IPW"} or \code{Estimator="DR"}
+#' @param data.public An optional logical indicating whether individual-level \code{data} is public in the output object. Default is TRUE.
+#' @param isTrial An optional logical indicating whether the treatment assignment of \code{data} is random or unknown.
+#' @param strata_cut An optional list containing lists. Each component is a list with tag named by a variable in \code{data} to discretize, containing \code{break} which is a vector specifying the interval of range of the variable to divide, \code{lable} which is a character vector specifying how to code value in the variable according to which interval they fall. The leftmost interval corresponds to level one, the next leftmost to level two and so on. This parameter is useful in the case we concern the integrated treatment effect conditioning on variables with multiple levels (for instance, continuous variable or ordinal variable with multiple levels). Note that we first model based on these continuous variables, then we discretize these variables according to \code{strata_cut}. The variables in \code{data} of the output object are discretized.
+#' @param ... An optional argument passed to the private function \code{fit()} of each class for model training and tuning. See \url{https://topepo.github.io/caret/model-training-and-tuning.html} for details.
+#' @return An object of class \code{TEstimator}.
 #' @export
 TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
                                outcome_method = "glm", treatment_method = "glm", two_models = FALSE,

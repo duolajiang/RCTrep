@@ -9,32 +9,6 @@ A base R6 class for inverse propensity score weighting estimator of average trea
 \section{Super class}{
 \code{\link[RCTrep:TEstimator]{RCTrep::TEstimator}} -> \code{IPW}
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{model:}}{a fitted model for treatment conditioning on covariates}
-
-\item{\code{method:}}{a string specifying the method for fitting the propensity score}
-
-\item{\code{formula:}}{an optional \code{formula} object. The formula is specified as \code{Z ~ X1+X2...}, where \code{Z} represents treatment variable and \code{X1} and \code{X2} are covariates.}
-
-\item{\code{ps:}}{a numeric vector of length n where n is row number of \code{self$data}.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{model:}}{a fitted model for treatment conditioning on covariates}
-
-\item{\code{method:}}{a string specifying the method for fitting the propensity score}
-
-\item{\code{formula:}}{an optional \code{formula} object. The formula is specified as \code{Z ~ X1+X2...}, where \code{Z} represents treatment variable and \code{X1} and \code{X2} are covariates.}
-
-\item{\code{ps:}}{a numeric vector of length n where n is row number of \code{self$data}.}
-}
-\if{html}{\out{</div>}}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

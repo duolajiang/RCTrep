@@ -1,6 +1,7 @@
 #### Point and variance for binary treatment ##############################################
 ###########################################################################################
-
+#' @importFrom stats as.formula formula model.matrix model.extract model.frame cov
+#' @importFrom utils tail
 binest.modified <- function(ps.formula = NULL, ps.estimate = NULL, zname = NULL, yname, data, trtgrp = NULL, augmentation = FALSE, bootstrap = FALSE, R = 50, out.formula = NULL, out.estimate = NULL, family = NULL, weight = "overlap", ps.method = "glm", ps.control = list(), out.method = "glm", out.control = list(), weight.external = NULL) {
 
   # preprocess formula and extract y
@@ -41,7 +42,7 @@ binest.modified <- function(ps.formula = NULL, ps.estimate = NULL, zname = NULL,
   # obtain ps estimation
   # estimate with formula
   if (is.null(ps.estimate)) {
-    fit <- do.call(PSmethod, c(list(ps.formula = ps.formula, method = ps.method, data = data_p, ncate = 2), ps.control = ps.control))
+    fit <- do.call(PSweight::PSmethod, c(list(ps.formula = ps.formula, method = ps.method, data = data_p, ncate = 2), ps.control = ps.control))
     W <- model.matrix(ps.formula, data_p) # design matrix
 
     e.h <- as.numeric(fit$e.h[, 2])
@@ -84,10 +85,10 @@ binest.modified <- function(ps.formula = NULL, ps.estimate = NULL, zname = NULL,
       XY <- model.matrix(formula(out.formula), data = dataaug)
 
       # predict outcome
-      fitout0 <- do.call(OUTmethod, c(list(out.formula = out.formula, y = y[z == 0], out.method = out.method, family = family, datain = dataaug0, dataout = dataaug), out.control = out.control))
+      fitout0 <- do.call(PSweight::OUTmethod, c(list(out.formula = out.formula, y = y[z == 0], out.method = out.method, family = family, datain = dataaug0, dataout = dataaug), out.control = out.control))
       m0.h <- fitout0$m.est
       gamma0.h <- fitout0$gamma.h
-      fitout1 <- do.call(OUTmethod, c(list(out.formula = out.formula, y = y[z == 1], out.method = out.method, family = family, datain = dataaug1, dataout = dataaug), out.control = out.control))
+      fitout1 <- do.call(PSweight::OUTmethod, c(list(out.formula = out.formula, y = y[z == 1], out.method = out.method, family = family, datain = dataaug1, dataout = dataaug), out.control = out.control))
       m1.h <- fitout1$m.est
       gamma1.h <- fitout1$gamma.h
 
@@ -165,7 +166,7 @@ binest.modified <- function(ps.formula = NULL, ps.estimate = NULL, zname = NULL,
         y.b <- y[samp.b]
         z.b <- z[samp.b]
 
-        fit.b <- do.call(PSmethod, c(list(ps.formula = ps.formula, method = ps.method, data = data.b, ncate = 2), ps.control))
+        fit.b <- do.call(PSweight::PSmethod, c(list(ps.formula = ps.formula, method = ps.method, data = data.b, ncate = 2), ps.control))
         e.b <- as.numeric(fit.b$e.h[, 2])
 
         if (weight == "entropy") {
@@ -263,7 +264,7 @@ binest.modified <- function(ps.formula = NULL, ps.estimate = NULL, zname = NULL,
         data.b <- data_p[samp.b, ]
         y.b <- y[samp.b]
         z.b <- z[samp.b]
-        fit.b <- do.call(PSmethod, c(list(ps.formula = ps.formula, method = ps.method, data = data.b, ncate = 2), ps.control))
+        fit.b <- do.call(PSweight::PSmethod, c(list(ps.formula = ps.formula, method = ps.method, data = data.b, ncate = 2), ps.control))
         e.b <- as.numeric(fit.b$e.h[, 2])
 
         if (weight == "entropy") {
@@ -277,9 +278,9 @@ binest.modified <- function(ps.formula = NULL, ps.estimate = NULL, zname = NULL,
         dataaug1.b <- dataaug.b[z.b == 1, ]
 
         # predict outcome
-        fitout0.b <- do.call(OUTmethod, c(list(out.formula = out.formula, y = y.b[z.b == 0], out.method = out.method, family = family, datain = dataaug0.b, dataout = dataaug.b), out.control = out.control))
+        fitout0.b <- do.call(PSweight::OUTmethod, c(list(out.formula = out.formula, y = y.b[z.b == 0], out.method = out.method, family = family, datain = dataaug0.b, dataout = dataaug.b), out.control = out.control))
         m0.b <- fitout0.b$m.est
-        fitout1.b <- do.call(OUTmethod, c(list(out.formula = out.formula, y = y.b[z.b == 1], out.method = out.method, family = family, datain = dataaug1.b, dataout = dataaug.b), out.control = out.control))
+        fitout1.b <- do.call(PSweight::OUTmethod, c(list(out.formula = out.formula, y = y.b[z.b == 1], out.method = out.method, family = family, datain = dataaug1.b, dataout = dataaug.b), out.control = out.control))
         m1.b <- fitout1.b$m.est
 
         mu.b <- ptbin.modified(e.b, z.b, y.b, ftilt, m0.b, m1.b, weight.external = weight.external)

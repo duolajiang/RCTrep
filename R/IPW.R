@@ -1,14 +1,7 @@
 #' @title R6 class: Inverse propensity score weighting estimator base class
 #'
 #' @description A base R6 class for inverse propensity score weighting estimator of average treatment effect that implements comment methods.
-#'
-#' @field model: a fitted model for treatment conditioning on covariates
-#' @field method: a string specifying the method for fitting the propensity score
-#' @field formula: an optional \code{formula} object. The formula is specified as \code{Z ~ X1+X2...}, where \code{Z} represents treatment variable and \code{X1} and \code{X2} are covariates.
-#' @field ps: a numeric vector of length n where n is row number of \code{self$data}.
-#'
 #' @importFrom PSweight PSweight
-#' @export
 IPW <- R6::R6Class(
   "IPW",
   inherit = TEstimator,

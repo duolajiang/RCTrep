@@ -1,4 +1,3 @@
-#' @export
 SEsubclass <- R6::R6Class(
   "SEexact",
   inherit = SEstimator,

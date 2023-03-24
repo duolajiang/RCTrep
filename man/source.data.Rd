@@ -3,18 +3,25 @@
 \docType{data}
 \name{source.data}
 \alias{source.data}
-\title{Dutch Colon cancer registry data}
+\title{A data set of simulated observational data, where outcome is continuous variable, treatment is a binary variable.}
 \format{
-A data frame with 2000 rows and 9 variables
+## `source.data`
+A data frame with 5000 rows and 8 variables:
 \describe{
-\item{vitstat}{1=death, 0=survival}
-\item{Stage2}{pathological stage, 1=stage2, 0=stage3}
+\item{x1}{binary variable, x1 ~ rbinom(5000,1,0.2)}
+\item{x2}{binary variable, x2 ~ rbinom(5000,1,0.2)}
+\item{x3}{binary variable, x3 ~ rbinom(5000,1,0.8)}
+\item{x4}{binary variable, x4 ~ rbinom(5000,1,0.8)}
+\item{x5}{binary variable, x5 ~ rbinom(5000,1,0.7)}
+\item{x6}{binary variable, x6 ~ rbinom(5000,1,0.8)}
+\item{z}{binary variable indicating treatment and control. pp = x1*x2+x3*x4+5*x5+x6, p(z=1) = p = 1/1+e^{-(pp-mean(pp))/sd(pp)*sqrt(3)/pi}, z ~ rbinom(5000,1,p)}
+\item{y}{continuous variable indicating outcome, y ~ x1 + 6*x2+x6+2*z + rnorm(5000,0,1)}
 }
 }
 \usage{
 source.data
 }
 \description{
-A dataset containing synthetic dutch colon cancer registry data and other biomarkers
+A data set of simulated observational data, where outcome is continuous variable, treatment is a binary variable.
 }
 \keyword{datasets}

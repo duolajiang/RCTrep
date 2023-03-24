@@ -2,13 +2,33 @@ Package: RCTrep
 Type: Package
 Title: Validation of Estimates of Average Treatment Effects Derived from Observational Data
 Version: 1.0.0
-Author@R: person("Lingjie", "Shen", email = "L.Shen@uvt.nl, role = c("aut", "cre"))
+Author: person("Lingjie", "Shen", email = "L.Shen@uvt.nl, role = c("aut", "cre"))
 Maintainer: The package maintainer <yourself@somewhere.net>
-Description: The package compares and validate estimates of (conditional) average treatment effects obtained    using observational data by a) making it easy to obtain and visualize    estimates derived using a large variety of methods, and b) ensuring that estimates are    easily compared to a gold standard (i.e., estimates derived from randomized controlled    trials). RCTrep offers a generic protocol for treatment effect validation based on four    simple steps, namely, set-selection, estimation, diagnosis, and validation. The package    provides a simple dashboard to review the obtained results.
+Description: The software compares and validate estimates of (conditional) average treatment effects obtained    using observational data by a) making it easy to obtain and visualize    estimates derived using a large variety of methods, and b) ensuring that estimates are    easily compared to a gold standard (i.e., estimates derived from randomized controlled    trials). RCTrep offers a generic protocol for treatment effect validation based on four    simple steps, namely, set-selection, estimation, diagnosis, and validation. The package    provides a simple dashboard to review the obtained results.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: mvtnorm, MASS, MatchIt, ggplot2, ggpubr, PSweight, numDeriv, R6, dplyr, geex, optmatch, BART, fastDummies, tidyr, copula, shiny, shinydashboard
+Imports: 
+    mvtnorm,
+    MASS,
+    MatchIt,
+    ggplot2,
+    ggpubr,
+    PSweight,
+    numDeriv,
+    R6,
+    dplyr,
+    geex,
+    optmatch,
+    BART,
+    fastDummies,
+    tidyr,
+    copula,
+    shiny,
+    shinydashboard,
+    glue,
+    stats,
+    utils
 Suggests: 
     rmarkdown,
     knitr,

@@ -1,0 +1,12 @@
+citHeader("To cite RCTrep in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "{RCTrep}: An R Package for the Validation of Estimates of Average Treatment Effects",
+  author   = "Shen L, Geleijnse G, Kaptein M",
+  journal  = "Research Square",
+  year     = 2023,
+  url      = "https://assets.researchsquare.com/files/rs-2559287/v1/e005edc67fc132e429467e4c.pdf?c=1675879954",
+  doi      = "10.21203/rs.3.rs-2559287/v1",
+  textVersion = {}
+)
