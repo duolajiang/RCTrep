@@ -219,7 +219,7 @@ TEstimator <- R6::R6Class(
 
       }
 
-      print(data)
+      #print(data)
 
       tgrob <- ggpubr::text_grob(c("Treatment overlap within subpopulations"))
       ggpubr::ggarrange(tgrob, NULL, p.prop, p.count, ncol=2, nrow=2, heights = c(1,5))

@@ -96,7 +96,7 @@ SEstimator <- R6::R6Class(
         stop("stratification_joint must be TRUE for now, the function has not been completed yet.")
       }
 
-      print(data)
+      #print(data)
 
       ggpubr::ggarrange(p.prop, p.count, nrow=1, ncol=2)
 
