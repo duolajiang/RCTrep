@@ -6,7 +6,41 @@
 #' @param method an optional character specifying a model for estimating sampling probability once \code{Estimator='ISW'} or \code{Estimator='Subclass'}.
 #' @param sampling_formula an object of class \code{formula} specifying a model specification for sampling probability. Default value is NULL.
 #' @param ... an optional argument specifying training and tuning for a model of sampling probability. See \url{https://topepo.github.io/caret/model-training-and-tuning.html} for details.
+#' @return An object of class \code{SEstimator}
 #' @export
+#'
+#' @examples
+#' source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
+#' target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
+#'
+#' vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
+#'                   treatment_name = c('z'),
+#'                   outcome_name = c('y'))
+#'
+#' target.obj <- TEstimator_wrapper(
+#'   Estimator = "Crude",
+#'   data = target.data,
+#'   vars_name = vars_name,
+#'   name = "RCT",
+#'   data.public = FALSE,
+#'   isTrial = TRUE)
+#'
+#' source.obj <- TEstimator_wrapper(
+#'   Estimator = "G_computation",
+#'   data = source.data,
+#'   vars_name = vars_name,
+#'   outcome_method = "glm",
+#'   outcome_form=y ~ x1 + x2 + x3 + z + z:x1 + z:x2 +z:x3+ z:x6,
+#'   name = "RWD",
+#'   data.public = TRUE)
+#'
+#' source.rep.obj <- SEstimator_wrapper(Estimator="Exact",
+#'                                      target.obj=target.obj,
+#'                                      source.obj=source.obj,
+#'                                      confounders_sampling_name=c("x2","x6"))
+#' source.rep.obj$EstimateRep(stratification = c("x1","x3","x4","x5"),
+#'                            stratification_joint = TRUE)
+#'
 SEstimator_wrapper <- function(Estimator, target.obj, source.obj,
                                confounders_sampling_name,
                                method="glm",

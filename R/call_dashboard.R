@@ -2,10 +2,10 @@
 #' @param source.obj an instantiated object of class \code{TEstimator}. The estimates of conditional average treatment effects are compared to those from \code{target.obj}.
 #' @param target.obj an instantiated object of class \code{TEstimator}. The estimates of conditional average treatment effect are regarded as unbiased of truth.
 #' @param source.obj.rep an instantiated object of class \code{SEstimator}. The estimates of conditional average treatment effects are compared to those from \code{target.obj}.
+#' @returns an interactive interface
 #' @examples
-#' \dontrun{
-#' source.data <- RCTrep::source.data
-#' target.data <- RCTrep::target.data
+#' source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
+#' target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 #'
 #' vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
 #'                   treatment_name = c('z'),
@@ -13,7 +13,6 @@
 #' )
 #' confounders_sampling_name <- c("x2","x6")
 #'
-#' Estimate conditional average treatment effect
 #' source.obj <- TEstimator_wrapper(
 #'  Estimator = "G_computation",
 #'  data = source.data,
@@ -33,7 +32,6 @@
 #'  isTrial = TRUE
 #' )
 #'
-#' Estimate the weighted conditional average treatment effect of source.obj
 #' strata <- c("x1","x4")
 #' source.rep.obj <- SEstimator_wrapper(Estimator = "Exact",
 #'                                      target.obj = target.obj,
@@ -45,7 +43,6 @@
 #' call_dashboard(source.obj = source.obj,
 #'                target.obj = target.obj,
 #'                source.obj.rep = source.obj.rep)
-#' }
 #'
 #' @export
 #' @import shiny

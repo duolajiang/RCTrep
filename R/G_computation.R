@@ -1,4 +1,4 @@
-#' @import geex
+#' @importFrom geex m_estimate
 G_computation <- R6::R6Class(
   "G_computation",
   inherit = TEstimator,

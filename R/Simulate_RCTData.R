@@ -5,9 +5,11 @@
 #' @param margin a list containing the marginal distribution of variables; if margin_dis="bernoulli_categorical", then margin should be list(x1=c("x1",nlevels(x1),level1, level2,...,leveln, plevel1, plevel2,...,plevel3), x2=c(...)); if margin_dis="bernoulli", margin=list(p(x1=1),p(x2=1),...,p(xn=1))
 #' @param var_name a vector indicating the name of variables, the order should be in line with margin
 #' @param pw.cor a vector containing the pairwise correlation of these variables, default is NULL; when margin_dis="bernoulli", then pw.cor must be specified
+#'
+#' @returns a data frame
+#'
 #' @export
 #' @example
-#' \dontrun{
 #' RCT.univariate.p <- list(Stage2=c("Stage2",2,0,1,1-0.91,0.91),
 #'                          male=c("male",2,0,1,1-0.62,0.62),
 #'                          age=c("age",4,1,2,3,4,0.11,0.26,0.42,0.21))
@@ -17,7 +19,7 @@
 #'                                                   N=1000,
 #'                                                   margin=RCT.univariate.p,
 #'                                                   var_name=c("Stage2","male","age"))
-#' }
+#'
 GenerateSyntheticData <- function(margin_dis,N,margin,var_name, pw.cor=0) {
   if(margin_dis == "bernoulli_categorical") {
     synthetic.data <- GenerateSyntheticData_bernoullicategorical(N, margin, var_name)

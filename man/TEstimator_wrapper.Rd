@@ -53,3 +53,18 @@ An object of class \code{TEstimator}.
 \description{
 The function \code{Estimate} is used to estimate the average treatment effect obtained from \code{data}. If TEstimator is G_computation and outcome_method is BART, then make sure that treatment and outcome column is integer/numeric, no matter the outcome is binary or continuous.
 }
+\examples{
+data <- RCTrep::source.data
+vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
+                  treatment_name = c('z'),
+                  outcome_name = c('y'))
+
+obj <- TEstimator_wrapper(
+ Estimator = "G_computation",
+ data = data,
+ vars_name = vars_name,
+ name = "RCT",
+ data.public = TRUE,
+ isTrial = FALSE)
+
+}

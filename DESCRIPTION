@@ -2,8 +2,8 @@ Package: RCTrep
 Type: Package
 Title: Validation of Estimates of Average Treatment Effects Derived from Observational Data
 Version: 1.0.0
-Author: person("Lingjie", "Shen", email = "L.Shen@uvt.nl, role = c("aut", "cre"))
-Maintainer: The package maintainer <yourself@somewhere.net>
+Author: person("Lingjie", "Shen", email = "L.Shen@uvt.nl, role = c("aut", "cre", "cph"))
+Maintainer: The package maintainer <602249910@qq.com>
 Description: The software compares and validate estimates of (conditional) average treatment effects obtained    using observational data by a) making it easy to obtain and visualize    estimates derived using a large variety of methods, and b) ensuring that estimates are    easily compared to a gold standard (i.e., estimates derived from randomized controlled    trials). RCTrep offers a generic protocol for treatment effect validation based on four    simple steps, namely, set-selection, estimation, diagnosis, and validation. The package    provides a simple dashboard to review the obtained results.
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -28,7 +28,8 @@ Imports:
     shinydashboard,
     glue,
     stats,
-    utils
+    utils,
+    caret
 Suggests: 
     rmarkdown,
     knitr,

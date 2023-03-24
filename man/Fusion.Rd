@@ -3,10 +3,57 @@
 \name{Fusion}
 \alias{Fusion}
 \title{Validation of estimates of conditional average treatment effects in objects of class \code{TEstimator} and \code{SEstimator}.}
+\value{
+an R6 object
+}
 \description{
 Validation of estimates of conditional average treatment effects in objects of class \code{TEstimator} and \code{SEstimator}.
 
 Validation of estimates of conditional average treatment effects in objects of class \code{TEstimator} and \code{SEstimator}.
+}
+\examples{
+source.data <- RCTrep::source.data
+target.data <- RCTrep::target.data
+
+vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
+                  treatment_name = c('z'),
+                  outcome_name = c('y')
+)
+confounders_sampling_name <- c("x2","x6")
+
+source.obj <- TEstimator_wrapper(
+ Estimator = "G_computation",
+ data = source.data,
+ vars_name = vars_name,
+ outcome_method = "glm",
+ outcome_form=y ~ x1 + x2 + x3 + z + z:x1 + z:x2 +z:x3+ z:x6,
+ name = "RWD",
+ data.public = FALSE
+)
+
+target.obj <- TEstimator_wrapper(
+ Estimator = "Crude",
+ data = target.data,
+ vars_name = vars_name,
+ name = "RCT",
+ data.public = FALSE,
+ isTrial = TRUE
+)
+
+strata <- c("x1","x4")
+source.rep.obj <- SEstimator_wrapper(Estimator = "Exact",
+                                     target.obj = target.obj,
+                                     source.obj = source.obj,
+                                     confounders_sampling_name =
+                                     confounders_sampling_name)
+source.rep.obj$EstimateRep(stratification = strata, stratification_joint = TRUE)
+
+fusion <- Fusion$new(target.obj,
+                     source.obj,
+                     source.rep.obj)
+fusion$plot()
+fusion$evaluate()
+
 }
 \section{Methods}{
 \subsection{Public methods}{

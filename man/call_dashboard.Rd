@@ -13,11 +13,13 @@ call_dashboard(source.obj = NULL, target.obj = NULL, source.obj.rep = NULL)
 
 \item{source.obj.rep}{an instantiated object of class \code{SEstimator}. The estimates of conditional average treatment effects are compared to those from \code{target.obj}.}
 }
+\value{
+an interactive interface
+}
 \description{
 Visualizing validation results according to four steps, namely, set-selection, estimation, diagnosis, and validation
 }
 \examples{
-\dontrun{
 source.data <- RCTrep::source.data
 target.data <- RCTrep::target.data
 
@@ -27,7 +29,6 @@ vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
 )
 confounders_sampling_name <- c("x2","x6")
 
-Estimate conditional average treatment effect
 source.obj <- TEstimator_wrapper(
  Estimator = "G_computation",
  data = source.data,
@@ -47,7 +48,6 @@ target.obj <- TEstimator_wrapper(
  isTrial = TRUE
 )
 
-Estimate the weighted conditional average treatment effect of source.obj
 strata <- c("x1","x4")
 source.rep.obj <- SEstimator_wrapper(Estimator = "Exact",
                                      target.obj = target.obj,
@@ -59,6 +59,5 @@ source.rep.obj$EstimateRep(stratification = strata, stratification_joint = TRUE)
 call_dashboard(source.obj = source.obj,
                target.obj = target.obj,
                source.obj.rep = source.obj.rep)
-}
 
 }

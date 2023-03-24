@@ -15,7 +15,21 @@
 #' @param isTrial An optional logical indicating whether the treatment assignment of \code{data} is random or unknown.
 #' @param strata_cut An optional list containing lists. Each component is a list with tag named by a variable in \code{data} to discretize, containing \code{break} which is a vector specifying the interval of range of the variable to divide, \code{lable} which is a character vector specifying how to code value in the variable according to which interval they fall. The leftmost interval corresponds to level one, the next leftmost to level two and so on. This parameter is useful in the case we concern the integrated treatment effect conditioning on variables with multiple levels (for instance, continuous variable or ordinal variable with multiple levels). Note that we first model based on these continuous variables, then we discretize these variables according to \code{strata_cut}. The variables in \code{data} of the output object are discretized.
 #' @param ... An optional argument passed to the private function \code{fit()} of each class for model training and tuning. See \url{https://topepo.github.io/caret/model-training-and-tuning.html} for details.
-#' @return An object of class \code{TEstimator}.
+#' @returns An object of class \code{TEstimator}.
+#' @examples
+#' data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
+#' vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
+#'                   treatment_name = c('z'),
+#'                   outcome_name = c('y'))
+#'
+#' obj <- TEstimator_wrapper(
+#'  Estimator = "G_computation",
+#'  data = data,
+#'  vars_name = vars_name,
+#'  name = "RCT",
+#'  data.public = TRUE,
+#'  isTrial = FALSE)
+#'
 #' @export
 TEstimator_wrapper <- function(Estimator, data, vars_name, name="",
                                outcome_method = "glm", treatment_method = "glm", two_models = FALSE,

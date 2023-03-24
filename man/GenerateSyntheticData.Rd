@@ -17,6 +17,9 @@ GenerateSyntheticData(margin_dis, N, margin, var_name, pw.cor = 0)
 
 \item{pw.cor}{a vector containing the pairwise correlation of these variables, default is NULL; when margin_dis="bernoulli", then pw.cor must be specified}
 }
+\value{
+a data frame
+}
 \description{
 Generating the synthetic RCT data given marginal distribution of each covariate
 }

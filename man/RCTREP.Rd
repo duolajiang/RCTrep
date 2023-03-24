@@ -64,7 +64,7 @@ RCTREP(
 \item{...}{An optional argument passed to \code{fit()} of each estimator object for model training and tuning. See \url{https://topepo.github.io/caret/model-training-and-tuning.html} for details.}
 }
 \value{
-A list of length two with two R6 class objects \code{source.obj=source.obj} and \code{target.obj=target.obj}.
+A list of length three with three R6 class objects \code{source.obj}, \code{target.obj} and \code{source.rep.obj}
 
 
 }
@@ -75,37 +75,19 @@ The function \code{RCTREP} is used to replicate the estimate of treatment effect
 An R6 object is constructed by a wrapper function \code{\link{TEstimator_wrapper}} and \code{\link{SEstimator_wrapper}} with user's input of data and estimators for treatment effect and weight. \code{TEstimator_wrapper()} returns initialized objects \code{source.obj} and \code{target.obj}. \code{TEstimator_wrapper()} replicates the target RCT estimates of \code{target.obj} via the class method \code{RCTrep()} with input of source object \code{source.obj}, target object \code{target.obj},and estimator of weights \code{SEstimator}.
 }
 \examples{
-\dontrun{
-library(RCTrep)
-source.data <- RCTrep::source.data
-target.data <- RCTrep::target.data
-Estimator <- "IPW"
-strata <- c("Stage2", "pT")
-strata_joint <- TRUE
-vars_name <- list(
-  confounders_internal = c("Stage2", "age", "pT"),
-  confounders_external = c("Stage2", "age", "pT"),
-  treatment_name = c("combined_chemo"),
-  outcome_name = c("vitstat")
-)
-outcome_form <- vitstat ~ Stage2 + age + combined_chemo + pT +
-  Stage2:combined_chemo + age:combined_chemo + pT:combined_chemo + pT:Stage2:combined_chemo
-strata_cut <- list(age = list(
-  breaks = c(
-    min(data$age),
-    50, 60, 70, max(data$age)
-  ),
-  labels = c(1, 2, 3, 4)
-))
-output <- RCTREP(
-  Estimator = "G_computation", two_models = FALSE,
-  source.data = source.data, target.data = target.data,
-  vars_name = vars_name,
-  outcome_formula = outcome_form,
-  stratification = strata, stratification_joint = TRUE, strata_cut = strata_cut
-)
-output$source.obj
+output <- RCTREP(TEstimator = "G_computation", SEstimator = "Exact",
+                 outcome_method = "BART",
+                 source.data = RCTrep::source.data,
+                 target.data = RCTrep::target.data,
+                 vars_name = list(confounders_treatment_name =
+                                    c("x1","x2","x3","x4","x5","x6"),
+                                 treatment_name = c('z'),
+                                 outcome_name = c('y')),
+                 confounders_sampling_name = c("x2","x6"),
+                 stratification = c("x1","x3","x4","x5"),
+                 stratification_joint = TRUE)
 output$target.obj
-}
+output$source.obj
+output$source.rep.obj
 
 }
