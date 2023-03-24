@@ -179,6 +179,7 @@ source.obj <- TEstimator_wrapper(
   data.public = TRUE
 )
 #> y ~ x1 + x2 + x3 + z + z:x1 + z:x2 + z:x3 + z:x6
+#> <environment: 0x000000001941a0b8>
 
 target.obj <- TEstimator_wrapper(
   Estimator = "Crude",
@@ -452,7 +453,7 @@ source.obj$diagnosis_t_overlap()
 #>     }
 #>     invisible(names)
 #> }
-#> <bytecode: 0x000000001f3022b0>
+#> <bytecode: 0x000000002f93f5d0>
 #> <environment: namespace:utils>
 ```
 
