@@ -2,7 +2,7 @@
 % Please edit documentation in R/TEstimate_wrapper.R
 \name{TEstimator_wrapper}
 \alias{TEstimator_wrapper}
-\title{Estimator for average treatment effect wrapper function}
+\title{Estimating conditional average treatment effects}
 \usage{
 TEstimator_wrapper(
   Estimator,
@@ -21,11 +21,11 @@ TEstimator_wrapper(
 )
 }
 \arguments{
-\item{Estimator}{A character specifying an estimator for conditional average treatment effect. The allowed estimators for \code{TEstimator} are: \code{"G_computation"}, \code{"IPW"}, and \code{"DR"}. The corresponding object will be created by the wrapper function \code{TEstimator_wrapper()}. The default is \code{"G_computation"}, which, along with \code{outcome_method="glm"} model the potential outcomes.}
+\item{Estimator}{A character specifying an estimator for conditional average treatment effects. The allowed estimators are: \code{"G_computation"}, \code{"IPW"}, and \code{"DR"}.i The corresponding object wll be created by the function \code{TEstimator_wrapper()}. The default is \code{"G_computation"}, which, along with \code{outcome_method="glm"} models the potential outcomes.}
 
 \item{data}{A data frame containing variables named in \code{vars_name} and possible other variables.}
 
-\item{vars_name}{A list containing four vectors \code{confounders_treatment_name}, \code{treatment_name}, and \code{outcome_name}. \code{confounders_treatment_name} is a character vector containing the adjustment variables, which, along with \code{TEstimator} and the corresponding \code{outcome_method} or \code{treatment_method} to correct for confounding; \code{outcome_name} is a character vector of length one containing the variable name of outcome; \code{treatment_name} is a character vector of length one containing the variable name of treatment.}
+\item{vars_name}{A list containing four character vectors \code{confounders_treatment_name}, \code{treatment_name}, and \code{outcome_name}. \code{confounders_treatment_name} is a character vector containing the adjustment variables, which, along with \code{TEstimator} and the corresponding \code{outcome_method} or \code{treatment_method} to correct for confounding; \code{outcome_name} is a character vector of length one containing the name of outcome; \code{treatment_name} is a character vector of length one containing the name of treatment.}
 
 \item{name}{A character indicating the name of the output object}
 
@@ -39,7 +39,7 @@ TEstimator_wrapper(
 
 \item{treatment_formula}{An optional object of class \code{formula} describing the treatment model specification when \code{Estimator="IPW"} or \code{Estimator="DR"}}
 
-\item{data.public}{An optional logical indicating whether individual-level \code{data} is public in the output object. Default is TRUE.}
+\item{data.public}{An optional logical indicating whether individual-level \code{data} is public in the output object. Default is \code{TRUE}.}
 
 \item{isTrial}{An optional logical indicating whether the treatment assignment of \code{data} is random or unknown.}
 
@@ -51,10 +51,11 @@ TEstimator_wrapper(
 An object of class \code{TEstimator}.
 }
 \description{
-The function \code{Estimate} is used to estimate the average treatment effect obtained from \code{data}. If TEstimator is G_computation and outcome_method is BART, then make sure that treatment and outcome column is integer/numeric, no matter the outcome is binary or continuous.
+Estimating conditional average treatment effects
 }
 \examples{
-data <- RCTrep::source.data
+\dontrun{
+data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
 vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
                   treatment_name = c('z'),
                   outcome_name = c('y'))
@@ -66,5 +67,6 @@ obj <- TEstimator_wrapper(
  name = "RCT",
  data.public = TRUE,
  isTrial = FALSE)
+}
 
 }

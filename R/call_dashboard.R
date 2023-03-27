@@ -1,9 +1,10 @@
 #' @title Visualizing validation results according to four steps, namely, set-selection, estimation, diagnosis, and validation
 #' @param source.obj an instantiated object of class \code{TEstimator}. The estimates of conditional average treatment effects are compared to those from \code{target.obj}.
-#' @param target.obj an instantiated object of class \code{TEstimator}. The estimates of conditional average treatment effect are regarded as unbiased of truth.
+#' @param target.obj an instantiated object of class \code{TEstimator}. The estimates of conditional average treatment effects are regarded as unbiased of truth.
 #' @param source.obj.rep an instantiated object of class \code{SEstimator}. The estimates of conditional average treatment effects are compared to those from \code{target.obj}.
-#' @returns an interactive interface
+#' @returns an interactive interface visualizing results of four steps
 #' @examples
+#' \dontrun{
 #' source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
 #' target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 #'
@@ -44,6 +45,7 @@
 #'                target.obj = target.obj,
 #'                source.obj.rep = source.obj.rep)
 #'
+#' }
 #' @export
 #' @import shiny
 #' @import shinydashboard

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{DGM}
 \alias{DGM}
-\title{Generating RCT data or observational data for examples used in the package}
+\title{Generating RCT data or observational data for the examples used in the package}
 \usage{
 DGM(
   trial,
@@ -22,9 +22,9 @@ DGM(
 
 \item{n}{A numeric value indicating the number of observations in the generated data}
 
-\item{var_name}{A character vector indicating the names of covariates}
+\item{var_name}{A character vector indicating the names of variables}
 
-\item{p_success}{the success probability of binary variables of covariates}
+\item{p_success}{the success probability of binary variables}
 
 \item{tau}{a character indicating the generation of the true treatment effect of each individual}
 
@@ -32,20 +32,20 @@ DGM(
 
 \item{log.ps}{a numeric value indicating the logit of propensity score}
 
-\item{binary}{logical indicating whether the outcome is binary or continous variable}
+\item{binary}{logical indicating whether the outcome is binary or continuous variable}
 
-\item{noise}{a numeric value indicating the standard error of normal distribution for noise term of continuous outcome generation}
+\item{noise}{a numeric value indicating the standard error of noise term of continuous outcome}
 
-\item{...}{an optional argument indicating pairwise correlation between covariates.}
+\item{...}{an optional argument indicating pairwise correlations between variables}
 }
 \value{
-a data frame
+a data frame; column names are variables names, z, y
 }
 \description{
-Generating RCT data or observational data for examples used in the package
+Generating RCT data or observational data for the examples used in the package
 }
 \examples{
-n_rct <- 5000; n_rwd <- 5000
+n_rct <- 500; n_rwd <- 500
 var_name <- c("x1","x2","x3","x4","x5","x6")
 p_success_rct <- c(0.7,0.9,0.2,0.3,0.2,0.3)
 p_success_rwd <- c(0.2,0.2,0.8,0.8,0.7,0.8)

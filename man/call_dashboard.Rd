@@ -9,19 +9,20 @@ call_dashboard(source.obj = NULL, target.obj = NULL, source.obj.rep = NULL)
 \arguments{
 \item{source.obj}{an instantiated object of class \code{TEstimator}. The estimates of conditional average treatment effects are compared to those from \code{target.obj}.}
 
-\item{target.obj}{an instantiated object of class \code{TEstimator}. The estimates of conditional average treatment effect are regarded as unbiased of truth.}
+\item{target.obj}{an instantiated object of class \code{TEstimator}. The estimates of conditional average treatment effects are regarded as unbiased of truth.}
 
 \item{source.obj.rep}{an instantiated object of class \code{SEstimator}. The estimates of conditional average treatment effects are compared to those from \code{target.obj}.}
 }
 \value{
-an interactive interface
+an interactive interface visualizing results of four steps
 }
 \description{
 Visualizing validation results according to four steps, namely, set-selection, estimation, diagnosis, and validation
 }
 \examples{
-source.data <- RCTrep::source.data
-target.data <- RCTrep::target.data
+\dontrun{
+source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
+target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 
 vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
                   treatment_name = c('z'),
@@ -60,4 +61,5 @@ call_dashboard(source.obj = source.obj,
                target.obj = target.obj,
                source.obj.rep = source.obj.rep)
 
+}
 }

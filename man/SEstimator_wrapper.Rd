@@ -2,7 +2,7 @@
 % Please edit documentation in R/SEstimator_wrapper.R
 \name{SEstimator_wrapper}
 \alias{SEstimator_wrapper}
-\title{R6 class which estimates the weighted conditional average treatment effects in \code{source.obj} based on input objects \code{source.obj} and \code{target.obj} of class \code{\link{TEstimator}}.}
+\title{Estimating the weighted conditional average treatment effects in \code{source.obj} based on input objects \code{source.obj} and \code{target.obj} of class \code{TEstimator}.}
 \usage{
 SEstimator_wrapper(
   Estimator,
@@ -15,15 +15,15 @@ SEstimator_wrapper(
 )
 }
 \arguments{
-\item{Estimator}{a character specifying an estimator for weight. The allowed estimators are \code{Exact}, \code{ISW}, and \code{Subclass}.}
+\item{Estimator}{a character specifying an estimator for weight. The allowed estimators are \code{"Exact"}, \code{"ISW"}, and \code{"Subclass"}.}
 
 \item{target.obj, source.obj}{an instantiated object of class \code{TEstimator}.}
 
 \item{confounders_sampling_name}{a character vector specifying the names of variables in \code{data} of \code{source.obj} and \code{target.obj}. Weights are estimated based on the variables.}
 
-\item{method}{an optional character specifying a model for estimating sampling probability once \code{Estimator='ISW'} or \code{Estimator='Subclass'}.}
+\item{method}{an optional character specifying a model for estimating sampling probability when \code{Estimator='ISW'} or \code{Estimator='Subclass'}.}
 
-\item{sampling_formula}{an object of class \code{formula} specifying a model specification for sampling probability. Default value is NULL.}
+\item{sampling_formula}{an object of class \code{formula} specifying a model specification for sampling probability. Default value is \code{NULL}.}
 
 \item{...}{an optional argument specifying training and tuning for a model of sampling probability. See \url{https://topepo.github.io/caret/model-training-and-tuning.html} for details.}
 }
@@ -31,11 +31,12 @@ SEstimator_wrapper(
 An object of class \code{SEstimator}
 }
 \description{
-R6 class which estimates the weighted conditional average treatment effects in \code{source.obj} based on input objects \code{source.obj} and \code{target.obj} of class \code{\link{TEstimator}}.
+Estimating the weighted conditional average treatment effects in \code{source.obj} based on input objects \code{source.obj} and \code{target.obj} of class \code{TEstimator}.
 }
 \examples{
-source.data <- RCTrep::source.data
-target.data <- RCTrep::target.data
+\dontrun{
+source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
+target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 
 vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
                   treatment_name = c('z'),
@@ -65,4 +66,5 @@ source.rep.obj <- SEstimator_wrapper(Estimator="Exact",
 source.rep.obj$EstimateRep(stratification = c("x1","x3","x4","x5"),
                            stratification_joint = TRUE)
 
+}
 }

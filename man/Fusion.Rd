@@ -12,8 +12,9 @@ Validation of estimates of conditional average treatment effects in objects of c
 Validation of estimates of conditional average treatment effects in objects of class \code{TEstimator} and \code{SEstimator}.
 }
 \examples{
-source.data <- RCTrep::source.data
-target.data <- RCTrep::target.data
+\dontrun{
+source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
+target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 
 vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
                   treatment_name = c('z'),
@@ -53,6 +54,7 @@ fusion <- Fusion$new(target.obj,
                      source.rep.obj)
 fusion$plot()
 fusion$evaluate()
+}
 
 }
 \section{Methods}{
@@ -78,9 +80,9 @@ fusion$evaluate()
 \describe{
 \item{\code{...}}{objects of class \code{TEstimator} and \code{SEstimator}.}
 
-\item{\code{stratification}}{a character vector specifying variables. The variables are used to select sub-populations individually or in combination depending on \code{stratification_joint}. Default value is NULL.}
+\item{\code{stratification}}{a character vector specifying variables. The variables are used to select subgroups individually or in combination depending on \code{stratification_joint}. Default value is \code{NULL}.}
 
-\item{\code{stratification_joint}}{a logical indicating if subpopulations are selected based on levels of individual variable in \code{stratification} or levels of combined variables in \code{stratifiation}. Default value is NULL.}
+\item{\code{stratification_joint}}{a logical indicating if subgroups are selected based on levels of individual variable in \code{stratification} or levels of combined variables in \code{stratifiation}. Default value is NULL.}
 }
 \if{html}{\out{</div>}}
 }

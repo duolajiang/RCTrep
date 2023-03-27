@@ -385,15 +385,15 @@ IPW.estimator <- function(z=z,y=y,ps=ps,w=w,t=1){
 #' @title Generating RCT data or observational data for the examples used in the package
 #' @param trial Logical indicating whether the treatment is randomly assigned in the generated data. If TRUE, RCT data is generated. Otherwise, observational data is generated.
 #' @param n A numeric value indicating the number of observations in the generated data
-#' @param var_name A character vector indicating the names of covariates
-#' @param p_success the success probability of binary variables of covariates
+#' @param var_name A character vector indicating the names of variables
+#' @param p_success the success probability of binary variables
 #' @param tau a character indicating the generation of the true treatment effect of each individual
 #' @param y0 a character indicating the generation of the potential outcome under control
 #' @param log.ps a numeric value indicating the logit of propensity score
-#' @param binary logical indicating whether the outcome is binary or continous variable
-#' @param noise a numeric value indicating the standard error of normal distribution for noise term of continuous outcome generation
-#' @param ... an optional argument indicating pairwise correlation between covariates.
-#' @returns a data frame
+#' @param binary logical indicating whether the outcome is binary or continuous variable
+#' @param noise a numeric value indicating the standard error of noise term of continuous outcome
+#' @param ... an optional argument indicating pairwise correlations between variables
+#' @returns a data frame; column names are variables names, z, y
 #'
 #' @examples
 #' n_rct <- 500; n_rwd <- 500

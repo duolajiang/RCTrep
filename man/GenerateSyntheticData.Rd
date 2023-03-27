@@ -7,18 +7,18 @@
 GenerateSyntheticData(margin_dis, N, margin, var_name, pw.cor = 0)
 }
 \arguments{
-\item{margin_dis}{a character indicating the distribution of each variable, allowable options is \code{"bernoulli_categorical"} and \code{"bernoulli"}}
+\item{margin_dis}{a character indicating the distribution of each variable, allowable options are \code{"bernoulli_categorical"} and \code{"bernoulli"}. If some variables have two categories and some have more than two categories, \code{"bernoulli_categorical"} should be specified; if all variables have two categories, \code{"bernoulli"} should be specified}
 
-\item{N}{a numeric value indicating the sample size for the simulated data}
+\item{N}{a numeric value specifying the sample size for the simulated data}
 
-\item{margin}{a list containing the marginal distribution of variables; if margin_dis="bernoulli_categorical", then margin should be list(x1=c("x1",nlevels(x1),level1, level2,...,leveln, plevel1, plevel2,...,plevel3), x2=c(...)); if margin_dis="bernoulli", margin=list(p(x1=1),p(x2=1),...,p(xn=1))}
+\item{margin}{a list containing the marginal distribution of variables; if margin_dis="bernoulli_categorical", then margin should be list(x1=c("x1",nlevels(x1),level1, level2,...,leveln, plevel1, plevel2,...,plevel3), x2=c("x2",...)); if margin_dis="bernoulli", margin=list(p(x1=1),p(x2=1),...,p(xn=1))}
 
-\item{var_name}{a vector indicating the name of variables, the order should be in line with margin}
+\item{var_name}{a vector indicating the name of variables, the order of variables should be aligned with \code{margin}}
 
-\item{pw.cor}{a vector containing the pairwise correlation of these variables, default is NULL; when margin_dis="bernoulli", then pw.cor must be specified}
+\item{pw.cor}{a vector specifying the pairwise correlations of the variables, default is 0; when margin_dis="bernoulli", then pw.cor must be specified.}
 }
 \value{
-a data frame
+a data frame with columns names x1, x2,....
 }
 \description{
 Generating the synthetic RCT data given marginal distribution of each covariate
