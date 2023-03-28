@@ -179,7 +179,7 @@ source.obj <- TEstimator_wrapper(
   data.public = TRUE
 )
 #> y ~ x1 + x2 + x3 + z + z:x1 + z:x2 + z:x3 + z:x6
-#> <environment: 0x0000000019407ce8>
+#> <environment: 0x00000000194074f0>
 
 target.obj <- TEstimator_wrapper(
   Estimator = "Crude",
