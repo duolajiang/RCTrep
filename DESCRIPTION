@@ -2,9 +2,10 @@ Package: RCTrep
 Type: Package
 Title: Validation of Estimates of Conditional Average Treatment Effects Derived from Observational Data
 Version: 1.0.0
-Authors@R: c(person("Lingjie", "Shen", role = c("aut", "cre", "cph"), email = "L.Shen@tilburguniversity.edu"), person("Gijs","Geleijnse", role = "aut", email = "g.geleijnse@iknl.nl"), person("Maurits","Kaptein", role = "aut", email = "M.C.Kaptein@tilburguniversity.edu"))
+Authors@R: c(person("Lingjie", "Shen", role = c("aut", "cre", "cph"), email = "602249910@qq.com"), person("Gijs","Geleijnse", role = "aut", email = "g.geleijnse@iknl.nl"), person("Maurits","Kaptein", role = "aut", email = "M.C.Kaptein@tilburguniversity.edu"))
+Author: Lingjie Shen [aut, cre, cph], Gijs Geleijnse [aut], Maurits Kaptein [aut]
 Maintainer: Lingjie Shen <602249910@qq.com>
-Description: Validates estimates of (conditional) average treatment effects obtained    using observational data by a) making it easy to obtain and visualize    estimates derived using a large variety of methods (G-computation, inverse propensity score weighting, etc.), and b) ensuring that estimates are    easily compared to a gold standard (i.e., estimates derived from randomized controlled    trials). RCTrep offers a generic protocol for treatment effect validation based on four    simple steps, namely, set-selection, estimation, diagnosis, and validation. The package    provides a simple dashboard to review the obtained results. The validation approach is introduced by Shen, L., Geleijnse, G. and Kaptein, M. (2023) <https://doi.org/10.21203/rs.3.rs-2559287/v1>.
+Description: Validates estimates of (conditional) average treatment effects obtained    using observational data by a) making it easy to obtain and visualize    estimates derived using a large variety of methods (G-computation, inverse propensity score weighting, etc.), and b) ensuring that estimates are    easily compared to a gold standard (i.e., estimates derived from randomized controlled    trials). RCTrep offers a generic protocol for treatment effect validation based on four    simple steps, namely, set-selection, estimation, diagnosis, and validation. The package    provides a simple dashboard to review the obtained results. The validation approach is introduced by Shen, L., Geleijnse, G. and Kaptein, M. (2023) <doi:10.21203/rs.3.rs-2559287/v1>.
 License: MIT + file LICENSE
 URL: https://github.com/duolajiang/RCTrep
 Encoding: UTF-8

@@ -1,5 +1,3 @@
-#' @title R6 class: Doubly robust estimator base class
-#' @description A base R6 class for doubly robust estimator of average treatment effect that implements comment methods.
 #' @importfrom PSweight PSweight
 DR <- R6::R6Class(
   "DR",
@@ -305,7 +303,7 @@ DR <- R6::R6Class(
       data1[, private$treatment_name] <- t.level[match(2, level.order)]
 
       if (two_models) {
-        if (class(self$data[, private$outcome_name]) == "numeric") {
+        if (inherits(self$data[, private$outcome_name],"numeric")) {
           y1.hat <- predict(self$model$outcome$model.y1, newdata = data1)
           y0.hat <- predict(self$model$outcome$model.y0, newdata = data0)
         } else {
@@ -313,7 +311,7 @@ DR <- R6::R6Class(
           y0.hat <- predict(self$model$outcome$model.y0, newdata = data0, type = "prob")[, 2]
         }
       } else {
-        if (class(self$data[, private$outcome_name]) == "numeric") {
+        if (inherits(self$data[, private$outcome_name],"numeric")) {
           y1.hat <- predict(self$model$outcome, newdata = data1)
           y0.hat <- predict(self$model$outcome, newdata = data0)
         } else {

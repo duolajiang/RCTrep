@@ -1,6 +1,3 @@
-#' @title R6 class: Inverse propensity score weighting estimator base class
-#'
-#' @description A base R6 class for inverse propensity score weighting estimator of average treatment effect that implements comment methods.
 #' @importFrom PSweight PSweight
 IPW <- R6::R6Class(
   "IPW",

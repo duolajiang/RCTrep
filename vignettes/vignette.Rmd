@@ -17,7 +17,17 @@ knitr::opts_chunk$set(
 library(RCTrep)
 ```
 
-# Example in Section 1.3. Demonstration of usage
+# Demonstration of usage
+The code below demonstrates how to load two sample datasets, select the sets of confounders and effect modifiers and a variety of estimation methods and provide Figure 1 comparing the various estimates of the (C)ATEs. The descriptions of the input arguments in the function RCTREP() are as follows:
+
+1. TEstimator specifies a method to adjust for the treatment assignment mechanism;
+2. SEstimator specifies a method to adjust for the sampling mechanism;
+3. target.obj and source.obj specify an RCT dataset and an observational dataset;
+4. outcome_method specify a modelling approach for the method TEstimator;
+5. vars_name specifies variable names of treatment, outcome, and confounders X due to
+treatment allocation mechanism;
+6. confounder_sampling_name specifies variable names of effect modifiers Xs which are
+predictive of the selection probability.
 ```{r eval=FALSE}
 source.data <- RCTrep::source.data
 target.data <- RCTrep::target.data
@@ -39,9 +49,14 @@ fusion <- Fusion$new(output$target.obj,
 
 fusion$plot()
 ```
+In the above example, we use G_computation method to adjust the treatment allocation mechanism and use the exact matching method to adjust the sampling mechanism. We use Bayesian additive regression trees (BART) to model the outcome. We select x1,x2,x3,x4,x5,x6 as X and x2,x6 as Xs. In this example, since x2,x6 are the only effect modifiers that are predictive of the selection probability, they are the minimal set of confounders_sampling_name that allows for the validation.
 
+# Basic usage
+## Step 1: Set-selection
+In the set-selection step, we identify two covariates sets from all pre-treatment outcome predictors:
 
-# Example in Section 5. Basic usage
+1. X confounders_treatment_name, a set of covariates used to adjust the treatment allocation mechanism; 
+2. Xs confounders_sampling_name, a set of covariates to adjust the sampling mechanism. By default, confounders_treatment_name and confounders_sampling_name are the same. To reduce the variance of the weighted (C)ATEs, we assign a set of effect modifiers that are predictive of the selection probability to confounders_sampling_name.
 ```{r eval=FALSE}
 source.data <- RCTrep::source.data
 target.data <- RCTrep::target.data
@@ -51,7 +66,18 @@ vars_name <- list(confounders_treatment_name =
                   treatment_name = c('z'),
                   outcome_name = c('y')
 )
+```
 
+## Step 2: Estimation
+In the Estimation step, two sub-steps are summarized, namely, estimation of the (C)ATEs in
+TEstimator, and estimation of the weighted (C)ATE in SEstimator. In the first sub-step, we
+use one method to adjust for the treatment allocation mechanism of Sobs in class TEstimator,
+namely, G-computation method, and one method to derive the unbiased estimate of the truth
+of S<sup>rct</sup> in class TEstimator, namely, Crude method; we use one method to adjust for the sampling mechanism of S<sup>obs</sup> in class SEstimator, namely, exact matching. We first estimate the CATEs using S<sup>obs</sup>.
+### Step 2.1 Estimation of the (C)ATEs
+In this step, we estimate the (C)ATEs in TEstimator. We start out by instantiating objects of
+class TEstimator using Sobs and S<sup>rct</sup>. We call TEstimator_wrapper() function to initialize the object source.obj and target.obj using S<sup>obs</sup> and S<sup>rct</sup> respectively:
+```{r eval=FALSE}
 source.obj <- TEstimator_wrapper(
   Estimator = "G_computation",
   data = source.data,
@@ -70,30 +96,62 @@ target.obj <- TEstimator_wrapper(
   data.public = TRUE,
   isTrial = TRUE
 )
+```
+We specify the following arguments to instantiate source.obj and target.obj:
 
+1. Estimator: specifying a method for estimating CATEs. TEstimator _wrapper() will initialize an TEstimator subclass according to the specified method. For instance, if Estimator="G_computation", then the function initializes a subclass G_computation and returns the initialized object.
+2. data: a data.frame with n rows and p columns, each row contains variables of characteristics, treatment, and outcome of each individual.
+3. name: a character indicating the object name;
+4. vars_name: a list containing three vectors with the first element confounders_treatment_name indicating confounding variable names, the second element treatment_name indicating a treatment variable name, and the third element outcome_name indicating an outcome variable name;
+
+### Step 2.2: Estimation of the weighted (C)ATEs
+```{r eval=FALSE}
 source.obj.rep <- SEstimator_wrapper(Estimator = "Exact",
                                      target.obj = target.obj,
                                      source.obj = source.obj,
                                      confounders_sampling_name = c("x2","x6"))
 source.obj.rep$EstimateRep(stratification = c("x1","x3","x4","x5"))
+```
+The arguments list for the function SEstimator_wrapper is:
 
+1. Estimator: a character indicating a method for estimating weights wpXsq. The wrapper function initializes a SEstimator subclass accordingly;
+2. target.obj and source.obj: target.obj indicates an object of which the data is regarded as a simple random sample of the target population Pθ and the estimates of CATEs are regarded as the unbiased estimates of the truth; source.obj indicates an object of which the estimates of the CATEs are to validate.
+3. confounders_sampling_name: a character vector of names of Xs; the weighted Xs in source.obj should be approximately equally distributed to Xs in target.obj.
+
+Then we call EstimateRep() - the core function of the instantiated object source.obj.rep. The function is to estimate the weighted ATEs of the target population and subsets using S<sup>obs</sup> in source.obj. The weighted distribution of counfounders_sampling_name in source.obj and the distribution of counfounders_sampling_name in target.obj should be balanced. Two optional arguments for the function EstimateRep() are specified:
+
+1. stratification: a character vector containing covariate names. EstimateRep() estimates the weighted ATE of subsets using Sobs in source.obj. The subsets are selected according to covariates in stratifica tion in combination or individually; default value of stratification is confounders_sampling_name;
+2. stratification_joint: a logical value, if TRUE, then subsets are selected in combination of all covariates in stratification; otherwise, then subsets are selected by covariates in stratification individually.
+
+
+## Step 3: Diagnosis
+On completion of all class instantiations, we need to diagnose assumptions for object source.obj of class TEstimator, and we need to diagnose assumptions for object source.obj.rep of class SEstimator: 
+```{r eval=FALSE}
 source.obj$diagnosis_t_overlap()
 source.obj$diagnosis_t_ignorability()
 source.obj.rep$diagnosis_s_overlap()
 source.obj.rep$diagnosis_s_ignorability()
+```
 
+## Step 4: Validation
+Lastly, we compute the validation metric in equation 3 on population and sub-population levels. We initialize a class Fusion as an object fusion and assign source.obj, target.obj, and source.obj.r ep to fusion. fusion combines estimates from the objects and validates the average treatment effects of the target population Pθ and sub-populations. The subpopulations are selected according to stratification and stratification_joint specified in source.obj.rep$Estim ateRep(). fusion validates estimates in source.obj and source.obj.rep using four metrics, i.e., pseudo mean squared error (mse), length of confidence interval (len_ci), estimate agreement (agg.est), and regulatory agreement (agg.reg):
+```{r eval=FALSE}
 fusion <- Fusion$new(target.obj,
                      source.obj,
                      source.obj.rep)
 fusion$evaluate()
 fusion$plot()
+```
 
+## Easy visualization of results obtained from the four steps
+RCTrep provides a dashboard that allows users to present all necessary results generated from the four steps and provides users with the flexibility to select sub-population(s) based on which RCTrep validates estimates of the average treatment effect. The dashboard can be launched by calling the function:
+```{r eval=FALSE}
 call_dashboard(source.obj = source.obj,
                target.obj = target.obj,
                source.obj.rep = source.obj.rep)
 ```
 
-# Example in section 6.1. Example 1: Validation at scale.
+# Validation at scale.
 ```{r eval=FALSE}
 source.data <- RCTrep::source.data
 target.data <- RCTrep::target.data
@@ -237,7 +295,7 @@ fusion$plot()
 fusion$evaluate()
 ```
 
-# Example in Section 6.2. Example 2: Validation using aggregated data
+# Validation using aggregated data
 ```{r eval=FALSE}
 source.data <- RCTrep::source.data
 target.data <- RCTrep::target.data
@@ -290,7 +348,8 @@ fusion$print()
 fusion$evaluate()
 ```
 
-# Example in section 6.3. Example 3: Validation using synthetic RCT data
+# Validation using synthetic RCT data
+In example 2 we demonstrate the validation approach using aggregated data of sub-populations from S<sup>rct</sup> and S<sup>obs</sup>. However, in practice, we rarely have access to such aggregated RCT data. In most cases, we only have aggregated data of each variable and average treatment effects of sub-populations stratified by the variable individually. In example 3 we demonstrate using the marginal distribution of variables and estimates of sub-populations stratified by these variables individually to generate synthetic RCT data for validation. First, for a demonstrative purpose, we instantiate an object of class Crude using full RCT data. We derive the marginal distributions of variables of RCT data as descriptive statistics of the target population, and derive the estimates of the average treatment effects of populations stratified by the variables individually as the truth for validation:
 ```{r eval=FALSE}
 library(dplyr)
 source.data <- RCTrep::source.data
@@ -317,8 +376,9 @@ vars_rct <- c("x1","x2","x3","x4","x5","x6")
 RCT.estimates <- list(ATE_mean = target.obj$estimates$ATE$est,
                       ATE_se = target.obj$estimates$ATE$se,
                       CATE_mean_se = target.obj$get_CATE(vars_rct,FALSE))
-
-# Simulate synthetic RCT data given marginal distributions
+```
+Then we generate a synthetic RCT dataset synthetic.data using the marginal distributions of the variables X<sub>k</sub> by calling the RCTrep function GenerateSyntheticData(). In the function, we specify a marginal distribution of each variable and pairwise correlations between the variables. Then the function generates the synthetic data of the RCT accordingly:
+```{r eval=FALSE}
 emp.p1 <- mean(target.data$x1)
 emp.p2 <- mean(target.data$x2)
 emp.p3 <- mean(target.data$x3)
@@ -334,10 +394,13 @@ synthetic.data <- RCTrep::GenerateSyntheticData(
   margin = list(emp.p1, emp.p2, emp.p3, emp.p4, emp.p5, emp.p6),
   var_name = vars_rct,
   pw.cor = pw.cor)
-
-head(synthetic.data)
-
-# Initiate target.obj using synthetic data and unbiased estimates
+```
+Then we instantiate target.obj of class TEstimator_Synthetic. We initialize the public
+field data by assigning synthetic.data to df; initialize the public field estimates by assigning
+RCT.estimates to estimates; initialize the public field confounders_treatment_name by
+assigning c("x1","x2","x3","x4","x5","x6") to vars_name. Note that synthetic.data
+might slightly shift from the true target population.
+```{r eval=FALSE}
 synthetic.data <- semi_join(synthetic.data, source.data, by = vars_rct)
 target.obj <- TEstimator_Synthetic$new(data = synthetic.data,
                                        estimates=RCT.estimates,

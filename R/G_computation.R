@@ -211,7 +211,7 @@ G_computation <- R6::R6Class(
     # compute deviance for continuous outcome/binary outcome
     est_residual = function() {
       #browser()
-      if (class(self$data[, private$outcome_name]) == "numeric") {
+      if (inherits(self$data[, private$outcome_name],"numeric")) {
         resi <- residuals(self$model)
       } else {
         y <- self$data[, private$outcome_name]

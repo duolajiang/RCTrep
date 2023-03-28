@@ -1,8 +1,8 @@
 citHeader("To cite RCTrep in publications use:")
 
-citEntry(
-  entry    = "Article",
-  title    = "{RCTrep}: An R Package for the Validation of Estimates of Average Treatment Effects",
+bibentry(
+  bibtype    = "Article",
+  title    = "RCTrep: An R Package for the Validation of Estimates of Average Treatment Effects",
   author   = "Shen L, Geleijnse G, Kaptein M",
   journal  = "Research Square",
   year     = 2023,

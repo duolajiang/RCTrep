@@ -142,5 +142,5 @@ fusion$evaluate()
 fusion$plot()
 ```
 
-[JSS]: https://github.com/duolajiang/RCTrep/blob/master/vignettes/RCTrep_vignettes.pdf "RCTrep: An R Package for the Validation of Estimates of Average Treatment Effects"
+[JSS]: https://assets.researchsquare.com/files/rs-2559287/v1/e005edc67fc132e429467e4c.pdf?c=1675879954 "RCTrep: An R Package for the Validation of Estimates of Average Treatment Effects"
 

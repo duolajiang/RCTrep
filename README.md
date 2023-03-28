@@ -37,7 +37,7 @@ RCT data are two random samples from a, potentially different,
 population, and hence allow for a valid comparison of estimates of
 treatment effect between two samples after population composition is
 controlled for. We refer users to [RCTrep
-vignettes](https://github.com/duolajiang/RCTrep/blob/master/vignettes/RCTrep_vignettes.pdf "RCTrep: An R Package for the Validation of Estimates of Average Treatment Effects")
+vignettes](https://assets.researchsquare.com/files/rs-2559287/v1/e005edc67fc132e429467e4c.pdf?c=1675879954 "RCTrep: An R Package for the Validation of Estimates of Average Treatment Effects")
 for theoretical elaboration, in which we illustrate why estimates from
 RCT can be assumed as ground truth and how to use the estimates as the
 surrogate of the ground truth of RWD from the view of **treatment
@@ -179,7 +179,7 @@ source.obj <- TEstimator_wrapper(
   data.public = TRUE
 )
 #> y ~ x1 + x2 + x3 + z + z:x1 + z:x2 + z:x3 + z:x6
-#> <environment: 0x00000000194074f0>
+#> <environment: 0x00000000194274f0>
 
 target.obj <- TEstimator_wrapper(
   Estimator = "Crude",
