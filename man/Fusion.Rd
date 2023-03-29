@@ -12,7 +12,7 @@ Validation of estimates of conditional average treatment effects in objects of c
 Validation of estimates of conditional average treatment effects in objects of class \code{TEstimator} and \code{SEstimator}.
 }
 \examples{
-\dontrun{
+\donttest{
 source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
 target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 

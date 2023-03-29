@@ -54,7 +54,7 @@ An object of class \code{TEstimator}.
 Estimating conditional average treatment effects
 }
 \examples{
-\dontrun{
+\donttest{
 data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
 vars_name <- list(confounders_treatment_name = c("x1","x2","x3","x4","x5","x6"),
                   treatment_name = c('z'),

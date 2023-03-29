@@ -5,7 +5,7 @@
 #' @param stratification_joint a logical indicating if subgroups are selected based on levels of individual variable in \code{stratification} or levels of combined variables in \code{stratifiation}. Default value is NULL.
 #' @returns an R6 object
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
 #' target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 #'

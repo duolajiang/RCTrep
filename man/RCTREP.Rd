@@ -75,7 +75,7 @@ The function \code{RCTREP} is used to validate the estimates of treatment effect
 An R6 object is constructed by a wrapper function \code{\link{TEstimator_wrapper}} and \code{\link{SEstimator_wrapper}} with user's input of data and estimators for treatment effect and weight. \code{TEstimator_wrapper()} returns initialized objects \code{source.obj} and \code{target.obj}. \code{SEstimator_wrapper()} weights the estimates of \code{source.obj} via the class method \code{RCTrep()}. The weights are computed using data in the source object \code{source.obj}, target object \code{target.obj}, and estimator of weights \code{SEstimator}.
 }
 \examples{
-\dontrun{
+\donttest{
 output <- RCTREP(TEstimator = "G_computation", SEstimator = "Exact",
                  outcome_method = "BART",
                  source.data = RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),],

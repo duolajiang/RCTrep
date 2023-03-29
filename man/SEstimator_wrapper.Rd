@@ -34,7 +34,7 @@ An object of class \code{SEstimator}
 Estimating the weighted conditional average treatment effects in \code{source.obj} based on input objects \code{source.obj} and \code{target.obj} of class \code{TEstimator}.
 }
 \examples{
-\dontrun{
+\donttest{
 source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
 target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 

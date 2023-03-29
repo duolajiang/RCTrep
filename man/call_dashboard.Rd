@@ -20,7 +20,7 @@ an interactive interface visualizing results of four steps
 Visualizing validation results according to four steps, namely, set-selection, estimation, diagnosis, and validation
 }
 \examples{
-\dontrun{
+\donttest{
 source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
 target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 

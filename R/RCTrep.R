@@ -26,7 +26,7 @@
 #' @returns A list of length three with three R6 class objects, \code{source.obj}, \code{target.obj} and \code{source.rep.obj}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' output <- RCTREP(TEstimator = "G_computation", SEstimator = "Exact",
 #'                  outcome_method = "BART",
 #'                  source.data = RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),],

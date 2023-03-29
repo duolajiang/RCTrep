@@ -4,7 +4,7 @@
 #' @param source.obj.rep an instantiated object of class \code{SEstimator}. The estimates of conditional average treatment effects are compared to those from \code{target.obj}.
 #' @returns an interactive interface visualizing results of four steps
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
 #' target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 #'

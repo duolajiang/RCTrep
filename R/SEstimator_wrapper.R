@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' source.data <- RCTrep::source.data[sample(dim(RCTrep::source.data)[1],500),]
 #' target.data <- RCTrep::target.data[sample(dim(RCTrep::target.data)[1],500),]
 #'
