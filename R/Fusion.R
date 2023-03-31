@@ -197,7 +197,7 @@ Fusion <- R6::R6Class(
       for(obj in list(...)){
         if("TEstimator" %in% class(obj)){
           obj.data <- obj$get_CATE(self$stratification,self$stratification_joint) %>%
-            mutate(estimator=obj$id, study=obj$name) %>% select(-c("pt","py"))
+            mutate(estimator=obj$id, study=obj$name) #%>% select(-c("pt","py"))
           if("pt" %in% colnames(obj.data)) obj.data <- obj.data %>% select(-pt)
           if("py" %in% colnames(obj.data)) obj.data <- obj.data %>% select(-py)
         } else if ("SEstimator" %in% class(obj)){
