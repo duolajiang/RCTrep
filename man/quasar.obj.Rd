@@ -5,7 +5,7 @@
 \alias{quasar.obj}
 \title{An object of class TEstimator_Synthetic using quasar.synthetic}
 \format{
-An object of class \code{Synthetic_TEstimator} (inherits from \code{TEstimator}, \code{R6}) of length 14.
+An object of class \code{TEstimator_Synthetic} (inherits from \code{TEstimator}, \code{R6}) of length 15.
 }
 \usage{
 quasar.obj

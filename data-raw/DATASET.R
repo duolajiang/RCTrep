@@ -175,13 +175,22 @@ usethis::use_data(source.binary.data,target.binary.data,overwrite = TRUE)
 ######################################
 #' the function compute two-year and five year treatment effect
 AteRct <- function(year){
+  # if(year==5){
+  #   Nd1 <- 154; Nc1 <- 1325-773-Nd1; Nt1 <- 1325-Nc1/2; Pd1 <- Nd1/Nt1; ps1 <- (1-98/1522.5)*(1-Pd1); n1 <- Nt1; p1 <- 1-ps1
+  #   Nd0 <- 158; Nc0 <- 1288-735-Nd0; Nt0 <- 1288-Nc0/2; Pd0 <- Nd0/Nt0; ps0 <- (1-129/1517)*(1-Pd0); n0 <- Nt0; p0 <- 1-ps0
+  #   aterct <- p1-p0
+  # } else{
+  #   Nd1 <- 98;  Nc1 <- 1622-1325-Nd1; Nt1 <- 1622-Nc1/2; Pd1 <- Nd1/Nt1; ps1 <- 1-Pd1; n1 <- Nt1; p1 <- 1-ps1
+  #   Nd0 <- 129; Nc0 <- 1617-1288-Nd0; Nt0 <- 1617-Nc0/2; Pd0 <- Nd0/Nt0; ps0 <- 1-Pd0; n0 <- Nt0; p0 <- 1-ps0
+  #   aterct <- p1-p0
+  # }
   if(year==5){
-    Nd1 <- 154; Nc1 <- 1325-773-Nd1; Nt1 <- 1325-Nc1/2; Pd1 <- Nd1/Nt1; ps1 <- (1-98/1522.5)*(1-Pd1); n1 <- Nt1; p1 <- 1-ps1
-    Nd0 <- 158; Nc0 <- 1288-735-Nd0; Nt0 <- 1288-Nc0/2; Pd0 <- Nd0/Nt0; ps0 <- (1-129/1517)*(1-Pd0); n0 <- Nt0; p0 <- 1-ps0
+    Nd1 <- 154; Nc1 <- 1325-773-Nd1; Nt1 <- 1325-Nc1/2; Pd1 <- Nd1/Nt1; ps1 <- (1-98/1522.5)*(1-Pd1); n1 <- Nt1; p1 <- ps1
+    Nd0 <- 158; Nc0 <- 1288-735-Nd0; Nt0 <- 1288-Nc0/2; Pd0 <- Nd0/Nt0; ps0 <- (1-129/1517)*(1-Pd0); n0 <- Nt0; p0 <- ps0
     aterct <- p1-p0
   } else{
-    Nd1 <- 98;  Nc1 <- 1622-1325-Nd1; Nt1 <- 1622-Nc1/2; Pd1 <- Nd1/Nt1; ps1 <- 1-Pd1; n1 <- Nt1; p1 <- 1-ps1
-    Nd0 <- 129; Nc0 <- 1617-1288-Nd0; Nt0 <- 1617-Nc0/2; Pd0 <- Nd0/Nt0; ps0 <- 1-Pd0; n0 <- Nt0; p0 <- 1-ps0
+    Nd1 <- 98;  Nc1 <- 1622-1325-Nd1; Nt1 <- 1622-Nc1/2; Pd1 <- Nd1/Nt1; ps1 <- 1-Pd1; n1 <- Nt1; p1 <- ps1
+    Nd0 <- 129; Nc0 <- 1617-1288-Nd0; Nt0 <- 1617-Nc0/2; Pd0 <- Nd0/Nt0; ps0 <- 1-Pd0; n0 <- Nt0; p0 <- ps0
     aterct <- p1-p0
   }
   return(aterct)
@@ -229,15 +238,15 @@ quasar.agg <- list(ATE_mean = AteRct(year=5),
                    n = 2406)
 
 quasar.synthetic <- RCTrep::GenerateSyntheticData(margin_dis="bernoulli_categorical",
-                                                  N=dim(source.data)[1],
+                                                  N=3239,#dim(source.data)[1],
                                                   margin=RCT.univariate.p,
                                                   var_name=c("Stage2","male","age"))
 
 quasar.synthetic$age <- as.factor(quasar.synthetic$age)
 
-quasar.obj <- TEstimator_Synthetic$new(df = quasar.synthetic,
+quasar.obj <- RCTrep:::TEstimator_Synthetic$new(data = quasar.synthetic,
                                        estimates=quasar.agg,
-                                       vars_name = c("Stage2","male","age"),
+                                       vars_name = list(confounders_treatment_name = c("Stage2","male","age")),
                                        name = "RCT",
                                        isTrial = TRUE,
                                        data.public = TRUE)
